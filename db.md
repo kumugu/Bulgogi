@@ -1,5 +1,144 @@
 # Bulgogi 블로그 플랫폼 데이터베이스 설계
 
+```mermaid
+erDiagram
+    users {
+        BIGINT id
+        VARCHAR email
+        VARCHAR password_hash
+        VARCHAR username
+        TEXT profile_image
+        TEXT bio
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    blog_homes {
+        BIGINT id
+        BIGINT user_id
+        VARCHAR url_slug
+        VARCHAR title
+        TEXT description
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    posts {
+        BIGINT id
+        BIGINT user_id
+        BIGINT blog_home_id
+        BIGINT category_id
+        VARCHAR title
+        VARCHAR slug
+        TEXT content
+        TEXT excerpt
+        TEXT featured_image
+        INT reading_time
+        INT view_count
+        BOOLEAN is_premium
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    tags {
+        BIGINT id
+        VARCHAR name
+    }
+
+    post_tags {
+        BIGINT post_id
+        BIGINT tag_id
+    }
+
+    comments {
+        BIGINT id
+        BIGINT post_id
+        BIGINT user_id
+        BIGINT parent_id
+        TEXT content
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
+    follows {
+        BIGINT follower_id
+        BIGINT following_id
+        TIMESTAMP created_at
+    }
+
+    likes {
+        BIGINT user_id
+        BIGINT post_id
+        TIMESTAMP created_at
+    }
+
+    categories {
+        BIGINT id
+        BIGINT user_id
+        VARCHAR name
+        TEXT description
+    }
+
+    notifications {
+        BIGINT id
+        BIGINT user_id
+        BIGINT sender_id
+        ENUM type
+        TEXT content
+        BIGINT reference_id
+        BOOLEAN is_read
+        TIMESTAMP created_at
+    }
+
+    subscriptions {
+        BIGINT id
+        BIGINT user_id
+        ENUM plan
+        TIMESTAMP expires_at
+        TIMESTAMP created_at
+    }
+
+    dms {
+        BIGINT id
+        BIGINT sender_id
+        BIGINT receiver_id
+        TEXT message
+        TIMESTAMP created_at
+    }
+
+    user_activity_logs {
+        BIGINT id
+        BIGINT user_id
+        ENUM activity_type
+        TIMESTAMP created_at
+    }
+
+    %% 관계 설정
+    users ||--o| blog_homes : "owns"
+    users ||--o{ posts : "writes"
+    users ||--o{ comments : "writes"
+    users ||--o{ follows : "follows"
+    users ||--o{ likes : "likes"
+    users ||--o{ subscriptions : "subscribes"
+    users ||--o{ dms : "sends"
+    users ||--o{ user_activity_logs : "logs"
+
+    blog_homes ||--o{ posts : "contains"
+
+    posts ||--o{ comments : "has"
+    posts ||--o{ likes : "receives"
+    posts ||--o{ post_tags : "tagged"
+
+    tags ||--o{ post_tags : "used in"
+
+    comments ||--o{ comments : "replies to"
+
+    categories ||--o{ posts : "categorizes"
+
+    notifications ||--o{ users : "notifies"
+
+```
+
 ## 테이블 설계
 
 ### 1. `users` (사용자 정보)
