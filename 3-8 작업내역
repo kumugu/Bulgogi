@@ -1,0 +1,21 @@
+api 테스트 중
+
+
+회원가입 로그인 가능
+
+그외 문제 있음
+
+
+로그인 시 selet *  되는 문제 
+필요한 값 id email password 만 가져오기 위해 
+UserLoginDTO  생성
+repository 에 메서드 추가 
+Select  id, email, password 만 가져오게 함
+쿼리 최적화
+
+
+passwordHash -> password로 변경
+
+
+전체적인 검사필요함
+
