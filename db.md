@@ -153,6 +153,7 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL, -- 로그인에 사용되는 이메일 (고유값)
     password_hash VARCHAR(255) NOT NULL, -- 해시된 비밀번호
     username VARCHAR(50) UNIQUE NOT NULL, -- 블로그 주소에 사용될 고유 사용자명
+    role -- 롤값추가해야함
     profile_image TEXT, -- 프로필 사진 URL
     bio TEXT, -- 자기소개
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 계정 생성 시간
