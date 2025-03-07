@@ -1,8 +1,10 @@
 package com.bulgogi.user.controller;
 
+import com.bulgogi.user.dto.UserLoginDTO;
 import com.bulgogi.user.dto.UserRequestDTO;
 import com.bulgogi.user.dto.UserResponseDTO;
 import com.bulgogi.user.exception.InvalidTokenException;
+import com.bulgogi.user.security.JwtProvider;
 import com.bulgogi.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +18,12 @@ import javax.validation.Valid;
 public class UserController {
 
     private final UserService userService;
+    private final JwtProvider jwtProvider;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtProvider jwtProvider) {
         this.userService = userService;
+        this.jwtProvider = jwtProvider;
     }
 
     // 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
@@ -45,8 +49,8 @@ public class UserController {
 
     // 로그인 (사용자 인증 및 JWT 발급)
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String passwordHash) {
-        String token = userService.login(email, passwordHash);
+    public ResponseEntity<String> login(@RequestBody @Valid UserLoginDTO userLoginDTO) {
+        String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
         return ResponseEntity.ok(token);
     }
 
@@ -63,8 +67,11 @@ public class UserController {
 
     // 자기 정보 조회 (로그인한 사용자의 정보 조회)
     @GetMapping("/my-info")
-    public ResponseEntity<UserResponseDTO> getMyInfo(@RequestParam String email) {
-        UserResponseDTO userResponseDTO = userService.getMyInfo(email);
+    public ResponseEntity<UserResponseDTO> getMyInfo(@RequestHeader("Authorization") String token) {
+        String jwtToken = token.replace("Bearer ", "");
+        Long userId = jwtProvider.extractUserId(jwtToken);
+
+        UserResponseDTO userResponseDTO = userService.getMyInfo(userId);
         return ResponseEntity.ok(userResponseDTO);
     }
 

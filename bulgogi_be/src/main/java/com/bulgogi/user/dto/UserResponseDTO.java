@@ -1,5 +1,7 @@
 package com.bulgogi.user.dto;
 
+import java.time.LocalDateTime;
+
 public class UserResponseDTO {
 
     private Long id;
@@ -8,13 +10,12 @@ public class UserResponseDTO {
     private String profileImage;
     private String bio;
     private String role;
-    private String createdAt;
-    private String updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    // Constructor
     public UserResponseDTO() {}
 
-    public UserResponseDTO(Long id, String email, String username, String profileImage, String bio, String role, String createdAt, String updatedAt) {
+    public UserResponseDTO(Long id, String email, String username, String profileImage, String bio, String role, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.email = email;
         this.username = username;
@@ -25,7 +26,6 @@ public class UserResponseDTO {
         this.updatedAt = updatedAt;
     }
 
-    // Getter, Setter
     public Long getId() {
         return id;
     }
@@ -74,19 +74,20 @@ public class UserResponseDTO {
         this.role = role;
     }
 
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public String getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(String updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 }
+

@@ -1,5 +1,6 @@
 package com.bulgogi.user.service;
 
+import com.bulgogi.user.dto.UserLoginDTO;
 import com.bulgogi.user.dto.UserRequestDTO;
 import com.bulgogi.user.dto.UserResponseDTO;
 import com.bulgogi.user.exception.DuplicateUserException;
@@ -54,8 +55,6 @@ public class UserService {
      * 마지막 업데이트: 2025-03-07 19:22
      */
 
-
-
     // 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
     public UserResponseDTO getUserByEmail(String email) {
         Optional< User> user = userRepository.findByEmail(email);
@@ -79,22 +78,41 @@ public class UserService {
             throw new DuplicateUserException("이미 사용장인 사용자명입니다.");
         }
 
-        User user = userMapper.toUser(userRequestDTO);
-        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
+        User user = UserMapper.toUser(userRequestDTO);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         User saveUser = userRepository.save(user);
         return UserMapper.toUserResponseDTO(saveUser);
     }
 
     // 로그인 (사용자 인증 및 JWT 발급)
-    public String login(String email, String passwordHash) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 사용자입니다."));
+    public String login(String email, String password) {
+        try {
+            // 이메일로 사용자 찾기
+            UserLoginDTO userLoginDTO = userRepository.findEmailAndPasswordByEmail(email)
+                    .orElseThrow(() -> new UserNotFoundException("이메일을 찾을 수 없습니다."));
 
-        if (!passwordEncoder.matches(passwordHash, user.getPasswordHash())) {
-            throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.");
+            // 사용자 데이터 추출
+            Long userId = userLoginDTO.getId();
+            String storedEmail = userLoginDTO.getEmail();
+            String storedPassword = userLoginDTO.getPassword();
+
+            // 이메일 일치 확인
+            if (!storedEmail.equals(email)) {
+                throw new UserNotFoundException("이메일을 찾을 수 없습니다.");
+            }
+
+            // 비밀번호 비교
+            if (!passwordEncoder.matches(password, storedPassword)) {
+                throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.");
+            }
+
+            // JWT 토큰 생성 및 반환
+            return jwtProvider.generateToken(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("서버 내부 오류 런타임~");
         }
-        return jwtProvider.generateToken(user.getEmail());
     }
 
     // 로그아웃 (클라이언트 측에서 JWT를 삭제하는 방법으로 처리)
@@ -103,18 +121,28 @@ public class UserService {
     // 토큰 갱신 (만료된 Access Token을 Refresh Token으로 재발급)
     public String refreshToken(String refreshToken) {
         if (jwtProvider.validateToken(refreshToken)) {
-            String email = jwtProvider.extractEmail(refreshToken);
-            return jwtProvider.generateToken(email);
+            Long userId = jwtProvider.extractUserId(refreshToken);
+            return jwtProvider.generateToken(userId);
         } else {
             throw new InvalidTokenException("유효하지 않은 토큰입니다.");
         }
     }
 
     // 자기 정보 조회 (로그인한 사용자의 정보 조회)
-    public UserResponseDTO getMyInfo(String email) {
-        User user = userRepository.findByEmail(email)
+    public UserResponseDTO getMyInfo(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
-        return UserMapper.toUserResponseDTO(user);
+
+        return new UserResponseDTO(
+                user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getProfileImage(),
+                user.getBio(),
+                user.getRole().name(),  // Role은 Enum이므로 name()을 통해 String으로 변환
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
     }
 
     // 자기 정보 수정 (로그인한 사용자의 정보 수정)
@@ -141,11 +169,11 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
-        if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new InvalidPasswordException("현재 비밀번호가 일치하지 않습니다.");
         }
 
-        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 

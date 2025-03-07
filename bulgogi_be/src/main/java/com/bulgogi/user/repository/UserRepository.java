@@ -1,7 +1,10 @@
 package com.bulgogi.user.repository;
 
+import com.bulgogi.user.dto.UserLoginDTO;
 import com.bulgogi.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -28,4 +31,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // 회원가입 (이메일, 사용자명)
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
+
+    // 로그인 (이메일, 비밀번호만 조회)
+    @Query("SELECT new com.bulgogi.user.dto.UserLoginDTO(u.id, u.email, u.password) FROM User u WHERE u.email = :email")
+    Optional<UserLoginDTO> findEmailAndPasswordByEmail(@Param("email") String email);
 }

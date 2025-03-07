@@ -17,16 +17,15 @@ public class JwtProvider {
 
     public JwtProvider(
             @Value("${spring.jwt.secret_key}") String secretKey,
-            @Value("${spring.jwt.expiration}") long expirationTime
-    ) {
-        this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+            @Value("${spring.jwt.expiration}") long expirationTime) {
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.expirationTime = expirationTime;
     }
 
     // JWT 토큰 생성
-    public String generateToken(String email) {
+    public String generateToken(Long userId) {
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(userId.toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -34,13 +33,13 @@ public class JwtProvider {
     }
 
     // JWT 토큰에서 이메일(사용자 ID) 추출
-    public String extractEmail(String token) {
-        return Jwts.parserBuilder()
+    public Long extractUserId(String token) {
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
+        return Long.parseLong(claims.getSubject());
     }
 
     // JWT 토큰 검증

@@ -1,5 +1,6 @@
 package com.bulgogi.user.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.naming.AuthenticationException;
 import java.rmi.AccessException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,12 +61,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
-    // 기타 예외 처리 (예기치 않은 모든 예외)
+    // 기타 예외 처리
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleException(Exception ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", "서버 내부 오류가 발생했습니다.");
+    public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex, HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        response.put("error", "Internal Server Error");
+        response.put("message", "서버 내부 오류가 발생했습니다.");
+        response.put("path", request.getRequestURI());
+
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 }
 

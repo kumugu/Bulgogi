@@ -1,6 +1,7 @@
 package com.bulgogi.user.model;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,8 +15,8 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email; // 로그인에 사용되는 이메일 (고유값)
 
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash; // 해시된 비밀번호
+    @Column(name = "password", nullable = false)
+    private String password; // 비밀번호
 
     @Column(nullable = false, unique = true)
     private String username; // 블로그 주소에 사용될 고유 사용자명
@@ -36,26 +37,36 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt; // 계정 수정 시간
 
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        LocalDateTime now = LocalDateTime.now();
+    }
+
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false; // 삭제 상태 관리 필드, 기본값은 false
 
-    // 기본 생성자
-    public User() {}
+    public User () {}
 
-    // 생성자
-    public User(String email, String passwordHash, String username, Role role, String profileImage, String bio) {
+    public User(Long id, String email, String password, String username, Role role, String profileImage, String bio, LocalDateTime createdAt, LocalDateTime updatedAt, boolean deleted) {
+        this.id = id;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.username = username;
         this.role = role;
         this.profileImage = profileImage;
         this.bio = bio;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.deleted = false;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.deleted = deleted;
     }
 
-    // Getter, Setter 추가
     public Long getId() {
         return id;
     }
@@ -72,12 +83,12 @@ public class User {
         this.email = email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getUsername() {

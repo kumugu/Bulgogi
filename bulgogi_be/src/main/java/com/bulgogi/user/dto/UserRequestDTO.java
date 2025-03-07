@@ -5,25 +5,23 @@ import com.bulgogi.user.model.Role;
 public class UserRequestDTO {
 
     private String email;
-    private String PasswordHash;
+    private String password;
     private String username;
     private String profileImage;
     private String bio;
     private Role role;
 
-    // Constructor
-    public UserRequestDTO () {}
+    public UserRequestDTO() {}
 
-    public UserRequestDTO(String email, String passwordHash, String username, String profileImage, String bio, Role role) {
+    public UserRequestDTO(String email, String password, String username, String profileImage, String bio, Role role) {
         this.email = email;
-        PasswordHash = passwordHash;
+        this.password = password;
         this.username = username;
         this.profileImage = profileImage;
         this.bio = bio;
         this.role = role;
     }
 
-    // Getter, Setter
     public String getEmail() {
         return email;
     }
@@ -32,12 +30,12 @@ public class UserRequestDTO {
         this.email = email;
     }
 
-    public String getPasswordHash() {
-        return PasswordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        PasswordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getUsername() {

@@ -32,10 +32,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = extractToken(request);
 
         if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
-            // 이메일 추출
-            String email = jwtProvider.extractEmail(token);
+            // userId 추출
+            Long userId = jwtProvider.extractUserId(token);
             // 사용자 정보 로드
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userId.toString());
             // JWT 인증 토큰 생성
             JwtAuthenticationToken authentication = new JwtAuthenticationToken(userDetails);
             // SecurityContext에 인증 정보 생성
