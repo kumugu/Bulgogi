@@ -5,7 +5,6 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
@@ -32,7 +31,7 @@ public class JwtProvider {
                 .compact();
     }
 
-    // JWT 토큰에서 이메일(사용자 ID) 추출
+    // JWT 토큰에서 사용자 ID 추출
     public Long extractUserId(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)

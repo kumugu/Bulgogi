@@ -4,22 +4,33 @@ import com.bulgogi.user.model.Role;
 
 public class UserRequestDTO {
 
+    private Long id;
     private String email;
     private String password;
     private String username;
     private String profileImage;
     private String bio;
     private Role role;
+    private Boolean deleted;
 
     public UserRequestDTO() {}
 
-    public UserRequestDTO(String email, String password, String username, String profileImage, String bio, Role role) {
+    public UserRequestDTO(Long id, String email, String password, String username, String profileImage, String bio, Role role, Boolean deleted) {
         this.email = email;
         this.password = password;
         this.username = username;
         this.profileImage = profileImage;
         this.bio = bio;
         this.role = role;
+        this.deleted = deleted;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -68,5 +79,13 @@ public class UserRequestDTO {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 }

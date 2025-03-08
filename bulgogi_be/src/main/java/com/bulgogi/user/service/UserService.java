@@ -1,20 +1,19 @@
 package com.bulgogi.user.service;
 
-import com.bulgogi.user.dto.UserLoginDTO;
-import com.bulgogi.user.dto.UserRequestDTO;
-import com.bulgogi.user.dto.UserResponseDTO;
-import com.bulgogi.user.exception.DuplicateUserException;
-import com.bulgogi.user.exception.InvalidPasswordException;
-import com.bulgogi.user.exception.InvalidTokenException;
-import com.bulgogi.user.exception.UserNotFoundException;
+import com.bulgogi.user.dto.*;
+import com.bulgogi.user.exception.*;
 import com.bulgogi.user.mapper.UserMapper;
 import com.bulgogi.user.model.User;
 import com.bulgogi.user.repository.UserRepository;
 import com.bulgogi.user.security.JwtProvider;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.Optional;
 
@@ -25,6 +24,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     public UserService(UserMapper userMapper, UserRepository userRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
@@ -139,49 +140,52 @@ public class UserService {
                 user.getUsername(),
                 user.getProfileImage(),
                 user.getBio(),
-                user.getRole().name(),  // Role은 Enum이므로 name()을 통해 String으로 변환
+                user.getRole().name(),
                 user.getCreatedAt(),
                 user.getUpdatedAt()
         );
     }
 
     // 자기 정보 수정 (로그인한 사용자의 정보 수정)
-    public UserResponseDTO updateMyInfo(String email, UserRequestDTO userRequestDTO) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
-        // 수정 할 필드
-        if (userRequestDTO.getUsername() != null) {
-            user.setUsername(userRequestDTO.getUsername());
-        }
-        if (userRequestDTO.getBio() != null) {
-            user.setBio(userRequestDTO.getBio());
-        }
-        if (userRequestDTO.getProfileImage() != null) {
-            user.setProfileImage(userRequestDTO.getProfileImage());
-        }
+    @Transactional
+    public UserResponseDTO updateMyInfo(Long userId, UserUpdateRequestDTO updateRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceAccessException("해당 ID의 사용자를 찾을 수 없습니다: " + userId));
+        // UserUpdateRequestDTO를 User Entity로 변환 및 업데이트
+        User updateUser = UserMapper.updateToUser(updateRequest, user);
 
-        User updateUser = userRepository.save(user);
-        return UserMapper.toUserResponseDTO(user);
+        // 변경된 사용자 정보 저장
+        updateUser = userRepository.save(updateUser);
+
+        // UserResponseDTO로 변환하여 반환
+        return UserMapper.toUserResponseDTO(updateUser);
     }
 
     // 비밀번호 변경 (기존 비밀번호 확인 후 새 비밀번호로 변경)
-    public void changePasword(String email, String oldPassword, String newPassword) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+    @Transactional
+    public void changePasword(Long userId, UserPasswordChangeRequestDTO userPasswordChangeRequestDTO) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다." + userId));
 
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+        // 기존 비밀번호 확인
+        if (!passwordEncoder.matches(userPasswordChangeRequestDTO.getOldPassword(), user.getPassword())) {
             throw new InvalidPasswordException("현재 비밀번호가 일치하지 않습니다.");
         }
 
-        user.setPassword(passwordEncoder.encode(newPassword));
+        // 새 비밀번호 설정
+        String encodedNewPassword = passwordEncoder.encode(userPasswordChangeRequestDTO.getNewPassword());
+        user.setPassword(encodedNewPassword);
+
+        // 변경된 사용자 정보 저장
         userRepository.save(user);
     }
 
     // 회원 탈퇴 (소프트 삭제 처리)
-    public void deleteUser(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
-        // DB에서 deleted 필드를 true로 변경
+    public void deleteMyInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("해당 ID의 사용자를 찾을 수 없습니다: "  + userId));
+
+    // DB에서 deleted 필드를 true로 변경
         user.setDeleted(true);
         userRepository.save(user);
     }
@@ -215,6 +219,9 @@ public class UserService {
         }
         if (userRequestDTO.getProfileImage() != null) {
             user.setProfileImage(userRequestDTO.getProfileImage());
+        }
+        if (userRequestDTO.isDeleted() != null) {
+            user.setDeleted(userRequestDTO.isDeleted());
         }
 
         User updatedUser = userRepository.save(user);

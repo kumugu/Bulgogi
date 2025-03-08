@@ -1,41 +1,43 @@
 package com.bulgogi.user.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
+@FilterDef(name = "deletedFilter", parameters = @ParamDef(name = "isDeleted", type = Boolean.class))
+@Filter(name = "deletedFilter", condition = "deleted = :isDeleted") // 데이터 조회 시 삭제된 데이터를 제외하고 조회 할 수 있도록 필터 설정
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 사용자 고유 식별자
+    private Long id;
 
     @Column(nullable = false, unique = true)
-    private String email; // 로그인에 사용되는 이메일 (고유값)
+    private String email;
 
-    @Column(name = "password", nullable = false)
-    private String password; // 비밀번호
+    @Column(nullable = false)
+    private String password;
 
     @Column(nullable = false, unique = true)
-    private String username; // 블로그 주소에 사용될 고유 사용자명
+    private String username;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.USER; // 기본 역할 값 USER
+    private Role role = Role.USER;
 
-    @Column(name = "profile_image")
-    private String profileImage; // 프로필 사진 URL
+    private String profileImage;
 
-    @Column(name = "bio")
-    private String bio; // 자기소개
+    private String bio;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt; // 계정 생성 시간
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt; // 계정 수정 시간
+    private LocalDateTime updatedAt;
 
     @PrePersist
     public void prePersist() {
@@ -46,13 +48,18 @@ public class User {
 
     @PreUpdate
     public void preUpdate() {
-        LocalDateTime now = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    @Column(name = "deleted", nullable = false)
-    private boolean deleted = false; // 삭제 상태 관리 필드, 기본값은 false
+    @Column(nullable = false)
+    private boolean deleted = false;
 
-    public User () {}
+    public void deactivate() {
+        this.deleted = true;
+    }
+
+    // 생성자
+    public User() {}
 
     public User(Long id, String email, String password, String username, Role role, String profileImage, String bio, LocalDateTime createdAt, LocalDateTime updatedAt, boolean deleted) {
         this.id = id;
@@ -67,6 +74,7 @@ public class User {
         this.deleted = deleted;
     }
 
+    // getter, setter
     public Long getId() {
         return id;
     }

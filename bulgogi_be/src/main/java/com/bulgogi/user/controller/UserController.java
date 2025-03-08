@@ -1,15 +1,16 @@
 package com.bulgogi.user.controller;
 
-import com.bulgogi.user.dto.UserLoginDTO;
-import com.bulgogi.user.dto.UserRequestDTO;
-import com.bulgogi.user.dto.UserResponseDTO;
+import com.bulgogi.user.dto.*;
 import com.bulgogi.user.exception.InvalidTokenException;
 import com.bulgogi.user.security.JwtProvider;
+import com.bulgogi.user.security.UserAuthorization;
 import com.bulgogi.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 
@@ -19,6 +20,8 @@ public class UserController {
 
     private final UserService userService;
     private final JwtProvider jwtProvider;
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     public UserController(UserService userService, JwtProvider jwtProvider) {
@@ -54,6 +57,7 @@ public class UserController {
         return ResponseEntity.ok(token);
     }
 
+    // 토큰 갱신, 로그아웃  수정 필요 2순위
     // 토큰 갱신 (만료된 Access Token을 Refresh Token으로 재발급)
     @PostMapping("/refresh-token")
     public ResponseEntity<String> refreshToken(@RequestParam String refreshToken) {
@@ -64,6 +68,8 @@ public class UserController {
             return ResponseEntity.status(401).body(ex.getMessage());
         }
     }
+
+    // 로그아웃
 
     // 자기 정보 조회 (로그인한 사용자의 정보 조회)
     @GetMapping("/my-info")
@@ -76,24 +82,32 @@ public class UserController {
     }
 
     // 자기 정보 수정 (로그인한 사용자의 정보 수정)
-    @PutMapping("/my-info")
-    public ResponseEntity<UserResponseDTO> updateMyInfo(@RequestParam String email, @RequestBody UserRequestDTO userRequestDTO) {
-        UserResponseDTO updatedUser = userService.updateMyInfo(email, userRequestDTO);
+    @PutMapping("/my-info/{userId}")
+    @UserAuthorization
+    public ResponseEntity<?> updateMyInfo(
+            @PathVariable Long userId,
+            @RequestBody UserUpdateRequestDTO updateRequest) {
+        UserResponseDTO updatedUser = userService.updateMyInfo(userId, updateRequest);
         return ResponseEntity.ok(updatedUser);
     }
 
     // 비밀번호 변경 (기존 비밀번호 확인 후 새 비밀번호로 변경)
-    @PutMapping("/change-password")
-    public ResponseEntity<Void> changePassword(@RequestParam String email, @RequestParam String OldPassword, @RequestParam String NewPassword) {
-        userService.changePasword(email, OldPassword, NewPassword);
+    @PutMapping("/change-password/{userId}")
+    @UserAuthorization
+    public ResponseEntity<Void> changePassword(
+            @PathVariable Long userId,
+            @RequestBody UserPasswordChangeRequestDTO userPasswordChangeRequestDTO) {
+
+        userService.changePasword(userId, userPasswordChangeRequestDTO);
         return ResponseEntity.ok().build();
     }
 
     // 회원 탈퇴 (소프트 삭제 처리)
-    @DeleteMapping("/delte")
-    public ResponseEntity<Void> deleteUser(@RequestParam String email) {
-        userService.deleteUser(email);
-        return ResponseEntity.noContent().build();
+    // 회원 탈퇴하면 로그인은 가능하나, 기능 이용은 못하도록, 30일 후 완전 삭제 안내
+    @DeleteMapping("/delete-my-info/{userId}")
+    public ResponseEntity<Void> deleteMyInfo(@PathVariable Long userId) {
+        userService.deleteMyInfo(userId);
+        return ResponseEntity.ok().build();
     }
 
     // 다른 사용자 정보 조회 (username 조회: 외부 검색 용도, 공개된 정보 조회)

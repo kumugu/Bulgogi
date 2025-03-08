@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -22,10 +23,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
      *
      */
 
-    // 이메일 사용자 조회
+    // 이메일 사용자 조회 (deleted = false인 유저만 조회)
     Optional<User> findByEmail(String email);
 
-    // 사용자명으로 사용자 조회
+    // 사용자명으로 사용자 조회 (deleted = false인 유저만 조회)
     Optional<User> findByUsername(String username);
 
     // 회원가입 (이메일, 사용자명)
@@ -35,4 +36,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // 로그인 (이메일, 비밀번호만 조회)
     @Query("SELECT new com.bulgogi.user.dto.UserLoginDTO(u.id, u.email, u.password) FROM User u WHERE u.email = :email")
     Optional<UserLoginDTO> findEmailAndPasswordByEmail(@Param("email") String email);
+
+    // 탈퇴(소프트 삭제)되지 않은 사용자들을 조회
+    @Query("SELECT u FROM User u WHERE u.deleted = false")
+    List<User> findAllActiveUsers();
+
 }
