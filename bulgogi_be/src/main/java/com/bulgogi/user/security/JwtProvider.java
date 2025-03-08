@@ -13,15 +13,18 @@ public class JwtProvider {
 
     private final Key key;
     private final long expirationTime;
+    private final long refreshExpirationTime;
 
     public JwtProvider(
             @Value("${spring.jwt.secret_key}") String secretKey,
-            @Value("${spring.jwt.expiration}") long expirationTime) {
+            @Value("${spring.jwt.expiration}") long expirationTime,
+            @Value("${spring.jwt.refresh_expiration}") long refreshExpirationTime) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.expirationTime = expirationTime;
+        this.refreshExpirationTime = refreshExpirationTime;
     }
 
-    // JWT 토큰 생성
+    // JWT Token 생성
     public String generateToken(Long userId) {
         return Jwts.builder()
                 .setSubject(userId.toString())
@@ -31,7 +34,17 @@ public class JwtProvider {
                 .compact();
     }
 
-    // JWT 토큰에서 사용자 ID 추출
+    // JWT Refresh Token 생성
+    public String generateRefreshToken(Long userId) {
+        return Jwts.builder()
+                .setSubject(userId.toString())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpirationTime))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    // JWT Token 에서 사용자 ID 추출
     public Long extractUserId(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -41,7 +54,7 @@ public class JwtProvider {
         return Long.parseLong(claims.getSubject());
     }
 
-    // JWT 토큰 검증
+    // JWT Token 검증
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -53,4 +66,5 @@ public class JwtProvider {
             return false;
         }
     }
+
 }

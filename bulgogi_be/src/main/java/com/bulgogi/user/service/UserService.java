@@ -15,28 +15,33 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
     private final UserMapper userMapper;
+    private final JwtProvider jwtProvider;
+    private final TokenService tokenService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    public UserService(UserMapper userMapper, UserRepository userRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
+    public UserService(UserMapper userMapper, UserRepository userRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider, TokenService tokenService) {
         this.userMapper = userMapper;
+        this.jwtProvider = jwtProvider;
+        this.tokenService = tokenService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtProvider = jwtProvider;
     }
 
     /**
      * UserService는 사용자의 인증, 정보 조회, 수정 및 삭제와 관련된 기능을 제공.
+     * 추후 기능별 분리 작업 필요(USER, ADMIN, 일반 조회기능)
      *
      * 1. 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
      * 2. 사용자명으로 사용자 조회 (프로필 검색 시 사용)
@@ -87,7 +92,7 @@ public class UserService {
     }
 
     // 로그인 (사용자 인증 및 JWT 발급)
-    public String login(String email, String password) {
+    public Map<String, String> login(String email, String password) {
         try {
             // 이메일로 사용자 찾기
             UserLoginDTO userLoginDTO = userRepository.findEmailAndPasswordByEmail(email)
@@ -108,25 +113,50 @@ public class UserService {
                 throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.");
             }
 
-            // JWT 토큰 생성 및 반환
-            return jwtProvider.generateToken(userId);
+            // JWT 토큰 생성
+            String accessToken = jwtProvider.generateToken(userId);
+            String refreshToken = jwtProvider.generateRefreshToken(userId);
+
+            // Refresh Token을 Redis에 저장
+            tokenService.storeRefreshToken(refreshToken, userId);
+
+            // 토큰을 Map에 저장
+            Map<String, String> token = new HashMap<>();
+            token.put("accessToken", accessToken);
+            token.put("refreshToken", refreshToken);
+
+            return token;
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("서버 내부 오류 런타임~");
+            throw new RuntimeException("서버 내부 오류 런타임", e);
         }
     }
 
     // 로그아웃 (클라이언트 측에서 JWT를 삭제하는 방법으로 처리)
-    public void logout() {}
+    public void logout(String refreshToken) {
+        tokenService.deleteRefreshToken(refreshToken);
+    }
 
     // 토큰 갱신 (만료된 Access Token을 Refresh Token으로 재발급)
-    public String refreshToken(String refreshToken) {
-        if (jwtProvider.validateToken(refreshToken)) {
-            Long userId = jwtProvider.extractUserId(refreshToken);
-            return jwtProvider.generateToken(userId);
-        } else {
-            throw new InvalidTokenException("유효하지 않은 토큰입니다.");
+    public Map<String, String> refreshToken(String refreshToken) {
+        // Refresh Token 검증
+        Long userId = tokenService.getRefreshToken(refreshToken);
+        if (userId == null) {
+            throw new InvalidTokenException("유효하지 않은 리프레시 토큰입니다.");
         }
+
+        // 새로운 Access Token과 Refresh Token 발급
+        String newAcceccToken = jwtProvider.generateToken(userId);
+        String newRefreshToken = jwtProvider.generateRefreshToken(userId);
+
+        // Refresh Token을 Redis에 저장
+        tokenService.storeRefreshToken(refreshToken, userId);
+
+        // JWT Token을 Map에 저장
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", newAcceccToken);
+        tokens.put("refreshToken", newRefreshToken);
+
+        return tokens;
     }
 
     // 자기 정보 조회 (로그인한 사용자의 정보 조회)
@@ -185,7 +215,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당 ID의 사용자를 찾을 수 없습니다: "  + userId));
 
-    // DB에서 deleted 필드를 true로 변경
+        // DB에서 deleted 필드를 true로 변경
         user.setDeleted(true);
         userRepository.save(user);
     }

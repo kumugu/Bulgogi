@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -52,24 +53,27 @@ public class UserController {
 
     // 로그인 (사용자 인증 및 JWT 발급)
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody @Valid UserLoginDTO userLoginDTO) {
-        String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
-        return ResponseEntity.ok(token);
+    public ResponseEntity<Map<String, String>> login(@RequestBody @Valid UserLoginDTO userLoginDTO) {
+        // 로그인 시 엑세스 토큰과 리프레시 토큰 발급
+        Map<String, String> tokens = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
+        return ResponseEntity.ok(tokens);
     }
 
-    // 토큰 갱신, 로그아웃  수정 필요 2순위
-    // 토큰 갱신 (만료된 Access Token을 Refresh Token으로 재발급)
+    // 토큰 갱신 (만료된 Access Token을 Refresh Token으로 재발급), 추가적인 테스트 필요
     @PostMapping("/refresh-token")
-    public ResponseEntity<String> refreshToken(@RequestParam String refreshToken) {
-        try {
-            String newToken = userService.refreshToken(refreshToken);
-            return ResponseEntity.ok(newToken);
-        } catch (InvalidTokenException ex) {
-            return ResponseEntity.status(401).body(ex.getMessage());
-        }
+    public ResponseEntity<Map<String, String>> refreshToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        Map<String, String> tokens = userService.refreshToken(refreshToken);
+        return ResponseEntity.ok(tokens);
     }
 
     // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        userService.logout(refreshToken);
+        return ResponseEntity.ok().build();
+    }
 
     // 자기 정보 조회 (로그인한 사용자의 정보 조회)
     @GetMapping("/my-info")
