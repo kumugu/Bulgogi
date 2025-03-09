@@ -102,7 +102,7 @@ public class UserController {
             @PathVariable Long userId,
             @RequestBody UserPasswordChangeRequestDTO userPasswordChangeRequestDTO) {
 
-        userService.changePasword(userId, userPasswordChangeRequestDTO);
+        userService.changePassword(userId, userPasswordChangeRequestDTO);
         return ResponseEntity.ok().build();
     }
 

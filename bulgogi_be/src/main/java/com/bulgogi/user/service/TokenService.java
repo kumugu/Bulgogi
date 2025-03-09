@@ -15,7 +15,7 @@ public class TokenService {
     }
 
     /**
-     * Refresh Token을 Redis에 저장합니다.
+     * Refresh Token을 Redis에 저장
      * @param refreshToken 저장할 Refresh Token
      * @param userId Refresh Token과 연결된 사용자 ID
      */
@@ -25,7 +25,7 @@ public class TokenService {
     }
 
     /**
-     * Redis에서 Refresh Token을 가져옵니다.
+     * Redis에서 Refresh Token을 가져옴
      * @param refreshToken 가져올 Refresh Token
      * @return Refresh Token과 연결된 사용자 ID (유효하지 않거나 만료된 경우 null 반환)
      */
@@ -38,7 +38,7 @@ public class TokenService {
     }
 
     /**
-     * 로그아웃 시 Redis에서 Refresh Token을 삭제합니다.
+     * 로그아웃 시 Redis에서 Refresh Token을 삭제
      * @param refreshToken 삭제할 Refresh Token
      */
     public void deleteRefreshToken(String refreshToken) {

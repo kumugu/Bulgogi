@@ -181,6 +181,7 @@ public class UserService {
     public UserResponseDTO updateMyInfo(Long userId, UserUpdateRequestDTO updateRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceAccessException("해당 ID의 사용자를 찾을 수 없습니다: " + userId));
+
         // UserUpdateRequestDTO를 User Entity로 변환 및 업데이트
         User updateUser = UserMapper.updateToUser(updateRequest, user);
 
@@ -193,7 +194,7 @@ public class UserService {
 
     // 비밀번호 변경 (기존 비밀번호 확인 후 새 비밀번호로 변경)
     @Transactional
-    public void changePasword(Long userId, UserPasswordChangeRequestDTO userPasswordChangeRequestDTO) {
+    public void changePassword(Long userId, UserPasswordChangeRequestDTO userPasswordChangeRequestDTO) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다." + userId));
 
