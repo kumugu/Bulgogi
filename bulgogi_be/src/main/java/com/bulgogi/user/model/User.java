@@ -1,11 +1,14 @@
 package com.bulgogi.user.model;
 
+import com.bulgogi.blog.model.Post;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.ParamDef;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -57,6 +60,10 @@ public class User {
     public void deactivate() {
         this.deleted = true;
     }
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts = new ArrayList<>();
+
 
     // 생성자
     public User() {}

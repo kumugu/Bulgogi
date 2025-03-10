@@ -102,6 +102,7 @@ public class UserService {
             Long userId = userLoginDTO.getId();
             String storedEmail = userLoginDTO.getEmail();
             String storedPassword = userLoginDTO.getPassword();
+            String username = userLoginDTO.getUsername();
 
             // 이메일 일치 확인
             if (!storedEmail.equals(email)) {
@@ -114,8 +115,8 @@ public class UserService {
             }
 
             // JWT 토큰 생성
-            String accessToken = jwtProvider.generateToken(userId);
-            String refreshToken = jwtProvider.generateRefreshToken(userId);
+            String accessToken = jwtProvider.generateToken(userId, username);
+            String refreshToken = jwtProvider.generateRefreshToken(userId, username);
 
             // Refresh Token을 Redis에 저장
             tokenService.storeRefreshToken(refreshToken, userId);
@@ -144,9 +145,14 @@ public class UserService {
             throw new InvalidTokenException("유효하지 않은 리프레시 토큰입니다.");
         }
 
+        // 사용자 정보 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+        String username = user.getUsername();
+
         // 새로운 Access Token과 Refresh Token 발급
-        String newAcceccToken = jwtProvider.generateToken(userId);
-        String newRefreshToken = jwtProvider.generateRefreshToken(userId);
+        String newAcceccToken = jwtProvider.generateToken(userId, username);
+        String newRefreshToken = jwtProvider.generateRefreshToken(userId, username);
 
         // Refresh Token을 Redis에 저장
         tokenService.storeRefreshToken(refreshToken, userId);

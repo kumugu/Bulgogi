@@ -61,6 +61,8 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
+
+
     // 편의 메서드
     public void addComment(Comment comment) {
         comments.add(comment);
@@ -109,10 +111,6 @@ public class Post {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -149,16 +147,8 @@ public class Post {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public List<Comment> getComments() {

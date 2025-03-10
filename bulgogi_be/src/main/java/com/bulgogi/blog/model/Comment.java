@@ -26,7 +26,7 @@ public class Comment {
 
     @LastModifiedDate
     @Column(nullable = false)
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
@@ -43,7 +43,7 @@ public class Comment {
         this.id = id;
         this.content = content;
         this.createdAt = createdAt;
-        this.updateAt = updateAt;
+        this.updatedAt = updateAt;
         this.post = post;
         this.author = author;
     }
@@ -75,11 +75,11 @@ public class Comment {
     }
 
     public LocalDateTime getUpdateAt() {
-        return updateAt;
+        return updatedAt;
     }
 
     public void setUpdateAt(LocalDateTime updateAt) {
-        this.updateAt = updateAt;
+        this.updatedAt = updateAt;
     }
 
     public Post getPost() {

@@ -1,5 +1,6 @@
 package com.bulgogi.user.security;
 
+import com.bulgogi.user.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 public class JwtProvider {
@@ -25,21 +27,23 @@ public class JwtProvider {
     }
 
     // JWT Token 생성
-    public String generateToken(Long userId) {
+    public String generateToken(Long userId, String username) {
         return Jwts.builder()
-                .setSubject(userId.toString())
+                .setSubject(String.valueOf(userId))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .addClaims(Map.of("username", username))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     // JWT Refresh Token 생성
-    public String generateRefreshToken(Long userId) {
+    public String generateRefreshToken(Long userId, String username) {
         return Jwts.builder()
-                .setSubject(userId.toString())
+                .setSubject(String.valueOf(userId))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + refreshExpirationTime))
+                .addClaims(Map.of("username", username))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -52,6 +56,16 @@ public class JwtProvider {
                 .parseClaimsJws(token)
                 .getBody();
         return Long.parseLong(claims.getSubject());
+    }
+
+    // JWT Token 에서 사용자 이름 추출
+    public String extractUsername(String token) {
+        Claims clasims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return clasims.get("username", String.class);
     }
 
     // JWT Token 검증

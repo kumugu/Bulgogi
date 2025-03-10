@@ -22,7 +22,7 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
 
     // 특정 사용자의 게시글에 사용된 태그 목록 (중복 제거)
     @Query("SELECT DISTINCT t FROM Tag t JOIN t.posts p WHERE p.author = :author")
-    List<Tag> findTagsByUser(@Param("author") User author);
+    List<Tag> findTagsByAuthor(@Param("author") User author);
 
     // 가장 많이 사용된 태그 Top N 조회
     @Query(value = "SELECT t.* FROM tags t " +
