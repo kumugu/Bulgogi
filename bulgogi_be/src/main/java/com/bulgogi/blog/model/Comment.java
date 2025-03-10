@@ -34,18 +34,18 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User author;
+    private User user;
 
     // Constructor
     public Comment() {}
 
-    public Comment(Long id, String content, LocalDateTime createdAt, LocalDateTime updateAt, Post post, User author) {
+    public Comment(Long id, String content, LocalDateTime createdAt, LocalDateTime updateAt, Post post, User user) {
         this.id = id;
         this.content = content;
         this.createdAt = createdAt;
         this.updatedAt = updateAt;
         this.post = post;
-        this.author = author;
+        this.user = user;
     }
 
     // Getter, Setter
@@ -90,11 +90,11 @@ public class Comment {
         this.post = post;
     }
 
-    public User getAuthor() {
-        return author;
+    public User getUser() {
+        return user;
     }
 
-    public void setAuthor(User author) {
-        this.author = author;
+    public void setUser(User user) {
+        this.user = user;
     }
 }

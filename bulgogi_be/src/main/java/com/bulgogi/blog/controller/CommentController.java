@@ -30,7 +30,7 @@ public class CommentController {
      */
 
     // 댓글 작성
-    @PostMapping
+    @PostMapping("/{postId}")
     public ResponseEntity<CommentResponseDTO> createComment(@RequestBody CommentRequestDTO commentRequestDTO) {
         return ResponseEntity.ok(commentService.createComment(commentRequestDTO));
     }

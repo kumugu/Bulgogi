@@ -17,7 +17,7 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
     Optional<Category> findByName(String name);
 
     // 특정 사용자가 작성한 게시글이 속한 카테고리 목록(중복제거)
-    @Query("SELECT DISTINCT c FROM Category c JOIN c.posts p WHERE p.author = :author")
+    @Query("SELECT DISTINCT c FROM Category c JOIN c.posts p WHERE p.user = :user")
     List<Category> findCategoriesByUser(@Param("user") User user);
 
     // 특정 카테고리에 속한 게시글 수 조회

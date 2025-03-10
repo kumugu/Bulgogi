@@ -14,12 +14,17 @@ import com.bulgogi.user.exception.UserNotFoundException;
 import com.bulgogi.user.model.User;
 import com.bulgogi.user.repository.UserRepository;
 import com.bulgogi.user.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,24 +63,23 @@ public class PostService {
 
     // 게시글 작성
     @Transactional
-    public PostResponseDTO createPost(PostRequestDTO postRequestDTO, Long userId) {
+    public PostResponseDTO createPost(PostRequestDTO postRequestDTO, UserDetails userDetails) {
         // 사용자 조회
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
         // 사용자명 가져오기
         String username = user.getUsername();
-        logger.debug("게시글 작성을 위한 유저ID: {} 사용자이름: {}", userId, username);
 
         // 카테고리 조회
         Category category = categoryRepository.findById(postRequestDTO.getCategoryId())
                 .orElseThrow(() -> new CategoryNotFoundException("카테고리를 찾을 수 없습니다."));
 
         // 태그 조회
-        List<Tag> tags = tagRepository.findAllById(postRequestDTO.getTagIds());
+        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(postRequestDTO.getTagIds()));
 
         // 게시글 생성
-        Post post = PostMapper.toCreatePost(postRequestDTO, category, tags, user);
+        Post post = postMapper.toCreatePost(postRequestDTO, category, tags, user);
 
         // 게시글 저장
         Post savedPost = postRepository.save(post);
@@ -86,15 +90,22 @@ public class PostService {
     }
 
     // 게시글 단건 조회
+    @Transactional
     public PostResponseDTO getPostById(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+
+        // Category와 Tags를 명시적으로 초기화
+        Hibernate.initialize(post.getCategory());
+        Hibernate.initialize(post.getTags());
+
         return postMapper.toPostResponseDTO(post);
     }
 
     // 게시글 전체 조회
+    @Transactional
     public List<PostResponseDTO> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
+        List<Post> posts = postRepository.findAllWithCategoryAndTags();
         return posts.stream()
                 .map(postMapper::toPostResponseDTO)
                 .collect(Collectors.toList());

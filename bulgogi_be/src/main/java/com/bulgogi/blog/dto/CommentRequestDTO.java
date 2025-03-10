@@ -4,6 +4,14 @@ public class CommentRequestDTO {
     private String content;
     private Long postId;
 
+    // Constructor
+    public CommentRequestDTO() {}
+
+    public CommentRequestDTO(String content, Long postId) {
+        this.content = content;
+        this.postId = postId;
+    }
+
     // Getter, Setter
 
     public String getContent() {

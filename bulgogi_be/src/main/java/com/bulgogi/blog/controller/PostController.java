@@ -45,7 +45,7 @@ public class PostController {
      */
 
     // 게시글 작성
-    @PostMapping("/{userId}")
+    @PostMapping
     public ResponseEntity<PostResponseDTO> createPost(
             @RequestBody PostRequestDTO postRequestDTO,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -70,7 +70,7 @@ public class PostController {
                     .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다: " + username));
 
             // 게시글 생성
-            PostResponseDTO postResponseDTO = postService.createPost(postRequestDTO, user.getId());
+            PostResponseDTO postResponseDTO = postService.createPost(postRequestDTO, userDetails);
             return ResponseEntity.status(HttpStatus.CREATED).body(postResponseDTO);
         } catch (Exception e) {
             throw new RuntimeException("사용자 ID 또는 게시글 작성에 문제가 발생했습니다: " + e.getMessage());
@@ -90,13 +90,13 @@ public class PostController {
         return ResponseEntity.ok(postService.getAllPosts());
     }
 
-    // 게시글 수정
+    // 게시글 수정 (자기 자신의 게시글만 수정 되도록 수정 필요 2025-03-11)
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponseDTO> updatePost(@PathVariable Long postId, @RequestBody PostRequestDTO postRequestDTO) {
         return ResponseEntity.ok(postService.updatePost(postId, postRequestDTO));
     }
 
-    // 게시글 삭제
+    // 게시글 삭제 (자기 자신의 게시글만 삭제 되도록 수정 필요 2025-03-11)
     @DeleteMapping("/{postId}")
     public ResponseEntity<PostResponseDTO> deletePost(@PathVariable Long postId) {
         postService.deletePost(postId);

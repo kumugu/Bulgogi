@@ -4,6 +4,13 @@ public class CategoryResponseDTO {
     private Long id;
     private String name;
 
+    // Constructor
+    public CategoryResponseDTO() {}
+
+    public CategoryResponseDTO(Long id) {
+        this.id = id;
+    }
+
     // Getter, Setter
 
     public Long getId() {

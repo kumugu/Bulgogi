@@ -14,6 +14,22 @@ public class PostResponseDTO {
     private String category;
     private List<String> tags;
 
+    // Constructor
+    public PostResponseDTO () {}
+
+    public PostResponseDTO(Long id, String title, String content, Long views, boolean published, LocalDateTime createdAt, LocalDateTime updatedAt, String category, List<String> tags) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.views = views;
+        this.published = published;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.category = category;
+        this.tags = tags;
+    }
+
+
     // Getter, Setter
 
     public Long getId() {

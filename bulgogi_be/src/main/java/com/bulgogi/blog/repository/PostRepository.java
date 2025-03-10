@@ -10,12 +10,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
+    // 전체 데이터 조회
+    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.category LEFT JOIN FETCH p.tags")
+    List<Post> findAllWithCategoryAndTags();
+
     // 특정 사용자가 작성한 게시글 목록 (페이징 적용)
-    Page<Post> findByAuthor(User user, Pageable pageable);
+    Page<Post> findByUser(User user, Pageable pageable);
 
     // 카테고리별 게시글 조회 (페이징 적용)
     Page<Post> findByCategoryId(Long categoryId, Pageable pageable);
@@ -28,7 +33,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByTitleContainingOrContentContaining(String titleKeyword, String contentKeyword, Pageable pageable);
 
     // 특정 사용자의 특정 게시글 조회 (소유권 확인 등에 사용)
-    Optional<Post> findByIdAndAuthor(Long id, User user);
+    Optional<Post> findByIdAndUser(Long id, User user);
 
     // 조회수 기준 인기 게시글 조회
     Page<Post> findAllByOrderByViewsDesc(Pageable pageable);

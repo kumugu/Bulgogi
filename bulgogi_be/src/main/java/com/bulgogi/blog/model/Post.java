@@ -59,7 +59,7 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User author;
+    private User user;
 
 
 
@@ -89,9 +89,9 @@ public class Post {
     }
 
     // Constructor
-    public Post() {}
+    public Post () {}
 
-    public Post(Long id, String title, String content, Long views, boolean published, LocalDateTime createdAt, LocalDateTime updatedAt, List<Comment> comments, Category category, Set<Tag> tags, User author) {
+    public Post(Long id, String title, String content, Long views, boolean published, LocalDateTime createdAt, LocalDateTime updatedAt, List<Comment> comments, Category category, Set<Tag> tags, User user) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -102,7 +102,7 @@ public class Post {
         this.comments = comments;
         this.category = category;
         this.tags = tags;
-        this.author = author;
+        this.user = user;
     }
 
     // Getter, Setter
@@ -175,11 +175,11 @@ public class Post {
         this.tags = tags;
     }
 
-    public User getAuthor() {
-        return author;
+    public User getUser() {
+        return user;
     }
 
-    public void setAuthor(User author) {
-        this.author = author;
+    public void setUser(User user) {
+        this.user = user;
     }
 }

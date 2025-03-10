@@ -4,6 +4,14 @@ public class TagResponseDTO {
     private Long id;
     private String name;
 
+    // Constructor
+    public TagResponseDTO() {}
+
+    public TagResponseDTO(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     // Getter, Setter
 
     public Long getId() {

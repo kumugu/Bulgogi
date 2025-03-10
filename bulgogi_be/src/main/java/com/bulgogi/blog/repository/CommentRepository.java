@@ -19,13 +19,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     Page<Comment> findByPostId(Long postId, Pageable pageable);
 
     // 특정 사용자가 작성한 댓글 목록 조회 (페이징 적용)
-    Page<Comment> findByAuthor(User user, Pageable pageable);
+    Page<Comment> findByUser(User user, Pageable pageable);
 
     // 특정 게시글의 댓글 수 조회
     long countByPostId(Long postId);
 
     // 특정 사용자의 특정 댓글 조회 (소유권 확인 등에 사용)
-    Optional<Comment> findByIdAndAuthor(Long commentId, User user);
+    Optional<Comment> findByIdAndUser(Long commentId, User user);
 
     // 특정 게시글에 최근 작성된 댓글 N개 조회
     @Query("SELECT c FROM Comment c WHERE c.post.id = :postId ORDER BY c.createdAt DESC")
