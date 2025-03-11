@@ -102,6 +102,7 @@ public class UserService {
             Long userId = userLoginDTO.getId();
             String storedEmail = userLoginDTO.getEmail();
             String storedPassword = userLoginDTO.getPassword();
+            String username = userLoginDTO.getUsername();
 
             // 이메일 일치 확인
             if (!storedEmail.equals(email)) {
@@ -114,8 +115,8 @@ public class UserService {
             }
 
             // JWT 토큰 생성
-            String accessToken = jwtProvider.generateToken(userId);
-            String refreshToken = jwtProvider.generateRefreshToken(userId);
+            String accessToken = jwtProvider.generateToken(userId, username);
+            String refreshToken = jwtProvider.generateRefreshToken(userId, username);
 
             // Refresh Token을 Redis에 저장
             tokenService.storeRefreshToken(refreshToken, userId);
@@ -144,9 +145,14 @@ public class UserService {
             throw new InvalidTokenException("유효하지 않은 리프레시 토큰입니다.");
         }
 
+        // 사용자 정보 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+        String username = user.getUsername();
+
         // 새로운 Access Token과 Refresh Token 발급
-        String newAcceccToken = jwtProvider.generateToken(userId);
-        String newRefreshToken = jwtProvider.generateRefreshToken(userId);
+        String newAcceccToken = jwtProvider.generateToken(userId, username);
+        String newRefreshToken = jwtProvider.generateRefreshToken(userId, username);
 
         // Refresh Token을 Redis에 저장
         tokenService.storeRefreshToken(refreshToken, userId);
@@ -181,6 +187,7 @@ public class UserService {
     public UserResponseDTO updateMyInfo(Long userId, UserUpdateRequestDTO updateRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceAccessException("해당 ID의 사용자를 찾을 수 없습니다: " + userId));
+
         // UserUpdateRequestDTO를 User Entity로 변환 및 업데이트
         User updateUser = UserMapper.updateToUser(updateRequest, user);
 
@@ -193,7 +200,7 @@ public class UserService {
 
     // 비밀번호 변경 (기존 비밀번호 확인 후 새 비밀번호로 변경)
     @Transactional
-    public void changePasword(Long userId, UserPasswordChangeRequestDTO userPasswordChangeRequestDTO) {
+    public void changePassword(Long userId, UserPasswordChangeRequestDTO userPasswordChangeRequestDTO) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다." + userId));
 
