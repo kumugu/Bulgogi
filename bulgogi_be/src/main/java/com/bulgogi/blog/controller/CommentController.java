@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/comment")
+@RequestMapping("/api/comments")
 public class CommentController {
 
     private final CommentService commentService;
@@ -31,7 +31,11 @@ public class CommentController {
 
     // 댓글 작성
     @PostMapping("/{postId}")
-    public ResponseEntity<CommentResponseDTO> createComment(@RequestBody CommentRequestDTO commentRequestDTO) {
+    public ResponseEntity<CommentResponseDTO> createComment(
+            @PathVariable Long postId,
+            @RequestBody CommentRequestDTO commentRequestDTO) {
+
+            commentRequestDTO.setPostId(postId);
         return ResponseEntity.ok(commentService.createComment(commentRequestDTO));
     }
 

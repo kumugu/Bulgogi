@@ -1,21 +1,23 @@
 package com.bulgogi.blog.dto;
 
+import com.bulgogi.blog.model.Comment;
+
 import java.time.LocalDateTime;
 
 public class CommentResponseDTO {
     private Long id;
     private String content;
     private LocalDateTime createdAt;
-    private String author;
+    private String username;
 
     // Constructor
     public CommentResponseDTO() {}
 
-    public CommentResponseDTO(Long id, String content, LocalDateTime createdAt, String author) {
-        this.id = id;
-        this.content = content;
-        this.createdAt = createdAt;
-        this.author = author;
+    public CommentResponseDTO(Comment comment) {
+        this.id = comment.getId();
+        this.content = comment.getContent();
+        this.createdAt = comment.getCreatedAt();
+        this.username = comment.getUser().getUsername();
     }
 
     // Getter, Setter
@@ -44,11 +46,11 @@ public class CommentResponseDTO {
         this.createdAt = createdAt;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getUsername() {
+        return username;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

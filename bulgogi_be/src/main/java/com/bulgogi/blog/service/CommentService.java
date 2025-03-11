@@ -4,7 +4,11 @@ import com.bulgogi.blog.dto.CommentRequestDTO;
 import com.bulgogi.blog.dto.CommentResponseDTO;
 import com.bulgogi.blog.mapper.CommentMapper;
 import com.bulgogi.blog.model.Comment;
+import com.bulgogi.blog.model.Post;
 import com.bulgogi.blog.repository.CommentRepository;
+import com.bulgogi.blog.repository.PostRepository;
+import com.bulgogi.user.model.User;
+import com.bulgogi.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,12 +17,16 @@ import java.util.stream.Collectors;
 @Service
 public class CommentService {
 
-    private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
-    public CommentService(CommentRepository commentRepository, CommentMapper commentMapper) {
-        this.commentRepository = commentRepository;
+    public CommentService(CommentRepository commentRepository, CommentMapper commentMapper, PostRepository postRepository, UserRepository userRepository) {
         this.commentMapper = commentMapper;
+        this.postRepository = postRepository;
+        this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
     }
 
     /**
@@ -31,7 +39,17 @@ public class CommentService {
 
     // 댓글 작성
     public CommentResponseDTO createComment(CommentRequestDTO commentRequestDTO) {
-        Comment comment = commentMapper.toComment(commentRequestDTO);
+        Post post = postRepository.findById(commentRequestDTO.getPostId())
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+
+        User user = userRepository.findById(commentRequestDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        Comment comment = new Comment();
+        comment.setContent(commentRequestDTO.getContent());
+        comment.setPost(post);
+        comment.setUser(user);
+
         comment = commentRepository.save(comment);
         return commentMapper.toCommentResponseDTO(comment);
     }
@@ -54,7 +72,7 @@ public class CommentService {
     // 댓글 수정
     public CommentResponseDTO updateComment(Long commentId, CommentRequestDTO commentRequestDTO) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("카테고리를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
 
         comment.setContent(commentRequestDTO.getContent());
 

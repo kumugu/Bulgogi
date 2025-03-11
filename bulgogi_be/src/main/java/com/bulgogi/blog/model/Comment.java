@@ -25,7 +25,7 @@ public class Comment {
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @ManyToOne
@@ -39,11 +39,11 @@ public class Comment {
     // Constructor
     public Comment() {}
 
-    public Comment(Long id, String content, LocalDateTime createdAt, LocalDateTime updateAt, Post post, User user) {
+    public Comment(Long id, String content, LocalDateTime createdAt, LocalDateTime updatedAt, Post post, User user) {
         this.id = id;
         this.content = content;
         this.createdAt = createdAt;
-        this.updatedAt = updateAt;
+        this.updatedAt = updatedAt;
         this.post = post;
         this.user = user;
     }
@@ -74,12 +74,12 @@ public class Comment {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdateAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdateAt(LocalDateTime updateAt) {
-        this.updatedAt = updateAt;
+    public void setUpdateAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public Post getPost() {
