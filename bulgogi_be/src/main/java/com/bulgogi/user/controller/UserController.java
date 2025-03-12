@@ -5,7 +5,9 @@ import com.bulgogi.user.exception.InvalidTokenException;
 import com.bulgogi.user.security.JwtProvider;
 import com.bulgogi.user.security.UserAuthorization;
 import com.bulgogi.user.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +33,7 @@ public class UserController {
     }
 
     // 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
-    @GetMapping("/email/{email}")
+    @GetMapping(value = "/email/{email}", produces = "application/json")
     public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email) {
         UserResponseDTO user = userService.getUserByEmail(email);
         return ResponseEntity.ok(user);
@@ -53,9 +55,10 @@ public class UserController {
 
     // 로그인 (사용자 인증 및 JWT 발급)
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody @Valid UserLoginDTO userLoginDTO) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody @Valid UserLoginDTO userLoginDTO, HttpServletResponse response) {
         // 로그인 시 엑세스 토큰과 리프레시 토큰 발급
-        Map<String, String> tokens = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
+        Map<String, String> tokens = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword(), response);
+        logger.info("Token: {}", tokens);
         return ResponseEntity.ok(tokens);
     }
 

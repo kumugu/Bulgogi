@@ -3,10 +3,14 @@ package com.bulgogi.user.dto;
 public class UserLoginDTO {
     private Long id;
     private String email;
-    private String password;
+    private String password;    //  암호화 형태로 관리, 주입방식 고려
     private String username;
 
     public UserLoginDTO() {}
+
+    // test용
+    public UserLoginDTO(String email, String asdf) {
+    }
 
     public UserLoginDTO(Long id, String email, String password, String username) {
         this.id = id;
@@ -14,6 +18,7 @@ public class UserLoginDTO {
         this.password = password;
         this.username = username;
     }
+
 
     public Long getId() {
         return id;
