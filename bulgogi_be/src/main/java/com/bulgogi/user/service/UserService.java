@@ -101,9 +101,9 @@ public class UserService {
 
             // 사용자 데이터 추출
             Long userId = userLoginDTO.getId();
+            String username = userLoginDTO.getUsername();
             String storedEmail = userLoginDTO.getEmail();
             String storedPassword = userLoginDTO.getPassword();
-            String username = userLoginDTO.getUsername();
 
             // 이메일 일치 확인
             if (!storedEmail.equals(email)) {
@@ -119,7 +119,8 @@ public class UserService {
             String accessToken = jwtProvider.generateToken(userId, username);
             String refreshToken = jwtProvider.generateRefreshToken(userId, username);
 
-            // Refresh Token을 Redis에 저장
+            // Redisd에서 기존 토큰 삭제 후 Refresh Token을 새로 저장
+            tokenService.deleteRefreshToken(refreshToken);
             tokenService.storeRefreshToken(refreshToken, userId);
 
             // Refresh Token을 HttpOnly 쿠키에 저장
@@ -158,7 +159,8 @@ public class UserService {
         String newAcceccToken = jwtProvider.generateToken(userId, username);
         String newRefreshToken = jwtProvider.generateRefreshToken(userId, username);
 
-        // Refresh Token을 Redis에 저장
+        // 기존의 Refresh Token 삭제 후 새로 저장
+        tokenService.deleteRefreshToken(refreshToken);
         tokenService.storeRefreshToken(refreshToken, userId);
 
         // JWT Token을 Map에 저장

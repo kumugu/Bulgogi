@@ -12,7 +12,16 @@ export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   refreshToken: null,
   username: null,
+
   setAuth: ({ accessToken, refreshToken, username }) =>
     set({ accessToken, refreshToken, username }),
-  logout: () => set({ accessToken: null, refreshToken: null, username: null }),
+
+  logout: () => {
+    // sessionStorage에서 토큰 삭제
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("refreshToken");
+
+    // Zustand 상태 초기화
+    set({ accessToken: null, refreshToken: null, username: null });
+  },
 }));
