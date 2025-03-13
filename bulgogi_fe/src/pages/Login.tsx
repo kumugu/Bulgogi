@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { useAuth } from "../features/auth/useAuth";
@@ -7,21 +7,30 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, refreshAccessToken } = useAuth();
+  const { accessToken, username } = useAuthStore();
 
-  const handleLogin = async () => {
-    try {
-      await login(email, password);
+    useEffect(() => {
+      if (!accessToken) {
+        refreshAccessToken();
+      }
+    }, []);
+    
+    const handleLogin = async () => {
+      try {
+        await login(email, password);
+  
+        // 로그인 성공 시 Store에서 username 가져오기
+        const username = useAuthStore.getState().username;
+  
+        // MyBlogHome으로 이동
+        navigate(`/my-blog-home/${username}`);
 
-      // 로그인 성공 시 Store에서 username 가져오기
-      const username = useAuthStore.getState().username;
-
-      // MyBlogHome으로 이동
-      navigate(`/my-blog-home/${username}`);
-    } catch (error) {
-      console.error("로그인 실패", error);
-    }
-  };
+      } catch (error) {
+        console.error("로그인 실패", error);
+      }
+    };
+  
 
   return (
     <div>
