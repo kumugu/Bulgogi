@@ -36,33 +36,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        logger.debug("JWT 필터 처리 시작: {}", request.getRequestURI());
+        logger.debug("Authorization 헤더: {}", request.getHeader("Authorization"));
 
         // JWT 토큰 추출
         String token = extractToken(request);
+        logger.debug("추출된 토큰: {}", token != null ? "존재함" : "없음");
 
-        if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
+        if (StringUtils.hasText(token)) {
+            try {
+                boolean isValid = jwtProvider.validateToken(token);
+                logger.debug("토큰 유효성: {}", isValid);
 
-            // userId와  username 추출
-            Long userId = jwtProvider.extractUserId(token);
-            String username = jwtProvider.extractUsername(token);
+                if (isValid) {
+                    // userId와 username 추출
+                    Long userId = jwtProvider.extractUserId(token);
+                    String username = jwtProvider.extractUsername(token);
+                    logger.debug("토큰에서 추출한 사용자 정보 - userId: {}, username: {}", userId, username);
 
-            // 사용자 정보 로드
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
+                    // 사용자 정보 로드
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-            // JWT 인증 토큰 생성
-            JwtAuthenticationToken authentication = new JwtAuthenticationToken(userDetails);
-
-            // SecurityContext에 인증 정보 생성
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                    // 인증 정보 설정
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    logger.debug("인증 정보 설정 완료");
+                }
+            } catch (Exception e) {
+                logger.error("JWT 처리 중 오류 발생: {}", e.getMessage());
+            }
         }
+
         // 다음 필터로 요청 전달
         filterChain.doFilter(request, response);
     }
 
     private String extractToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
+        logger.debug("Authorization 헤더: {}", bearerToken);
+
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }

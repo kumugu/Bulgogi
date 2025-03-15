@@ -1,7 +1,9 @@
-import api from "../../api/axios"; 
+import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { useAuthStore } from "../../store/authStore"; 
+import { useAuthStore } from "../../store/authStore";
+import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import api from "@/api/axios";
 
 interface JwtPayload {
     sub: string;
@@ -10,45 +12,45 @@ interface JwtPayload {
     username: string;
 }
 
+interface LoginResponse {
+    accessToken: string;
+    refreshToken?: string;
+}
+
 export const useAuth = () => {
-    const { setAuth, logout } = useAuthStore(); 
+    const { setAuth, logout } = useAuthStore();
+    const navigate = useNavigate();
 
-    // 로그인
-    const login = async (email: string, password: string) => { 
+    const login = async (email: string, password: string) => {
         try {
-            // API 요청을 통해 이메일과 비밀번호를 사용하여 로그인
-            const response = await api.post("/users/login", { email, password }, { withCredentials: true }); 
-            console.log("로그인 응답 데이터:", response.data) 
+            // api 인스턴스를 사용하여 요청 보내기
+            const response = await api.post<LoginResponse>("/users/login", { email, password });
 
+            // accessToken이 반환되지 않으면 오류 처리
             if (!response?.data?.accessToken) {
                 console.error("accessToken이 반환되지 않음");
                 return;
             }
 
             const { accessToken } = response.data;
-
-            // JWT Token을 디코딩하여 username 추출
             const decoded: JwtPayload = jwtDecode(accessToken);
-            const username = decoded.username;  // 명시적으로 username 추출(다른방식도 고려해봐야할듯)
-            console.log("디코딩된 username:", username);
+            const username = decoded.username;
 
-            // Zustand에 저장
             setAuth({ accessToken, username });
-            console.log("저장된 Zustand 값:", useAuthStore.getState());
-            
-            // 토큰을 로컬 스토리지에 저장 (refreshToken 저장 방식 고려, 현재 Redis에도 저장됨)
-            sessionStorage.setItem("accessToken", accessToken); 
+            sessionStorage.setItem("accessToken", accessToken);
 
-        } catch (error) {
-            console.error("로그인 실패", error); 
+            // 로그인 후 MyBlogHome으로 이동
+            navigate(`/my-blog-home/${username}`);
+        } catch (error: any) {
+            console.error("로그인 실패", error.response?.data || error.message);
         }
     };
 
-    // 로그인 연장 (accessToken 갱신, "/users/refresh-token")
-    const refreshAccessToken = async () => {
 
+    // 토큰 갱신
+    const refreshAccessToken = async () => {
         try {
-            const response = await api.post("/users/refresh-token", {}, { withCredentials: true });
+            const response = await axios.post<LoginResponse>("/users/refresh-token", {}, { withCredentials: true });
             const { accessToken } = response.data;
 
             if (!accessToken) {
@@ -60,29 +62,53 @@ export const useAuth = () => {
             const decode: JwtPayload = jwtDecode(accessToken);
             const username = decode.username;
 
-            // 상태 업데이트
-            setAuth({ accessToken, refreshToken, username });
-            sessionStorage.setItem("asccessToken", accessToken);
-        } catch (error) {
-            console.error("토큰 갱신 실패, 로그아웃 처리", error);
+            setAuth({ accessToken, username });
+            sessionStorage.setItem("accessToken", accessToken);
+        } catch (error: any) { // `error`를 `any`로 처리
+            console.error("토큰 갱신 실패, 로그아웃 처리", error.response?.data || error.message);
             logout();
         }
-    }
-
+    };
 
     // 로그아웃
     const handleLogout = async () => {
         try {
-            await api.post("/users/logout", {}, { withCredentials: true });
+            const token = sessionStorage.getItem("accessToken");
+            if (!token) {
+                console.error("로그인하지 않은 상태입니다.");
+                return;
+            }
 
-            // 상태 및 sessionStorage 초기화 
+            await axios.post("http://localhost:8080/api/users/logout", {}, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            });
+
             logout();
             sessionStorage.removeItem("accessToken");
+            console.log("로그아웃 성공");
+            
+            navigate("/");
+        } catch (error: any) { // `error`를 `any`로 처리
+            logout();
+            sessionStorage.removeItem("accessToken");
+            console.error("로그아웃 중 오류 발생. 클라이언트에서 토큰 삭제됨.", error.response?.data || error.message);
 
-        } catch (error) {
-            console.error("로그아웃 실패", error);
+            navigate("/")
         }
     };
 
-    return { login, handleLogout };
+    // 컴포넌트 마운트 시 토큰 확인
+    useEffect(() => {
+        const storedToken = sessionStorage.getItem("accessToken");
+        if (storedToken) {
+            const decode: JwtPayload = jwtDecode(storedToken);
+            setAuth({ accessToken: storedToken, username: decode.username });
+        }
+    }, [setAuth]);
+
+    return { login, refreshAccessToken, handleLogout };
 };

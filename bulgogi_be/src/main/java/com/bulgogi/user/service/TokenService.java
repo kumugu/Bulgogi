@@ -39,6 +39,9 @@ public class TokenService {
 
     // 로그아웃 시 Redis에서 Refresh Token을 삭제
     public void deleteRefreshToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            throw new IllegalArgumentException("refreshToken cannot be null or empty");
+        }
         redisTemplate.delete(refreshToken);
     }
 }

@@ -6,6 +6,8 @@ import com.bulgogi.user.mapper.UserMapper;
 import com.bulgogi.user.model.User;
 import com.bulgogi.user.repository.UserRepository;
 import com.bulgogi.user.security.JwtProvider;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -137,11 +139,6 @@ public class UserService {
         }
     }
 
-    // 로그아웃 (클라이언트 측에서 JWT를 삭제하는 방법으로 처리)
-    public void logout(String refreshToken) {
-        tokenService.deleteRefreshToken(refreshToken);
-    }
-
     // 토큰 갱신 (만료된 Access Token을 Refresh Token으로 재발급)
     public Map<String, String> refreshToken(String refreshToken) {
         // Refresh Token 검증
@@ -169,6 +166,30 @@ public class UserService {
         tokens.put("refreshToken", newRefreshToken);
 
         return tokens;
+    }
+
+    // 로그아웃 (클라이언트 측에서 JWT를 삭제하는 방법으로 처리)
+    public void logout(String refreshToken, HttpServletResponse response) {
+        // Redis에서 Refresh Token 삭제
+        tokenService.deleteRefreshToken(refreshToken);
+
+        // 클라이언트 쿠키에서 Refresh Token 삭제
+        jwtProvider.clearRefreshToken(response);
+    }
+
+    // Refresh Token 쿠키 값 추출
+    public String extractRefreshTokenFromRequest(HttpServletRequest request) {
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        return refreshToken;
     }
 
     // 자기 정보 조회 (로그인한 사용자의 정보 조회)

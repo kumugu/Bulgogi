@@ -1,54 +1,37 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/authStore";
 import { useAuth } from "../features/auth/useAuth";
 
 const Login = () => {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
-  const { login, refreshAccessToken } = useAuth();
-  const { accessToken, username } = useAuthStore();
-
-    useEffect(() => {
-      if (!accessToken) {
-        refreshAccessToken();
-      }
-    }, []);
-    
-    const handleLogin = async () => {
-      try {
-        await login(email, password);
   
-        // 로그인 성공 시 Store에서 username 가져오기
-        const username = useAuthStore.getState().username;
-  
-        // MyBlogHome으로 이동
-        navigate(`/my-blog-home/${username}`);
-
-      } catch (error) {
-        console.error("로그인 실패", error);
-      }
-    };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await login(email, password);
+  }
   
 
   return (
-    <div>
-      <h2>로그인</h2>
-      <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
-        <input 
-          type="email" 
-          placeholder="이메일" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <form className="bg-white p-6 rounded shadow-md w-80" onSubmit={handleSubmit}>
+        <h2 className="text-2xl font-bold mb-4">로그인</h2>
+        <input
+          type="email"
+          placeholder="이메일"
+          className="border p-2 w-full mb-2"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
-        <input 
-          type="password" 
-          placeholder="비밀번호" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
+        <input
+          type="password"
+          placeholder="비밀번호"
+          className="border p-2 w-full mb-2"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit">로그인</button>
+        <button type="submit" className="bg-blue-500 text-white p-2 w-full rounded">로그인</button>
       </form>
     </div>
   );

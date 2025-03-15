@@ -5,8 +5,11 @@ import com.bulgogi.user.exception.InvalidTokenException;
 import com.bulgogi.user.security.JwtProvider;
 import com.bulgogi.user.security.UserAuthorization;
 import com.bulgogi.user.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -72,11 +75,25 @@ public class UserController {
 
     // 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refreshToken");
-        userService.logout(refreshToken);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        // 헤더에서 인증 정보 확인
+        String authHeader = request.getHeader("Authorization");
+        logger.debug("로그아웃 요청 - Authorization 헤더: {}", authHeader);
+
+        // 쿠키에서 Refresh Token 추출
+        String refreshToken = userService.extractRefreshTokenFromRequest(request);
+        logger.debug("로그아웃 요청 - 추출된 리프레시 토큰: {}", refreshToken != null ? "존재함" : "없음");
+
+        // 리프레시 토큰이 있으면 삭제
+        if (refreshToken != null && !refreshToken.isEmpty()) {
+            userService.logout(refreshToken, response);
+        } else {
+            // 리프레시 토큰이 없어도 응답 쿠키는 삭제
+            jwtProvider.clearRefreshToken(response);
+        }
+        return ResponseEntity.ok().body("로그아웃 성공");
     }
+
 
     // 자기 정보 조회 (로그인한 사용자의 정보 조회)
     @GetMapping("/my-info")

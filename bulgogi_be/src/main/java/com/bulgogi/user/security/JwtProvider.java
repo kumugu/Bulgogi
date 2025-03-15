@@ -61,6 +61,16 @@ public class JwtProvider {
         response.addCookie(cookie); // 쿠키를 응답에 추가
     }
 
+    // Refresh Token을 HttpOnly에서 삭제
+    public void clearRefreshToken(HttpServletResponse response) {
+        Cookie cookie = new Cookie("refreshToken", "");
+        cookie.setHttpOnly(true);   // HttpOnly 쿠키 설정
+        cookie.setSecure(true);     // HTTPS에서만 사용하도록 설정
+        cookie.setPath("/");        // 모든 경로에 대해 유효
+        cookie.setMaxAge(0);        // 쿠키 만료 시간 0으로 설정하여 삭제 처리
+        response.addCookie(cookie); // 쿠키를 응답에 추가
+    }
+
     // JWT Token 에서 사용자 ID 추출
     public Long extractUserId(String token) {
         Claims claims = Jwts.parserBuilder()
