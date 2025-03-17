@@ -1,8 +1,10 @@
 import { useAuth } from "@/features/auth/useAuth";
+import {useTokenRefresh } from "@/features/auth/useManualTokenRefresh";
 import Header from "./Header";
 
 const MyBlogHome = () => {
-  const { handleLogout, refreshTokenManually, isAuthenticated } = useAuth();
+  const { handleLogout, isAuthenticated } = useAuth();
+  const { refreshTokenManually } = useTokenRefresh();
 
   return (
     <header className="flex justify-between p-4 border-b">

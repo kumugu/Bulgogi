@@ -38,20 +38,8 @@ public class UserController {
         this.tokenService = tokenService;
     }
 
-    // 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
-    @GetMapping(value = "/email/{email}", produces = "application/json")
-    public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email) {
-        UserResponseDTO user = userService.getUserByEmail(email);
-        return ResponseEntity.ok(user);
-    }
-
-    // 사용자명으로 사용자 조회 (프로필 검색 시 사용)
-    @GetMapping("/username/{username}")
-    public ResponseEntity<UserResponseDTO> getUserByUsername(@PathVariable String username) {
-        UserResponseDTO user = userService.getUserByUsername(username);
-        return ResponseEntity.ok(user);
-    }
-
+    // =================================================================================================================
+    // 회원가입 로그인 로그아웃 토큰갱신
     // 회원가입
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> getUserByEmail(@RequestBody @Valid UserRequestDTO userRequestDTO) {
@@ -99,8 +87,11 @@ public class UserController {
         }
         return ResponseEntity.ok().body("로그아웃 성공");
     }
+    // =================================================================================================================
 
 
+    // =================================================================================================================
+    // 자기 정보 수정
     // 자기 정보 조회 (로그인한 사용자의 정보 조회)
     @GetMapping("/my-info")
     public ResponseEntity<UserResponseDTO> getMyInfo(@RequestHeader("Authorization") String token) {
@@ -139,6 +130,23 @@ public class UserController {
         userService.deleteMyInfo(userId);
         return ResponseEntity.ok().build();
     }
+    // =================================================================================================================
+
+    // =================================================================================================================
+    // 사용자 조회
+    // 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
+    @GetMapping(value = "/email/{email}", produces = "application/json")
+    public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email) {
+        UserResponseDTO user = userService.getUserByEmail(email);
+        return ResponseEntity.ok(user);
+    }
+
+    // 사용자명으로 사용자 조회 (프로필 검색 시 사용)
+    @GetMapping("/username/{username}")
+    public ResponseEntity<UserResponseDTO> getUserByUsername(@PathVariable String username) {
+        UserResponseDTO user = userService.getUserByUsername(username);
+        return ResponseEntity.ok(user);
+    }
 
     // 다른 사용자 정보 조회 (username 조회: 외부 검색 용도, 공개된 정보 조회)
     @GetMapping("/info/{username}")
@@ -153,7 +161,11 @@ public class UserController {
         UserResponseDTO user = userService.getUserInfoById(userId);
         return ResponseEntity.ok(user);
     }
+    // =================================================================================================================
 
+
+    // =================================================================================================================
+    // ADMIN 기능
     // 다른 사용자 정보 수정 (ROLE_ADMIN 만 수정 가능)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{userId}")
@@ -161,4 +173,6 @@ public class UserController {
         UserResponseDTO updateUser = userService.updateUserInfo(userId, userRequestDTO);
         return ResponseEntity.ok(updateUser);
     }
+    // =================================================================================================================
+
 }

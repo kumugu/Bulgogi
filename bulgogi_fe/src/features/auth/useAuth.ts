@@ -2,8 +2,9 @@ import { useAuthStore } from "@/store/authStore";
 import { tokenUtils } from '@/utils/tokenUtils';
 import { useNavigate } from "react-router-dom";
 import { useEffect, useCallback } from "react";
-import { LoginResponse } from "@/types/api";
-import api, { refreshAccessToken } from "@/api/axios";
+import { LoginResponse } from "@/api/types";
+import { api } from "@/api/axios";
+
 
 export const useAuth = () => {
     const { setAuth, logout, auth } = useAuthStore();
@@ -58,28 +59,9 @@ export const useAuth = () => {
         }
     };
 
-    const refreshTokenManually = async () => {
-        try {
-            console.log("토큰 수동 갱신 요청...");
-            const accessToken = await refreshAccessToken();
-            if (accessToken) {
-                const newDecoded = tokenUtils.setToken(accessToken);
-                if (newDecoded) {
-                    setAuth({ accessToken, username: newDecoded.username });
-                    console.log("토큰 갱신 성공:", accessToken);
-                }
-            }
-        } catch (error) {
-            console.error("수동 토큰 갱신 실패");
-            handleLogout();
-        }
-    };
-   
-
     return { 
         login, 
         handleLogout,
-        refreshTokenManually,
         tokenInfo: tokenUtils.getTokenIfo(),
         isAuthenticated: !!auth?.accessToken
     };

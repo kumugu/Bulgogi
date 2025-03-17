@@ -1,15 +1,17 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
-import Register from "../pages/Register";
-import MyInfo from "../pages/MyInfo";
-import MyBlogHome from "../pages/MyBlogHome";
-import PostDetail from "../pages/PostDetail";
 import Header from "../pages/Header";
+import MyInfo from "../pages/MyInfo";
+import Register from "../pages/Register";
+import PostDetail from "../pages/PostDetail";
+import MyBlogHome from "../pages/MyBlogHome";
+import Navigation from "@/componets/Navigation";
 
 const Router = () => {
     return (
     <BrowserRouter>
+    <Navigation />
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="login" element={<Login />} />
