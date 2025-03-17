@@ -4,6 +4,7 @@ import com.bulgogi.user.dto.*;
 import com.bulgogi.user.exception.InvalidTokenException;
 import com.bulgogi.user.security.JwtProvider;
 import com.bulgogi.user.security.UserAuthorization;
+import com.bulgogi.user.service.TokenService;
 import com.bulgogi.user.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,11 +29,13 @@ public class UserController {
     private final JwtProvider jwtProvider;
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private final TokenService tokenService;
 
     @Autowired
-    public UserController(UserService userService, JwtProvider jwtProvider) {
+    public UserController(UserService userService, JwtProvider jwtProvider, TokenService tokenService) {
         this.userService = userService;
         this.jwtProvider = jwtProvider;
+        this.tokenService = tokenService;
     }
 
     // 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
@@ -67,8 +70,11 @@ public class UserController {
 
     // 토큰 갱신 (만료된 Access Token을 Refresh Token으로 재발급), 추가적인 테스트 필요
     @PostMapping("/refresh-token")
-    public ResponseEntity<Map<String, String>> refreshToken(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refreshToken");
+    public ResponseEntity<Map<String, String>> refreshToken(HttpServletRequest request) {
+        String refreshToken = userService.extractRefreshTokenFromRequest(request);
+        if (refreshToken == null) {
+            throw new InvalidTokenException("리프레시 토큰이 없습니다.");
+        }
         Map<String, String> tokens = userService.refreshToken(refreshToken);
         return ResponseEntity.ok(tokens);
     }
