@@ -20,8 +20,8 @@ export const useTokenMonitor = () => {
         // 이미 갱신 중이면 중복 요청 방지
         if (refreshingRef.current) return;
 
-        // 토큰 시간이 5분(300초) 이하로 남았을 때만 갱신
-        if (tokenRemainingTime !== null && tokenRemainingTime <= 300) {
+        // 토큰 시간이 1분(60초) 이하로 남았을 때만 갱신
+        if (tokenRemainingTime !== null && tokenRemainingTime <= 60) {
             console.log("토큰 만료 임박, 자동 갱신 시도...");
             refreshingRef.current = true;   // 갱신 중임을 표시
 
