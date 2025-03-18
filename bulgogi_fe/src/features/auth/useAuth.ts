@@ -1,7 +1,6 @@
 import { useAuthStore } from "@/store/authStore";
 import { tokenUtils } from '@/utils/tokenUtils';
 import { useNavigate } from "react-router-dom";
-import { useEffect, useCallback } from "react";
 import { LoginResponse } from "@/api/types";
 import { api } from "@/api/axios";
 
@@ -9,7 +8,8 @@ import { api } from "@/api/axios";
 export const useAuth = () => {
     const { setAuth, logout, auth } = useAuthStore();
     const navigate = useNavigate();
-    // const isAuthenticated = !!auth?.accessToken;
+
+    
 
     // 로그인 함수
     const login = async (email: string, password: string) => {
@@ -26,7 +26,7 @@ export const useAuth = () => {
 
             if (decoded) {
                 setAuth({ accessToken, username: decoded.username });
-                navigate(`/my-blog-home/${decoded.username}`);
+                navigate("/");
             }
         } catch (error: any) {
             console.error("로그인 실패", error.response?.data || error.message);
