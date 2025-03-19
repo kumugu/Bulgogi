@@ -2,11 +2,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Header from "../pages/Header";
-import MyInfo from "../pages/MyInfo";
 import Register from "../pages/Register";
 import PostDetail from "../pages/PostDetail";
 import MyBlogHome from "../pages/MyBlogHome";
 import Navigation from "@/componets/Navigation";
+import UserSettings from "../pages/UserSettings";
 import { useAuthStore } from "@/store/authStore";
 import { Navigate, Outlet } from "react-router-dom";
 
@@ -45,7 +45,7 @@ const Router = () => {
                 
                 {/* 로그인이 필요한 라우트 */}
                 <Route element={<ProtectedRoute />}>
-                    <Route path="/user/my-info/:username" element={<MyInfo />} />
+                    <Route path="/user-settings" element={<UserSettings />} />
                 </Route>
             </Routes>
         </div>

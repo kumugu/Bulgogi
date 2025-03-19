@@ -90,7 +90,7 @@ export default function Navigation() {
                       My Blog
                     </Link>
                     <Link
-                      to="/settings"
+                      to="/user-settings"
                       className="flex items-center px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
                       onClick={() => setIsProfileOpen(false)}
                     >
