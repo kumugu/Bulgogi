@@ -25,7 +25,7 @@ export const useAuthStore = create<AuthState>()(
         set({ auth: { accessToken: null, username: null }, isAuthenticated: false }),
     }),
     {
-      name: "auth-storage",
+      name: "auth-storage", 
       storage: createJSONStorage(() => sessionStorage),
     }
   )

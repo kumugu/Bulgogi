@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/api/axios";
-import { RegisterRequest, RegisterResponse } from "@/api/types";
+import { RegisterRequest, RegisterResponse } from "@/types/apiTypes";
 
 export const useRegister = () => {
   const navigate = useNavigate();

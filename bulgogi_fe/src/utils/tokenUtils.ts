@@ -1,5 +1,5 @@
 import { jwtDecode } from "jwt-decode";
-import { JwtPayload } from "./types";
+import { JwtPayload } from "../types/toKenTypes";
 
 // 토큰 관련 유틸리티 함수 모음
 export const tokenUtils = {

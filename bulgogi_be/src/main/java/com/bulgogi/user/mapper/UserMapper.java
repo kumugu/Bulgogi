@@ -26,9 +26,6 @@ public class UserMapper {
 
     // UserUpdateRequestDTO -> Entity 변환
     public static User updateToUser(UserUpdateRequestDTO userUpdateRequestDTO, User user) {
-        if (userUpdateRequestDTO.getUsername() != null) {
-            user.setUsername(userUpdateRequestDTO.getUsername());
-        }
         if (userUpdateRequestDTO.getProfileImage() != null) {
             user.setProfileImage(userUpdateRequestDTO.getProfileImage());
         }

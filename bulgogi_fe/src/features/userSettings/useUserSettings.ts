@@ -1,64 +1,73 @@
-import { useUserStore } from "@/store/userStore";
-import { useEffect, useState } from "react";
-import { UserProfile } from "@/types/user";
+import React, { useState } from "react";
+import { updateMyInfo, changePassword, deleteUser } from "@/api/userApi";
+import { UserProfile } from "@/types/userTypes";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
 
-export const useUserSettings = () => {
-    const { user, fetchUserInfo, updateUserInfo, changePassword, deleteUser } = useUserStore();
-    const [formData, setFormData] = useState({ username: "", bio: "", profileImage: "" });
+const useUserSettings = () => {
+    const navigate = useNavigate();
+    const { logout } = useAuthStore();
 
-    // 사용자 정보 가져오기
-    useEffect(() => {
-        fetchUserInfo();    // 페이지 로드 시 사용자 정보 가져오기
-    }, [fetchUserInfo]);
+    const [formData, setFormData] = useState<{ bio: string; profileImage: string}>({
+        bio: '',
+        profileImage: '',
+    });
 
-    // 사용자 정보가 변경되면 폼에 데이터 반영
-    useEffect(() => {
-        if (user) {
-            setFormData({
-                username: user.username,
-                bio: user.bio,
-                profileImage: user.profileImage,
-            });
-        }
-    }, [user]);
+    const [user, setUser] = useState<UserProfile | null>(null);
 
-    // 정보 업데이트
-    const handleUpdate = async (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        if (user) {
-            await updateUserInfo({
-                userId: user.userId,
-                username: formData.username,
-                bio: formData.bio,
-                profileImage: formData.profileImage,
-            });
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleUpdate = async (data?: { bio: string; profileImage: string }) => {
+        try {
+            if (data) {
+                await updateMyInfo(formData);
+                setFormData({ bio: "", profileImage: "" });
+                alert("회원정보가 변경 되었습니다.");
+            } else {
+                console.error("업데이트 데이터가 없습니다.");
+            }
+        } catch (error) {
+            console.error("회원정보 변경 실패:", error);
         }
     };
 
-    // 비밀번호 변경
-    const handlePasswordChange = async (data: { userId: number; oldPassword: string; newPassword: string }) => {
-        await changePassword(data);
-    };
-
-    // 회원 탈퇴
-    const handleDeleteUser = async (password: string) => {
-        if (user) {
-            await deleteUser({
-                userId: user.userId,
-                password: password,
-            });
+    const handlePasswordChange = async (passwordData: { oldPassword: string; newPassword: string }) => {
+        try {
+            await changePassword(passwordData);
+            alert("비밀번호가 변경 되었습니다.");
+        } catch (error) {
+            console.error("비밀번호 변경 실패:", error);
         }
     };
+
+    const handleDeleteUser = async (passwordData: { confirmPassword: string }) => {
+        try {
+            await deleteUser(passwordData);
+
+            // 인증 정보 초기화
+            logout();
+            sessionStorage.removeItem("accessToken");
+            
+            alert("회원 탈퇴 성공");
+            navigate("/")
+        } catch (error) {
+            console.error("탈퇴 실패:", error);
+            alert("회원 탈퇴에 실패했습니다. 다시 시도해주세요.");
+        }
+    };
+
 
     return {
         user,
-        formData, 
+        formData,
         setFormData,
         handleUpdate,
-        handlePasswordChange,
         handleDeleteUser,
-        updateUserInfo
+        handleInputChange,
+        handlePasswordChange,
     };
 };
 

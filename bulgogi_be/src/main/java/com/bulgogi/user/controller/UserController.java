@@ -103,21 +103,28 @@ public class UserController {
     }
 
     // 자기 정보 수정 (로그인한 사용자의 정보 수정)
-    @PutMapping("/my-info/{userId}")
+    @PutMapping("/my-info")
     @UserAuthorization
     public ResponseEntity<?> updateMyInfo(
-            @PathVariable Long userId,
+            @RequestHeader("Authorization") String token,
             @RequestBody UserUpdateRequestDTO updateRequest) {
+
+        String jwtToken = token.replace("Bearer ", "");
+        Long userId = jwtProvider.extractUserId(jwtToken);
+
         UserResponseDTO updatedUser = userService.updateMyInfo(userId, updateRequest);
         return ResponseEntity.ok(updatedUser);
     }
 
     // 비밀번호 변경 (기존 비밀번호 확인 후 새 비밀번호로 변경)
-    @PutMapping("/change-password/{userId}")
+    @PutMapping("/change-password")
     @UserAuthorization
     public ResponseEntity<Void> changePassword(
-            @PathVariable Long userId,
+            @RequestHeader("Authorization") String token,
             @RequestBody UserPasswordChangeRequestDTO userPasswordChangeRequestDTO) {
+
+        String jwtToken = token.replace("Bearer ", "");
+        Long userId = jwtProvider.extractUserId(jwtToken);
 
         userService.changePassword(userId, userPasswordChangeRequestDTO);
         return ResponseEntity.ok().build();
@@ -125,12 +132,18 @@ public class UserController {
 
     // 회원 탈퇴 (소프트 삭제 처리)
     // 회원 탈퇴하면 로그인은 가능하나, 기능 이용은 못하도록, 30일 후 완전 삭제 안내
-    @DeleteMapping("/delete-my-info/{userId}")
-    public ResponseEntity<Void> deleteMyInfo(@PathVariable Long userId) {
+    @DeleteMapping("/delete-my-info")
+    public ResponseEntity<Void> deleteMyInfo(
+            @RequestHeader("Authorization") String token) {
+
+        String jwtToken = token.replace("Bearer ", "");
+        Long userId = jwtProvider.extractUserId(jwtToken);
+
         userService.deleteMyInfo(userId);
         return ResponseEntity.ok().build();
     }
     // =================================================================================================================
+
 
     // =================================================================================================================
     // 사용자 조회

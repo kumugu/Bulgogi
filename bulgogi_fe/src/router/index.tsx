@@ -5,7 +5,7 @@ import Header from "../pages/Header";
 import Register from "../pages/Register";
 import PostDetail from "../pages/PostDetail";
 import MyBlogHome from "../pages/MyBlogHome";
-import Navigation from "@/componets/Navigation";
+import Navigation from "@/components/Navigation";
 import UserSettings from "../pages/UserSettings";
 import { useAuthStore } from "@/store/authStore";
 import { Navigate, Outlet } from "react-router-dom";

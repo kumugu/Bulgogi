@@ -4,26 +4,16 @@ import java.time.LocalDateTime;
 
 public class UserUpdateRequestDTO {
 
-    private String username;
     private String profileImage;
     private String bio;
     private LocalDateTime updatedAt;
 
     public UserUpdateRequestDTO() {};
 
-    public UserUpdateRequestDTO(String username, String profileImage, String bio, LocalDateTime updatedAt) {
-        this.username = username;
+    public UserUpdateRequestDTO(String profileImage, String bio, LocalDateTime updatedAt) {
         this.profileImage = profileImage;
         this.bio = bio;
         this.updatedAt = updatedAt;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getProfileImage() {

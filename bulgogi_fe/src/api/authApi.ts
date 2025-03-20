@@ -1,5 +1,5 @@
 import { api } from "./axios";
-import { LoginResponse } from "./types";
+import { LoginResponse } from "../types/apiTypes";
 import { tokenUtils } from "@/utils/tokenUtils";
 import { processQueue, setIsRefreshing } from "./queue";
 import { setRefreshTokenFunction } from "./axios";
