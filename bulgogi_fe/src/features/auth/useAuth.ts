@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { tokenUtils } from '@/utils/tokenUtils';
 import { useNavigate } from "react-router-dom";
@@ -5,11 +6,11 @@ import { LoginResponse } from "@/types/apiTypes";
 import { api } from "@/api/axios";
 import { AxiosError } from "axios";
 
-
 export const useAuth = () => {
     const { setAuth, auth } = useAuthStore();
     const logout = useAuthStore((state) => state.logout);
     const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     
 
@@ -17,18 +18,18 @@ export const useAuth = () => {
     const login = async (email: string, password: string) => {
         // 이메일과 비밀번호 입력 여부 확인
         if (!email.trim()) {
-            alert("이메일을 입력하세요.");
+            setErrorMessage("이메일을 입력하세요.");
             return;
         }
         if (!password.trim()) {
-            alert("비밀번호를 입력하세요");
+            setErrorMessage("비밀번호를 입력하세요");
             return;
         }
 
         // 이메일 형식 확인 (정규식 사용)
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            alert("유효한 이메일을 입력하세요.");
+            setErrorMessage("유효한 이메일을 입력하세요.");
             return;
         }
 
@@ -49,11 +50,27 @@ export const useAuth = () => {
             }
         } catch (error: unknown) {
             if (error instanceof AxiosError) {
-               // 서버 오류 메시지 변경
-               const errorMessage = '로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.';
-               alert(errorMessage);
-            } else {
-                alert("로그인 중 오류가 발생했습니다.");
+               // 서버 오류 메시지
+                let message = '로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.';
+
+                switch (error.response?.status) {
+                    case 400:
+                        message = error.response?.data?.message || "잘못된 요청입니다. 이메일과 비밀번호를 확인해주세요.";
+                        break;
+                    case 401:
+                        message = "비밀번호가 올바르지 않습니다.";
+                        break;
+                    case 403:
+                        message = "접근 권한이 없습니다.";
+                        break;
+                    case 404:
+                        message = "사용자를 찾을 수 없습니다.";
+                        break;
+                    case 500:
+                        message = "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+                        break;
+                }
+                setErrorMessage(message);
             }
         }
     };
@@ -92,6 +109,8 @@ export const useAuth = () => {
         login, 
         handleLogout,
         tokenInfo: tokenUtils.getTokenIfo(),
-        isAuthenticated: !!auth?.accessToken
+        isAuthenticated: !!auth?.accessToken,
+        errorMessage,
+        setErrorMessage
     };
 };

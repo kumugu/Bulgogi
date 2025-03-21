@@ -3,15 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../features/auth/useAuth";
 import { Loader2 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
+import Modal from "@/components/modal/ModalErrorMessage";
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, errorMessage, setErrorMessage } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate()
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,13 +53,13 @@ const Login = () => {
         <form onSubmit={handleLogin} className="mt-8 space-y-6">
           <div className="space-y-4 rounded-md">
             <div>
-              <label htmlFor="username" className="sr-only">
+              <label htmlFor="email" className="sr-only">
                 email
               </label>
               <input
-                id="username"
-                name="username"
-                type="text"
+                id="email"
+                name="email"
+                type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -94,6 +96,9 @@ const Login = () => {
           </div>
         </form>
 
+        {/* 에러 메시지 */}
+        {errorMessage && <Modal message={errorMessage} onClose={() => setErrorMessage(null)} />}
+
         {/* 추가 링크 */}
         <div className="text-sm text-center">
           <Link to="/forgot-password" className="text-neutral-600 hover:text-neutral-900">
@@ -102,7 +107,7 @@ const Login = () => {
         </div>
 
         {/* 소셜 로그인 */}
-        <div className="relative">
+        <div className="relative z-0"> 
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-neutral-200" />
           </div>

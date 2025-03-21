@@ -69,17 +69,17 @@ public class GlobalExceptionHandler {
     }
 
     // 기타 예외 처리
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex, HttpServletRequest request) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.put("error", "Internal Server Error");
-        response.put("message", "서버 내부 오류가 발생했습니다.");
-        response.put("path", request.getRequestURI());
-
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex, HttpServletRequest request) {
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("timestamp", LocalDateTime.now());
+//        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+//        response.put("error", "Internal Server Error");
+//        response.put("message", "서버 내부 오류가 발생했습니다.");
+//        response.put("path", request.getRequestURI());
+//
+//        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
 }
 
