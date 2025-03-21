@@ -100,12 +100,15 @@ public class UserService {
             // 이메일로 사용자 찾기
             UserLoginDTO userLoginDTO = userRepository.findEmailAndPasswordByEmail(email)
                     .orElseThrow(() -> new UserNotFoundException("이메일을 찾을 수 없습니다."));
+            // 로그 - 디버깅용
+            logger.debug("Found user: {}", userLoginDTO.getEmail());
 
             // 사용자 데이터 추출
             Long userId = userLoginDTO.getId();
             String username = userLoginDTO.getUsername();
             String storedEmail = userLoginDTO.getEmail();
             String storedPassword = userLoginDTO.getPassword();
+            boolean deleted = userLoginDTO.isDeleted();
 
             // 이메일 일치 확인
             if (!storedEmail.equals(email)) {
@@ -115,6 +118,11 @@ public class UserService {
             // 비밀번호 비교
             if (!passwordEncoder.matches(password, storedPassword)) {
                 throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.");
+            }
+
+            // 탈퇴 여부 확인
+            if (deleted) {
+                throw new UserDeactivatedException("탈퇴한 계정입니다.");
             }
 
             // JWT 토큰 생성
@@ -131,11 +139,13 @@ public class UserService {
             // 토큰을 Map에 저장
             Map<String, String> token = new HashMap<>();
             token.put("accessToken", accessToken);
-            token.put("refreshToken", refreshToken);
 
             return token;
+        } catch (UserNotFoundException | InvalidPasswordException | UserDeactivatedException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("서버 내부 오류 런타임", e);
+            logger.error("Login error:", e);
+            throw new RuntimeException("서버 내부 오류가 발생했습니다.", e);
         }
     }
 

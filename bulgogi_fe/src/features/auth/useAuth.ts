@@ -50,9 +50,9 @@ export const useAuth = () => {
             }
         } catch (error: unknown) {
             if (error instanceof AxiosError) {
-               // 서버 오류 메시지
+                // 서버 오류 메시지
                 let message = '로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.';
-
+     
                 switch (error.response?.status) {
                     case 400:
                         message = error.response?.data?.message || "잘못된 요청입니다. 이메일과 비밀번호를 확인해주세요.";
@@ -61,7 +61,15 @@ export const useAuth = () => {
                         message = "비밀번호가 올바르지 않습니다.";
                         break;
                     case 403:
-                        message = "접근 권한이 없습니다.";
+                        if (error.response?.data?.message === "탈퇴한 계정입니다.") {
+                            message = "탈퇴한 계정입니다. 고객센터에 문의해주세요.";
+                        } else if (error.response?.data?.message === "이메일을 찾을 수 없습니다.") {
+                            message = "등록된 이메일이 없습니다. 이메일을 확인해주세요.";
+                        } else if (error.response?.data?.message === "비밀번호가 일치하지 않습니다.") {
+                            message = "비밀번호가 일치하지 않습니다. 비밀번호를 확인해주세요.";
+                        } else {
+                            message = "접근 권한이 없습니다.";
+                        }
                         break;
                     case 404:
                         message = "사용자를 찾을 수 없습니다.";

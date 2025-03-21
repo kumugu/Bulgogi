@@ -16,19 +16,26 @@ public class UserLoginDTO {
     @Size(min = 4, message = "비밀번호는 최소 4자 이상이어야 합니다.")
     private String password;
 
+    private boolean deleted;
 
-    public UserLoginDTO() {}
+    // 기본 생성자
+    public UserLoginDTO () {}
 
-    // test용
-    public UserLoginDTO(String email, String asdf) {
+    // 파라미터가 있는 생성자
+    public UserLoginDTO(String email, String password, boolean deleted) {
+        this.email = email;
+        this.password = password;
+        this.deleted = deleted;
     }
 
-    public UserLoginDTO(Long id, String email, String password, String username) {
+    public UserLoginDTO(Long id, String email, String password, String username, boolean deleted) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.username = username;
+        this.deleted = deleted;
     }
+
 
 
     public Long getId() {
@@ -61,5 +68,13 @@ public class UserLoginDTO {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

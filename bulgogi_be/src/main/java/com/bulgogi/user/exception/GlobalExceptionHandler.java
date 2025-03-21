@@ -1,14 +1,15 @@
 package com.bulgogi.user.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import javax.naming.AuthenticationException;
 import java.rmi.AccessException;
-import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,6 +62,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
+    // 탈퇴 사용자 예외 처리
+    @ExceptionHandler(UserDeactivatedException.class)
+    public ResponseEntity<Map<String, String>> handleUserDeactivatedException(UserDeactivatedException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "탈퇴한 사용자입니다: " + ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
     // 자신의 정보 수정 시 권한(요청한 사용자와 자신이 맞는지) 오류 처리
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
@@ -68,7 +77,23 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(ex.getMessage()));
     }
 
-    // 기타 예외 처리
+    //
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        // 첫 번째 유효성 검사 오류 메시지 추출
+        String errorMessage = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(FieldError::getDefaultMessage)
+                .orElse("입력값이 올바르지 않습니다.");
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Collections.singletonMap("message", errorMessage));
+    }
+
+//    // 기타 예외 처리
 //    @ExceptionHandler(Exception.class)
 //    public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex, HttpServletRequest request) {
 //        Map<String, Object> response = new HashMap<>();
