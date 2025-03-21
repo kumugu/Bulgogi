@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState } from "react";
 import { FaLock as Lock } from "react-icons/fa";
 import { FaSpinner as Loader2 } from "react-icons/fa";
-import { handlePasswordChangeAPI } from "@/api/userApi";
+import { handlePasswordChangeAPI } from "@/api/user/userSettingsApi";
 
 
 interface SecuritySectionProps {

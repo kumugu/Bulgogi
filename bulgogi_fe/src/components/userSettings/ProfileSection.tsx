@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useRef } from "react";
 import { FaUpload } from "react-icons/fa";
 
@@ -5,9 +6,11 @@ interface ProfileSectionProps {
     bio: string;
     onBioChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
     onSubmit: () => void;
+    loading: boolean;
+    error: string | null;
 }
 
-const ProfileSection = ({ bio, onBioChange, onSubmit }: ProfileSectionProps) => {
+const ProfileSection = ({ bio, onBioChange, onSubmit, loading, error }: ProfileSectionProps) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,7 +65,7 @@ const ProfileSection = ({ bio, onBioChange, onSubmit }: ProfileSectionProps) => 
                             value={bio}
                             onChange={onBioChange}
                             className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-neutral-900 dark:text-white focus:border-neutral-900 dark:focus:border-white focus:ring-neutral-900 dark:focus:ring-white min-h-[100px]"
-                            placeholder="Write a brief introduction about yourself..."
+                            placeholder={bio ? "" : "Write a brief introduction about yourself..."}
                         />
                     </div>
 

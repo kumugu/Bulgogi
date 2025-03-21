@@ -7,10 +7,10 @@ interface ModalProps {
 
 const Modal: React.FC<ModalProps> = ({ message, onClose }) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-neutral-900 bg-opacity-70 backdrop-blur-sm z-50">
-      <div className="w-80 rounded-lg bg-neutral-900 p-6 shadow-lg border border-neutral-300">
+    <div className="fixed inset-0 flex items-center justify-center bg-neutral-400 bg-opacity-70 backdrop-blur-sm z-50">
+      <div className="w-80 rounded-lg bg-white p-6 shadow-lg border border-neutral-200">
         {/* 모달 내용 */}
-        <p className="text-neutral-100">{message}</p>
+        <p className="text-neutral-900">{message}</p>
 
         {/* 버튼 */}
         <button

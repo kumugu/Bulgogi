@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { refreshAccessToken } from "@/api/authApi";
+import { refreshAccessToken } from "@/api/user/authApi";
 import { tokenUtils } from "@/utils/tokenUtils";
 import { useAuthStore } from "@/store/authStore";
 import { log } from "console";

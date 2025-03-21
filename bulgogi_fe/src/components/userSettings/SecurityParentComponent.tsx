@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import SecuritySection from "./SecuritySection";
 import { api } from "@/api/axios";
-import { handlePasswordChangeAPI } from "@/api/userApi";
+import { handlePasswordChangeAPI } from "@/api/user/userSettingsApi";
 
 const ParentComponent = () => {
     const [oldPassword, setOldPassword] = useState("");

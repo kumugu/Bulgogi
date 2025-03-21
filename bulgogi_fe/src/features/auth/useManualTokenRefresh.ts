@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/store/authStore";
 import { useEffect } from "react";
-import { refreshAccessToken } from "@/api/authApi";
+import { refreshAccessToken } from "@/api/user/authApi";
 import { tokenUtils } from "@/utils/tokenUtils";
 import { useAuth } from "@/features/auth/useAuth"
 

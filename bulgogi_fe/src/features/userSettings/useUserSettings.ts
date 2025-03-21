@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { updateMyInfo, changePassword, deleteUser } from "@/api/userApi";
+import { updateMyInfo, changePassword, deleteUser } from "@/api/user/userSettingsApi";
 import { UserProfile } from "@/types/userTypes";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";

@@ -1,25 +1,6 @@
-import { UserProfile, ApiResponse, UpdateUserProfileRequest, ChangePasswordRequest, DeleteUserRequest } from "@/types/userTypes";
-import { api } from "./axios";
+import { ApiResponse, ChangePasswordRequest, DeleteUserRequest } from "@/types/userTypes";
+import { api } from "../axios";
 
-// 자기 정보 조회
-const getMyInfo = async (): Promise<ApiResponse<UserProfile>> => {
-    try {
-        const response = await api.get<ApiResponse<UserProfile>>('/users/my-info');
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
-};
-
-// 자기 정보 수정
-const updateMyInfo = async (updateData: UpdateUserProfileRequest): Promise<ApiResponse<UserProfile>> => {
-    try {
-        const response = await api.put<ApiResponse<UserProfile>>('/users/my-info', updateData);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
-};
 
 // 비밀번호 변경
 const changePassword = async (passwordData: ChangePasswordRequest): Promise<ApiResponse<void>> => {
@@ -52,6 +33,5 @@ const deleteUser = async (deleteData: DeleteUserRequest): Promise<ApiResponse<vo
     }
 };
 
-export { getMyInfo, updateMyInfo, changePassword, handlePasswordChangeAPI, deleteUser };
 
-
+export { changePassword, handlePasswordChangeAPI, deleteUser };
