@@ -87,6 +87,10 @@ public class UserService {
             throw new DuplicateUserException("이미 사용장인 사용자명입니다.");
         }
 
+        if (!userRequestDTO.isValidPassword()) {
+            throw new InvalidPasswordException("비밀번호는 최소 8자 이상, 대소문자, 숫자 및 특수문자를 포함하고 최대 20자여야 합니다.");
+        }
+
         User user = UserMapper.toUser(userRequestDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 

@@ -24,10 +24,8 @@ const ProfileSection = ({ bio, onBioChange, onSubmit }: ProfileSectionProps) => 
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6 space-y-8">
-            {/* Profile Section */}
-            <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-6 flex items-center dark:text-white">
+        <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold mb-6 flex items-center dark:text-white">
                     <FaUpload className="h-5 w-5 mr-2" />
                     Profile Settings
                 </h2>
@@ -76,7 +74,6 @@ const ProfileSection = ({ bio, onBioChange, onSubmit }: ProfileSectionProps) => 
                     </button>
                 </form>
             </div>
-        </div>
     );
 };
 

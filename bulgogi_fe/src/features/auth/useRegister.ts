@@ -25,9 +25,15 @@ export const useRegister = () => {
       }
     } catch (error: any) {
       console.error("회원가입 실패", error.response?.data || error.message);
-      
-      setError("회원가입 중 오류가 발생했습니다. 다시 시도해주세요");
 
+      // 비밀번호 오류 메시지 처리
+      if (error.response?.data?.error?.includes("비밀번호는 최소 8자 이상")) {
+        setError("비밀번호는 최소 8자 이상, 대소문자, 숫자 및 특수문자를 포함하고 최대 20자여야 합니다.");
+      } else {
+        setError("회원가입 중 오류가 발생했습니다. 다시 시도해주세요");
+      }
+      
+      // 400, 409 오류 처리
       if (error.response?.status === 400) {
         setError("입력값이 올바르지 않습니다. 다시 확인해주세요.");
       } else if (error.response?.status === 409) {

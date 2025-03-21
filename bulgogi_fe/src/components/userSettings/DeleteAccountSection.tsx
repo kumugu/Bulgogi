@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FaLock as Lock } from "react-icons/fa";
 
 interface DeleteAccountProps {
     onDelete: (PasswordData: { confirmPassword: string }) => void;
@@ -17,8 +18,11 @@ const DeleteAccountSection: React.FC<DeleteAccountProps> = ({ onDelete }) => {
     };
 
     return (
-        <div className="mt-6 border-t pt-4">
-            <h2 className="text-lg font-bold text-red-600">Delete Account</h2>
+        <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold mb-6 flex items-center dark:text-white">
+                <Lock className="h-5 w-5 mr-2" />
+                Delete Account
+            </h2>
             <p className="text-sm text-gray-600">
             Are you sure you want to delete your account? This action cannot be undone.
             </p>
@@ -33,12 +37,14 @@ const DeleteAccountSection: React.FC<DeleteAccountProps> = ({ onDelete }) => {
                 />
                 <button
                     type="submit"
-                    className="mt-3 bg-red-600 text-white py-2 px-4 rounded w-full hover:bg-red-700"
+                    className="w-full mt-4 px-4 py-2 bg-red-600 dark:bg-white text-white dark:text-neutral-900 rounded-lg text-sm font-medium hover:bg-red-800 dark:hover:bg-neutral-100 transition-colors duration-200 disabled:opacity-50"
                 >
                     Delete Account
                 </button>
             </form>
-        </div> 
+
+        </div>
+
     );
 };
 
