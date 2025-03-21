@@ -47,46 +47,7 @@ export const useAuth = () => {
         login,
         errorMessage,
     };
-
-
-           
-
-
-      // 로그아웃
-      const handleLogout = async () => {
-        try {
-            const token = sessionStorage.getItem("accessToken");
-            if (!token) {
-                console.error("로그인하지 않은 상태입니다.");
-                return;
-            }
-
-            // 서버에서 로그아웃 API 호출
-            await api.post("/users/logout", {});
-
-            // 상태 및 세션 초기화
-            logout();
-            sessionStorage.removeItem("accessToken");
-            console.log("로그아웃 성공");
-            
-            navigate("/");
-        } catch (error: any) {
-            logout();
-            sessionStorage.removeItem("accessToken");
-            console.error("로그아웃 중 오류 발생. 클라이언트에서 토큰 삭제됨.", error.response?.data || error.message);
-
-            navigate("/")
-        }
-    };
-
-
-
-    return { 
-        login, 
-        handleLogout,
-        tokenInfo: tokenUtils.getTokenIfo(),
-        isAuthenticated: !!auth?.accessToken,
-        errorMessage,
-        setErrorMessage
-    };
 };
+
+
+    
