@@ -7,18 +7,12 @@ export interface UserProfile {
     updatedAt: string;
 }
 
-export interface UpdateUserProfileRequest {
+export interface UpdatedUserBioRequest {
     bio: string;
+}
+
+export interface UpdateUserProfileImageRequest {
     profileImage: string;
-}
-
-export interface ChangePasswordRequest {
-    oldPassword: string;
-    newPassword: string;
-}
-
-export interface DeleteUserRequest {
-    confirmPassword: string;
 }
 
 export interface ApiResponse<T = any> {

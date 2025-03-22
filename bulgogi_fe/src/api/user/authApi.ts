@@ -1,5 +1,5 @@
 import { api } from "../axios";
-import { LoginResponse } from "../../types/apiTypes";
+import { LoginResponse } from "@/types/users/authTypes";
 
 
 // 로그인

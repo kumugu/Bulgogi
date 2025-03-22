@@ -1,4 +1,5 @@
-import { ApiResponse, ChangePasswordRequest, DeleteUserRequest } from "@/types/userTypes";
+import { ChangePasswordRequest, DeleteUserRequest } from "@/types/users/accountTypes";
+import { ApiResponse } from "@/types/users/userTypes";
 import { api } from "../axios";
 
 
