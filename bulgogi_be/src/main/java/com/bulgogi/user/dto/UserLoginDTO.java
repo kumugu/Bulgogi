@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 
 public class UserLoginDTO {
     private Long id;
+
+    @Size(min = 4, max = 20, message = "이름은 최소 4자 이상, 최대 20자이어야 합니다.")
     private String username;
 
     @NotBlank(message = "이메일을 입력하새주세요.")
@@ -13,7 +15,7 @@ public class UserLoginDTO {
     private String email;
 
     @NotBlank(message = "비밀번호를 입력해주세요.")
-    @Size(min = 4, message = "비밀번호는 최소 4자 이상이어야 합니다.")
+    @Size(min = 4, max = 20, message = "비밀번호는 최소 4자 이상, 최대 20자이어야 합니다.")
     private String password;
 
     private boolean deleted;
