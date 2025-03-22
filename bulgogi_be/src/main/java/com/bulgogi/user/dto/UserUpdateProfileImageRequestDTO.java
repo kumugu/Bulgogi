@@ -9,11 +9,11 @@ public class UserUpdateProfileImageRequestDTO {
 
     // 유효성 검증
     public void validate() {
-        if (profileImage == null) {
+        if (profileImage == null || profileImage.isBlank()) {
             throw new IllegalArgumentException("ProfileImage 값은 비어 있을 수 없습니다.");
         }
-        if (!profileImage.startsWith("http:") || !profileImage.startsWith("https:")) {
-            throw new IllegalArgumentException("유효하지 않은 ProfileImage URL입니다.");
+        if (!profileImage.startsWith("/static/images/profile/")) {
+            throw new IllegalArgumentException("유효하지 않은 ProfileImage 경로입니다.");
         }
     }
 
