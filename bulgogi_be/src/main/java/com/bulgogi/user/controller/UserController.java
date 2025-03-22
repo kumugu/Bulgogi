@@ -62,17 +62,45 @@ public class UserController {
         return ResponseEntity.ok(userResponseDTO);
     }
 
-    // 자기 정보 수정 (로그인한 사용자의 정보 수정)
-    @PutMapping("/my-info")
-    @UserAuthorization
-    public ResponseEntity<?> updateMyInfo(
-            @RequestHeader("Authorization") String token,
-            @RequestBody UserUpdateRequestDTO updateRequest) {
-
+    // JWT 토큰에서 userId 추출
+    private Long extractUserIdFormToken(String token) {
+        // 1. "Bearer " 접두어 제거
         String jwtToken = token.replace("Bearer ", "");
-        Long userId = jwtProvider.extractUserId(jwtToken);
+        // 2. JWT 토큰에서 userId 추출
+        return jwtProvider.extractUserId(jwtToken);
+    }
 
-        UserResponseDTO updatedUser = userService.updateMyInfo(userId, updateRequest);
+    // 자기 정보 수정 (bio)
+    @PutMapping("/my-info/bio")
+    @UserAuthorization
+    public ResponseEntity<?> updateMyBio(
+            @RequestHeader("Authorization") String token,   // 요청 헤더에서 Authorization 토큰 추출
+            @RequestBody UserUpdateBioRequestDTO bioDTO) {  // 클라이언트로부터 전달받은 bio 업데이트 데이터
+
+        // 1. Authorization 헤더의 유효성 확인
+        if (!token.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+        }
+        // 2. JWT 토큰에서 사용자 ID 추출
+        Long userId = extractUserIdFormToken(token);
+        // 3. 사용자 Bio 업데이트 (서비스 계층 호출)
+        UserResponseDTO updatedUser = userService.updateBio(userId, bioDTO);
+        // 4. HTTP 응답 반환 (업데이트된 사용자 정보)
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    // 자기 정보 수정 (profileImage)
+    @PutMapping("/my-info/profileImage")
+    @UserAuthorization
+    public ResponseEntity<?> updateProfileImage(
+            @RequestHeader("Authorization") String token,
+            @RequestBody UserUpdateProfileImageRequestDTO profileImageDTO) {
+
+        if (!token.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+        }
+        Long userId = extractUserIdFormToken(token);
+        UserResponseDTO updatedUser = userService.updateProfileImage(userId, profileImageDTO);
         return ResponseEntity.ok(updatedUser);
     }
 }

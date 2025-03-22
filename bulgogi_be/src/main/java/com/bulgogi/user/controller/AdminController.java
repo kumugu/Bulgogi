@@ -5,10 +5,10 @@ import com.bulgogi.user.dto.UserResponseDTO;
 import com.bulgogi.user.service.AdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
+@RestController
+@RequestMapping("/api/users")
 public class AdminController {
 
     private final AdminService adminService;

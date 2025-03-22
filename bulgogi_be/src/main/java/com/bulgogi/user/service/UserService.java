@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -43,9 +44,10 @@ public class UserService {
      * 3. 다른 사용자 정보 조회 (username 조회: 외부 검색 용도, 공개된 정보 조회)
      * 4. 특정 유저 정보 조회 (userId 조회: 내부 사용 용도, 공개된 정보 조회)
      * 5. 자기 정보 조회
-     * 6. 자기 정보 수정
+     * 6. 자기 정보 수정(bio)
+     * 7. 자기 정보 수정(profileImage)
      *
-     * 마지막 업데이트: 2025-03-22 00:01
+     * 마지막 업데이트: 2025-03-22 13:11
      */
 
     // 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
@@ -93,19 +95,36 @@ public class UserService {
         );
     }
 
-    // 자기 정보 수정 (로그인한 사용자의 정보 수정)
+    // 자기 정보 수정 - Bio
     @Transactional
-    public UserResponseDTO updateMyInfo(Long userId, UserUpdateRequestDTO updateRequest) {
+    public UserResponseDTO updateBio(Long userId, UserUpdateBioRequestDTO bioRequest) {
+        // 1. 사용자 조회
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceAccessException("해당 ID의 사용자를 찾을 수 없습니다: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // UserUpdateRequestDTO를 User Entity로 변환 및 업데이트
-        User updateUser = UserMapper.updateToUser(updateRequest, user);
+        // 2. DTO 유효성 검증
+        bioRequest.validate();
 
-        // 변경된 사용자 정보 저장
-        updateUser = userRepository.save(updateUser);
+        // 3. DTO 데이터로 Entity 필드 업데이트
+        user.setBio(bioRequest.getBio());
+        user.setUpdatedAt(LocalDateTime.now());
 
-        // UserResponseDTO로 변환하여 반환
-        return UserMapper.toUserResponseDTO(updateUser);
+        // 4. 변경된 사용자 정보 저장
+        userRepository.save(user);
+
+        // 5. 응답 DTO 반환
+        return UserMapper.toUserResponseDTO(user);
+    }
+
+    // 자기 정보 수정 - ProfileImage
+    @Transactional
+    public UserResponseDTO updateProfileImage(Long userId, UserUpdateProfileImageRequestDTO profileImageRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+        profileImageRequest.validate();
+        user.setProfileImage(profileImageRequest.getProfileImage());
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+        return UserMapper.toUserResponseDTO(user);
     }
 }

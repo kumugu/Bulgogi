@@ -2,7 +2,8 @@ package com.bulgogi.user.mapper;
 
 import com.bulgogi.user.dto.UserRequestDTO;
 import com.bulgogi.user.dto.UserResponseDTO;
-import com.bulgogi.user.dto.UserUpdateRequestDTO;
+import com.bulgogi.user.dto.UserUpdateBioRequestDTO;
+import com.bulgogi.user.dto.UserUpdateProfileImageRequestDTO;
 import com.bulgogi.user.model.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -24,16 +25,24 @@ public class UserMapper {
         return modelMapper.map(userRequestDTO, User.class);
     }
 
-    // UserUpdateRequestDTO -> Entity 변환
-    public static User updateToUser(UserUpdateRequestDTO userUpdateRequestDTO, User user) {
-        if (userUpdateRequestDTO.getProfileImage() != null) {
-            user.setProfileImage(userUpdateRequestDTO.getProfileImage());
-        }
-        if (userUpdateRequestDTO.getBio() != null) {
-            user.setBio(userUpdateRequestDTO.getBio());
-        }
+    // 공통 Timestamp 업데이트
+    private static void updateTimestamp(User user) {
         user.setUpdatedAt(LocalDateTime.now());
-        return user;
     }
+
+    // Bio 업데이트
+    public static void updateBio(User user, UserUpdateBioRequestDTO bioDTO) {
+        modelMapper.map(bioDTO, user);
+        updateTimestamp(user);
+    }
+
+    // ProfileImage 업데이트
+    public static void updateProfileImage(User user, UserUpdateProfileImageRequestDTO profileImageDTO) {
+        modelMapper.map(profileImageDTO, user);
+        updateTimestamp(user);
+    }
+
+
+
 
 }
