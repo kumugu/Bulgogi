@@ -23,7 +23,6 @@ const handlePasswordChangeAPI = async (passwordData: { oldPassword: string; newP
     }
 };
 
-
 // 회원 탈퇴
 const deleteUser = async (deleteData: DeleteUserRequest): Promise<ApiResponse<void>> => {
     try {
@@ -33,6 +32,5 @@ const deleteUser = async (deleteData: DeleteUserRequest): Promise<ApiResponse<vo
         throw error;
     }
 };
-
 
 export { changePassword, handlePasswordChangeAPI, deleteUser };

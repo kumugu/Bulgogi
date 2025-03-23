@@ -34,8 +34,6 @@ public class UserRequestDTO {
         return Pattern.matches(passwordPattern, this.password);
     }
 
-
-
     public Long getId() {
         return id;
     }

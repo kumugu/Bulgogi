@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/logout", "/api/users/refresh-token").authenticated()
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/posts/**").authenticated()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
         return http.build();
