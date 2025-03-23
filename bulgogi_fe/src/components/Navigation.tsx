@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/user/authStore";
 import { ChevronDown, LogOut, User, Settings, X, Menu } from "react-feather"; 
 import { tokenUtils } from "@/utils/tokenUtils";
 import { JwtPayload } from "jwt-decode";

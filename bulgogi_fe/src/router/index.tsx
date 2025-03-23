@@ -7,7 +7,7 @@ import PostDetail from "../pages/PostDetail";
 import MyBlogHome from "../pages/MyBlogHome";
 import Navigation from "@/components/Navigation";
 import UserSettings from "../pages/UserSettings";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/user/authStore";
 import { Navigate, Outlet } from "react-router-dom";
 
 // 로그인된 사용자가 접근하면 홈으로 리디렉션하는 컴포넌트

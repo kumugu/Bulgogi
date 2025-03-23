@@ -1,4 +1,4 @@
-import { UserProfile, ApiResponse, UpdatedUserBioRequest, UpdateUserProfileImageRequest } from "@/types/users/userTypes";
+import { UserProfile, ApiResponse, UpdatedUserBioRequest, UpdateUserProfileImageRequest } from "@/types/user/userTypes";
 import { api } from "../axios";
 
 

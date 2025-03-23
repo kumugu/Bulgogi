@@ -1,4 +1,4 @@
-import { useAuth } from "@/features/auth/useAuth";
+import { useAuth } from "@/features/user/auth/useAuth";
 import {useTokenRefresh } from "@/features/auth/useManualTokenRefresh";
 import Header from "./Header";
 

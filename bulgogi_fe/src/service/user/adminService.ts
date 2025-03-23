@@ -1,5 +1,5 @@
 import { adminUpdateUserInfo } from "@/api/user/adminApi";
-import { AdminUpdateUserRequest, AdminUpdateUserResponse, ApiAdimResponse } from "@/types/users/adminTypes";
+import { AdminUpdateUserRequest, AdminUpdateUserResponse, ApiAdimResponse } from "@/types/user/adminTypes";
 
 const adminUpdateUserService = async (targetId: number, updateData: AdminUpdateUserRequest): Promise<AdminUpdateUserResponse> => {
     try {

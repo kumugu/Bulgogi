@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { refreshAccessToken } from "@/api/user/authApi";
 import { tokenUtils } from "@/utils/tokenUtils";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/user/authStore";
 import { access } from "fs";
 import { useTokenRemainingTime } from "./useTokenRemaininTime";
 
@@ -52,6 +52,7 @@ export const useAutomaticTokenRefresh = (tokenRemainingTime: number | null) => {
       // 토큰 시간이 1분(60초) 이하로 남았을 때 자동으로 갱신
       if (tokenRemainingTime !== null && tokenRemainingTime <= 60 && !refreshingRef.current) {
         console.log("토큰 만료 임박, 자동 갱신 시도...");
+        refreshingRef.current = true;
         refreshToken({ setAuth, logout }).then((success) => {
             refreshingRef.current = false;
             if (!success) {

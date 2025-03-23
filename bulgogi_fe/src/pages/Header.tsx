@@ -1,5 +1,5 @@
-import { useAuth } from "@/features/auth/useAuth";
-import { useTokenRemainingTime } from "@/features/auth/useTokenRemaininTime";
+import { useAuth } from "@/features/user/auth/useAuth";
+import { useTokenRemainingTime } from "@/features/user/auth/useTokenRemaininTime";
 
 const Header = () => {
     const tokenRemainingTime = useTokenRemainingTime();

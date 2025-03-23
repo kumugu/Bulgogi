@@ -1,36 +1,36 @@
-import { ChangePasswordRequest, DeleteUserRequest } from "@/types/users/accountTypes";
-import { ApiResponse } from "@/types/users/userTypes";
+import { ChangePasswordRequest, DeleteUserRequest, RegisterRequest } from "@/types/user/accountTypes";
+import { AccountApiResponse } from "@/types/user/accountTypes";
 import { api } from "../axios";
 
 
-// 비밀번호 변경
-const changePassword = async (passwordData: ChangePasswordRequest): Promise<ApiResponse<void>> => {
+// 회원가입
+const register = async (registerData: RegisterRequest): Promise<AccountApiResponse<void>> => {
     try {
-        const response = await api.put<ApiResponse<void>>('/users/change-password', passwordData);
+        const response = await api.post<AccountApiResponse<void>>('/users/register', registerData);
         return response.data;
     } catch (error) {
-        throw error;
+        return handleApiError(error); 
     }
 };
 
-// 비밀번호 변경 처리 API 함수
-const handlePasswordChangeAPI = async (passwordData: { oldPassword: string; newPassword: string }) => {
+// 비밀번호 변경
+const changePassword = async (passwordData: ChangePasswordRequest): Promise<AccountApiResponse<void>> => {
     try {
-        await changePassword(passwordData);
-        return "비밀번호가 변경 되었습니다.";
+        const response = await api.put<AccountApiResponse<void>>('/users/change-password', passwordData);
+        return response.data;
     } catch (error) {
-        throw new Error("비밀번호 변경 실패");
+        return handleApiError(error); 
     }
 };
 
 // 회원 탈퇴
-const deleteUser = async (deleteData: DeleteUserRequest): Promise<ApiResponse<void>> => {
+const deleteUser = async (deleteData: DeleteUserRequest): Promise<AccountApiResponse<void>> => {
     try {
-        const response = await api.delete<ApiResponse<void>>('/users/delete-my-info', { data: deleteData});
+        const response = await api.delete<AccountApiResponse<void>>('/users/delete-my-info', { data: deleteData});
         return response.data;
     } catch (error) {
-        throw error;
+        return handleApiError(error); 
     }
 };
 
-export { changePassword, handlePasswordChangeAPI, deleteUser };
+export { register, changePassword, deleteUser };

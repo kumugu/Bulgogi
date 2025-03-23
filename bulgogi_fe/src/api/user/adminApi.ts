@@ -1,5 +1,5 @@
 import { api } from "../axios";
-import { AdminUpdateUserRequest, AdminUpdateUserResponse, ApiAdimResponse } from "@/types/users/adminTypes";
+import { AdminUpdateUserRequest, AdminUpdateUserResponse, ApiAdimResponse } from "@/types/user/adminTypes";
 
 
 // 다른 사용자 정보 수정 (admin)

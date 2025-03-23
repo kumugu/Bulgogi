@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/user/authStore";
 
 // 로그인된 사용자가 접근하면 홈으로 리디렉션하는 컴포넌트
 export const RedirectIfAuthenticated = () => {

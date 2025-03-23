@@ -1,6 +1,6 @@
 import axios from "axios";
 import { tokenUtils } from "@/utils/tokenUtils";
-import { LoginResponse } from "@/types/users/authTypes";
+import { LoginResponse } from "@/types/user/authTypes";
 import { getIsRefreshing, setIsRefreshing, processQueue, addToQueue } from "./queue";
 
 const api = axios.create({

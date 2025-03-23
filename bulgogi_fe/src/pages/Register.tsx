@@ -1,6 +1,6 @@
 import React, { useState, FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useRegister } from "@/features/account/useRegister";
+import { useRegister } from "@/features/user/account/useRegister";
 import { Loader2 } from "lucide-react";
 
 const Register = () => {

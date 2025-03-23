@@ -1,5 +1,5 @@
 import { getMyInfo, updateMyBio, updateMyProfileImage } from "@/api/user/userApi";
-import { UpdatedUserBioRequest, UpdateUserProfileImageRequest } from "@/types/users/userTypes";
+import { UpdatedUserBioRequest, UpdateUserProfileImageRequest } from "@/types/user/userTypes";
 
 // 사용자 정보 조회 서비스
 const getMyInfoService = async () => {

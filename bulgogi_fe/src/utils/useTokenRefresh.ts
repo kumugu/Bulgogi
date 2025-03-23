@@ -1,7 +1,7 @@
 import { refreshAccessToken } from "@/api/user/authApi";
 import { tokenUtils } from "@/utils/tokenUtils";
-import { useAuthStore } from "@/store/authStore";
-import { useAuth } from "@/features/auth/useAuth";
+import { useAuthStore } from "@/store/user/authStore";
+import { useAuth } from "@/features/user/auth/useAuth";
 
 // 토큰 갱신 공통 함수
 const refreshToken = async (setAuth: any, handleLogout: any) => {

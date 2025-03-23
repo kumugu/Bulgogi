@@ -18,6 +18,9 @@ const loginService = async (email: string, password: string) => {
 
         if (decoded) {
             return { accessToken, username: decoded.username };
+        } else {
+            console.error("토큰 디코딩 실패");
+            return null; 
         }
     } catch (error: unknown) {
         if (error instanceof AxiosError) {
@@ -28,11 +31,9 @@ const loginService = async (email: string, password: string) => {
                     message = error.response?.data?.message || 
                               "잘못된 요청입니다. 이메일과 비밀번호를 확인해주세요.";
                     break;
-
                 case 401:
                     message = "비밀번호가 올바르지 않습니다.";
                     break;
-
                 case 403:
                     if (error.response?.data?.message === "탈퇴한 계정입니다.") {
                         message = "탈퇴한 계정입니다. 고객센터에 문의해주세요.";
@@ -44,11 +45,9 @@ const loginService = async (email: string, password: string) => {
                         message = "접근 권한이 없습니다.";
                     }
                     break;
-
                 case 404:
                     message = "사용자를 찾을 수 없습니다.";
                     break;
-
                 case 500:
                     message = "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
                     break;
@@ -66,14 +65,18 @@ const refreshTokenService = async () => {
 
         if (!response?.accessToken) {
             console.error("accessToken 갱신 실패");
+            // 로그아웃 처리
+            await logoutService();
             return null;
         }
-
+        
         // 새로운 토큰 처리
         tokenUtils.setToken(response.accessToken);
         return response.accessToken;
     } catch (error) {
         console.error("토큰 갱신 중 오류 발생", error);
+        // 로그아웃 처리
+        await logoutService();
         return null;
     }
 };

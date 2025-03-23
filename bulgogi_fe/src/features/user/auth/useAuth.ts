@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/user/authStore";
 import { tokenUtils } from '@/utils/tokenUtils';
 import { useNavigate } from "react-router-dom";
 import { api } from "@/api/axios";
@@ -35,7 +35,9 @@ export const useAuth = () => {
             // loginService 호출
             const user = await loginService(email, password);
             if (user) {
+                // 로그인 성공 시 authStore 업데이트
                 setAuth({ accessToken: user.accessToken, username: user.username });
+                // 로그인 후 홈으로 리디렉션
                 navigate("/");
             }
         } catch (error: any) {

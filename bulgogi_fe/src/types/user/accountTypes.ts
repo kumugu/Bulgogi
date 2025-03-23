@@ -1,8 +1,3 @@
-export interface LoginResponse {
-    accessToken: string;
-    refreshToken?: string;
-}
-
 export interface RegisterRequest {
     email: string;
     password: string;
@@ -21,4 +16,19 @@ export interface RegisterResponse {
     role: "USER" | "ADMIN";
     createdAt: string;
     updatedAt: string;
+}
+
+export interface ChangePasswordRequest {
+    oldPassword: string;
+    newPassword: string;
+}
+
+export interface DeleteUserRequest {
+    confirmPassword: string;
+}
+
+export interface AccountApiResponse<T = any> {
+    success: boolean;
+    message: string;
+    data?: T;
 }

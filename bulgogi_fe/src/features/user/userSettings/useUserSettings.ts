@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { updateMyInfo, changePassword, deleteUser } from "@/api/user/userApi";
-import { UserProfile } from "@/types/users/userTypes";
+import { updateMyInfo, changePassword, deleteUser } from "@/service/user/userService"
+import { UserProfile } from "@/types/user/userTypes";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/user/authStore";
 
 const useUserSettings = () => {
     const navigate = useNavigate();

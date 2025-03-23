@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { tokenUtils } from "@/utils/tokenUtils";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/user/authStore";
 
 export const useTokenMonitor = () => {
     const { logout } = useAuthStore();

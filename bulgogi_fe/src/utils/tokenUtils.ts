@@ -9,7 +9,14 @@ export const tokenUtils = {
     // 세션 스토리지에 액세스 토큰 저장 및 디코딩
     setToken: (token: string) => {
       sessionStorage.setItem("accessToken", token);
-      return tokenUtils.decodeToken(token);
+      const decoded = tokenUtils.decodeToken(token);
+
+      if (!decoded) {
+        console.error("토큰 디코딩 실패: 유효하지 않은 토큰입니다.");
+        throw new Error("유효하지 않은 토큰입니다.");
+      }
+
+      return decoded;
     },
   
     // 세션 스토리지에서 액세스 토큰 삭제
