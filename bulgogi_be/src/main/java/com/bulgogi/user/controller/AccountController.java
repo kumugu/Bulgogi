@@ -45,14 +45,14 @@ public class AccountController {
     }
 
     // 회원 탈퇴 (소프트 삭제 처리)
-    @DeleteMapping("/delete-my-info")
-    public ResponseEntity<Void> deleteMyInfo(
+    @DeleteMapping("/delete-my-account")
+    public ResponseEntity<Void> deleteMyAccount(
             @RequestHeader("Authorization") String token) {
 
         String jwtToken = token.replace("Bearer ", "");
         Long userId = jwtProvider.extractUserId(jwtToken);
 
-        accountService.deleteMyInfo(userId);
+        accountService.deleteMyAccount(userId);
         return ResponseEntity.ok().build();
     }
 

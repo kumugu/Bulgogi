@@ -72,8 +72,8 @@ public class AccountService {
         userRepository.save(user);
     }
 
-    // 회원 탈퇴 (소프트 삭제 처리)
-    public void deleteMyInfo(Long userId) {
+    // 계정 삭제 (소프트 삭제 처리)
+    public void deleteMyAccount(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당 ID의 사용자를 찾을 수 없습니다: "  + userId));
 

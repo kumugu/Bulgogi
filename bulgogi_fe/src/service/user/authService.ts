@@ -58,6 +58,7 @@ const loginService = async (email: string, password: string) => {
     return null;
 };
 
+
 // 토큰 갱신 서비스
 const refreshTokenService = async () => {
     try {
@@ -74,12 +75,17 @@ const refreshTokenService = async () => {
         tokenUtils.setToken(response.accessToken);
         return response.accessToken;
     } catch (error) {
-        console.error("토큰 갱신 중 오류 발생", error);
+        if (error instanceof AxiosError) {
+            console.error("토큰 갱신 중 오류 발생", error.response?.data || error.message);
+        } else {
+            console.error("알 수 없는 오류 발생", error);
+        }
         // 로그아웃 처리
         await logoutService();
         return null;
     }
 };
+
 
 // 로그아웃 서비스
 const logoutService = async () => {
@@ -91,7 +97,11 @@ const logoutService = async () => {
         sessionStorage.removeItem("accessToken");
         return true;
     } catch (error) {
-        console.error("로그아웃 중 오류 발생", error);
+        if (error instanceof AxiosError) {
+            console.error("로그아웃 중 오류 발생", error.response?.data || error.message);
+        } else {
+            console.error("알 수 없는 오류 발생", error);
+        }
         return false;
     }
 };

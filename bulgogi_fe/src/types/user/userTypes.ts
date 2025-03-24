@@ -1,4 +1,4 @@
-export interface UserProfile {
+export interface MyProfile {
     email: string;
     username: string;
     profileImage: string;
@@ -7,11 +7,11 @@ export interface UserProfile {
     updatedAt: string;
 }
 
-export interface UpdatedUserBioRequest {
+export interface UpdatedMyBioRequest {
     bio: string;
 }
 
-export interface UpdateUserProfileImageRequest {
+export interface UpdateMyProfileImageRequest {
     profileImage: string;
 }
 

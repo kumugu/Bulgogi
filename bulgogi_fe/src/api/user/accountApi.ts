@@ -1,4 +1,4 @@
-import { ChangePasswordRequest, DeleteUserRequest, RegisterRequest } from "@/types/user/accountTypes";
+import { ChangePasswordRequest, DeleteAccountRequest, RegisterRequest } from "@/types/user/accountTypes";
 import { AccountApiResponse } from "@/types/user/accountTypes";
 import { api } from "../axios";
 
@@ -23,14 +23,14 @@ const changePassword = async (passwordData: ChangePasswordRequest): Promise<Acco
     }
 };
 
-// 회원 탈퇴
-const deleteUser = async (deleteData: DeleteUserRequest): Promise<AccountApiResponse<void>> => {
+// 계정 삭제
+const deleteAccount = async (deleteData: DeleteAccountRequest): Promise<AccountApiResponse<void>> => {
     try {
-        const response = await api.delete<AccountApiResponse<void>>('/users/delete-my-info', { data: deleteData});
+        const response = await api.delete<AccountApiResponse<void>>('/users/delete-my-account', { data: deleteData});
         return response.data;
     } catch (error) {
         return handleApiError(error); 
     }
 };
 
-export { register, changePassword, deleteUser };
+export { register, changePassword, deleteAccount };

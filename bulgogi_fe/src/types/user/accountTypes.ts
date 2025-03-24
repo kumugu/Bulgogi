@@ -18,12 +18,19 @@ export interface RegisterResponse {
     updatedAt: string;
 }
 
+export interface RegisterFormData {
+    email: string;
+    username: string;
+    password: string;
+    confirmPassword: string;
+}
+
 export interface ChangePasswordRequest {
     oldPassword: string;
     newPassword: string;
 }
 
-export interface DeleteUserRequest {
+export interface DeleteAccountRequest {
     confirmPassword: string;
 }
 
