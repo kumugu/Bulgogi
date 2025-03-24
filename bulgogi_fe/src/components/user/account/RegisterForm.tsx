@@ -1,14 +1,13 @@
-import { useRegister } from "@/features/user/account/useRegister";
 import { RegisterFormData, RegisterRequest } from "@/types/user/accountTypes";
 import React, { useState } from "react";
 
 interface RegisterFormProps {
   onSubmit: (FormData: RegisterRequest) => void;
   loading: boolean;
+  error?: string;
 }
 
-const RegisterForm = () => {
-  const { register, loading, error, message } = useRegister();
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error }) => {
   const [formData, setFormData] = useState<RegisterFormData>({
     email: "",
     username: "",
@@ -36,9 +35,9 @@ const RegisterForm = () => {
       email: formData.email,
       password: formData.password,
       username: formData.username,
-      profileImage: "/static/images/profile/pi1.png", // 기본 프로필 이미지
-      bio: "Hello World!", // 기본 bio
-      role: "USER", // 기본 role
+      profileImage: "/static/images/profile/pi1.png",
+      bio: "Hello World!",
+      role: "USER",
     });
   };
 
@@ -51,6 +50,7 @@ const RegisterForm = () => {
         <input
           id="email"
           type="email"
+          name="email"
           value={formData.email}
           onChange={handleChange}
           className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-neutral-900 dark:text-white focus:border-neutral-900 dark:focus:border-white focus:ring-neutral-900 dark:focus:ring-white"
@@ -66,6 +66,7 @@ const RegisterForm = () => {
         <input
           id="username"
           type="text"
+          name="username"
           value={formData.username}
           onChange={handleChange}
           className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-neutral-900 dark:text-white focus:border-neutral-900 dark:focus:border-white focus:ring-neutral-900 dark:focus:ring-white"
@@ -81,6 +82,7 @@ const RegisterForm = () => {
         <input
           id="password"
           type="password"
+          name="password"
           value={formData.password}
           onChange={handleChange}
           className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-neutral-900 dark:text-white focus:border-neutral-900 dark:focus:border-white focus:ring-neutral-900 dark:focus:ring-white"
@@ -91,11 +93,12 @@ const RegisterForm = () => {
 
       <div>
         <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-          ConfirmPassword
+          Confirm Password
         </label>
         <input
           id="confirmPassword"
           type="password"
+          name="confirmPassword"
           value={formData.confirmPassword}
           onChange={handleChange}
           className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-neutral-900 dark:text-white focus:border-neutral-900 dark:focus:border-white focus:ring-neutral-900 dark:focus:ring-white"
@@ -110,7 +113,9 @@ const RegisterForm = () => {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full rounded-lg py-2 px-4 text-white ${loading ? "bg-gray-500" : "bg-blue-600 hover:bg-blue-700"} focus:outline-none`}
+          className={`w-full rounded-lg py-2 px-4 text-white ${
+            loading ? "bg-gray-500" : "bg-blue-600 hover:bg-blue-700"
+          } focus:outline-none`}
         >
           {loading ? "가입 중..." : "회원가입"}
         </button>

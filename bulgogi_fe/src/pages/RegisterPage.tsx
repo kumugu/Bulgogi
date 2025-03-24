@@ -1,18 +1,14 @@
-import { RegisterFormData } from "@/types/user/accountTypes";
-import RegisterForm from "@/components/user/account/registerForm";
-import { useState } from "react"
+import { useState } from "react";
+import RegisterForm from "@/components/user/account/RegisterForm";
 import Modal from "@/components/modal/ModalErrorMessage";
-
+import { useRegister } from "@/features/user/account/useRegister";
+import { RegisterRequest } from "@/types/user/accountTypes";
 const RegisterPage = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { register, loading, error, message } = useRegister();
 
-  const handleSubmit = (FormData: RegisterFormData) => {
-    setLoading(true);
-    setTimeout(() => {
-      console.log("회원가입 성공", FormData.email, FormData.username, FormData.password, FormData.confirmPassword);
-      setLoading(false);
-    }, 2000);
+  const handleSubmit = (formData: RegisterRequest) => {
+    register(formData); // register 훅을 사용하여 회원가입
   };
 
   return (
