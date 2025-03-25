@@ -1,48 +1,77 @@
-// RegisterPage.tsx
-import { useState, useEffect } from "react";
-import RegisterForm from "@/components/user/account/RegisterForm";
 import { useRegister } from "@/features/user/account/useRegister";
 import { RegisterRequest, RegisterFormData } from "@/types/user/accountTypes";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import RegisterForm from "@/components/user/account/RegisterForm";
 import SuccessModal from "@/components/modal/SuccessModal";
-import Modal from "@/components/modal/ErrorMessage";
+import ErrorModal from "@/components/modal/ErrorMessage";
 
-const RegisterPage = () => {
-  const [message, setMessage] = useState<string | undefined>(undefined);
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
-  const { register, loading, error, message: successMessage } = useRegister();
+const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
+  const { register, loading, error, message } = useRegister();
 
-  const handleSubmit = (formData: RegisterFormData) => {
-    // RegisterFormData에서 confirmPassword를 제외하고 RegisterRequest로 변환
-    const { confirmPassword, ...registerRequest }: RegisterRequest = formData;
-    register(registerRequest);
+  // 모달 상태 관리
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+
+  const handleSubmit = async (registerRequest: RegisterRequest) => {
+    try {
+      // RegisterRequest를 RegisterFormData로 변환
+      const registerFormData: RegisterFormData = {
+        email: registerRequest.email,
+        username: registerRequest.username,
+        password: registerRequest.password,
+        confirmPassword: registerRequest.password, 
+        bio: registerRequest.bio,
+        role: registerRequest.role,
+        profileImage: registerRequest.profileImage,
+      };
+      // register 호출
+      await register(registerFormData);
+
+      // 
+      if (!error) {
+        setSuccessModalOpen(true);
+      }
+    } catch (error) {
+      setErrorModalOpen(true);
+    }
   };
 
-  useEffect(() => {
-    if (error) {
-      setErrorMessage(error);
-    }
-    if (successMessage) {
-      setMessage(successMessage);
-    }
-  }, [error, successMessage]);
+  const handleSuccessConfirm = () => {
+    // 성공 모달 닫기 및 로그인 페이지로 리다이렉트
+    setSuccessModalOpen(false);
+    navigate('/login');
+  };
+
+  const handleErrorClose = () => {
+    // 에러 모달 닫기
+    setErrorModalOpen(false);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-8">
-        <Link to="/" className="inline-block">
-          <h2 className="text-4xl font-bold">Bulgogi</h2>
-        </Link>
-        <h2 className="mt-6 text-3xl font-bold">회원가입</h2>
-        <p>
-          이미 계정이 있으신가요? <Link to="/login">로그인하기</Link>
-        </p>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gray-50">
+      <div className="w-full max-w-md space-y-8 p-8 bg-white rounded-xl shadow-md">
 
-        {errorMessage && <Modal message={errorMessage} onClose={() => setErrorMessage(undefined)} />}
-        {message && <SuccessModal isOpen={true} onClose={() => setMessage(undefined)} onConfirm={() => navigate("/login")} />}
+        <RegisterForm 
+          onSubmit={handleSubmit} 
+          loading={loading} 
+        />
 
-        <RegisterForm onSubmit={handleSubmit} loading={loading} error={errorMessage} message={message} />
+        {/* 성공 모달 */}
+        {/* <SuccessModal
+          isOpen={successModalOpen}
+          onClose={() => setSuccessModalOpen(false)}
+          onConfirm={handleSuccessConfirm}
+          message={message || "회원가입이 성공적으로 완료되었습니다."} 
+        /> */}
+
+        {/* 에러 모달 */}
+        {/* <ErrorModal
+          isOpen={errorModalOpen}
+          onClose={handleErrorClose}
+          message={error || "알 수 없는 오류가 발생했습니다."}
+        /> */}
       </div>
     </div>
   );

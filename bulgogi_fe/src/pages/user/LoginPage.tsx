@@ -39,19 +39,13 @@ const LoginPage = () => {
           </p>
         </div>
 
-        {errorMessage && <Modal message={errorMessage} onClose={() => setErrorMessage(null)} />}
+        {/* {errorMessage && <Modal message={errorMessage} onClose={() => setErrorMessage(null)} />} */}
 
         <LoginForm onSubmit={handleSubmit} loading={loading} />
         <ForgotPasswordLink />
         <SocialLogin />
         <TermsAndPrivacyAgreement />
 
-        <p className="mt-2 text-sm text-neutral-600">
-          아직 계정이 없으신가요?{" "}
-          <Link to="/register" className="font-medium text-neutral-900 hover:underline">
-            회원가입
-          </Link>
-        </p>
       </div>
     </div>
   );
