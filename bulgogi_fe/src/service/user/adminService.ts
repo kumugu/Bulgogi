@@ -20,4 +20,4 @@ const adminUpdateUserService = async (targetId: number, updateData: AdminUpdateU
     }
 };
 
-export default { adminUpdateUserService };
+export default adminUpdateUserService;

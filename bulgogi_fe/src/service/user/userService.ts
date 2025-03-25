@@ -1,5 +1,5 @@
 import { getMyInfo, updateMyBio, updateMyProfileImage } from "@/api/user/userApi";
-import { MyProfile, UpdatedMyBioRequest, UpdateUserMyProfileImageRequest } from "@/types/user/userTypes";
+import { MyProfile, UpdatedMyBioRequest, UpdateMyProfileImageRequest } from "@/types/user/userTypes";
 import { AxiosError } from "axios";
 
 // 사용자 정보 조회 서비스
@@ -22,7 +22,7 @@ const getMyInfoService = async (): Promise<MyProfile> => {
 
 
 // 자기 자신 Bio 수정 서비스
-const updateMyBioService = async (updateData: UpdatedMyBioRequest): Promise<MyProfile> => {
+const  updateMyBioService = async (updateData: UpdatedMyBioRequest): Promise<MyProfile> => {
     try {
         const response = await updateMyBio(updateData);
 
@@ -45,7 +45,7 @@ const updateMyBioService = async (updateData: UpdatedMyBioRequest): Promise<MyPr
 
 
 // 자기 자신 ProfileImage 수정 서비스
-const updateMyProfileImageService = async (updateData: UpdateUserMyProfileImageRequest): Promise<MyProfile> => {
+const updateMyProfileImageService = async (updateData: UpdateMyProfileImageRequest): Promise<MyProfile> => {
     try {
         const response = await updateMyProfileImage(updateData);
 

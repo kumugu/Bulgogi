@@ -1,19 +1,27 @@
+// RegisterForm.tsx
+import { useState } from "react";
 import { RegisterFormData, RegisterRequest } from "@/types/user/accountTypes";
-import React, { useState } from "react";
+import { Loader2 } from "lucide-react";
+import SuccessModal from "@/components/modal/SuccessModal";
+import Modal from "@/components/modal/ErrorMessage";
+import { register } from "module";
 
 interface RegisterFormProps {
-  onSubmit: (FormData: RegisterRequest) => void;
+  onSubmit: (formData: RegisterFormData) => void;
   loading: boolean;
   error?: string;
+  message?: string;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, message }) => {
   const [formData, setFormData] = useState<RegisterFormData>({
     email: "",
     username: "",
     password: "",
     confirmPassword: "",
   });
+
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -27,99 +35,88 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error })
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      console.error("비밀번호가 일치하지 않습니다.");
+      setPasswordError("비밀번호가 일치하지 않습니다.");
       return;
     }
 
-    onSubmit({
-      email: formData.email,
-      password: formData.password,
-      username: formData.username,
-      profileImage: "/static/images/profile/pi1.png",
+    setPasswordError(null);
+
+    const { confirmPassword, ...registerRequest }: RegisterRequest = formData;
+
+    const completeRegisterRequest: RegisterRequest = {
+      ...registerRequest,
       bio: "Hello World!",
       role: "USER",
-    });
+      profileImage: "/static/images/profile/pi1.png",
+    };
+
+    onSubmit(completeRegisterRequest);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Form Fields */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-          Email
-        </label>
+        <label htmlFor="email">Email</label>
         <input
           id="email"
           type="email"
           name="email"
           value={formData.email}
           onChange={handleChange}
-          className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-neutral-900 dark:text-white focus:border-neutral-900 dark:focus:border-white focus:ring-neutral-900 dark:focus:ring-white"
           placeholder="이메일을 입력하세요"
           required
         />
       </div>
 
       <div>
-        <label htmlFor="username" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-          Username
-        </label>
+        <label htmlFor="username">Username</label>
         <input
           id="username"
           type="text"
           name="username"
           value={formData.username}
           onChange={handleChange}
-          className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-neutral-900 dark:text-white focus:border-neutral-900 dark:focus:border-white focus:ring-neutral-900 dark:focus:ring-white"
           placeholder="사용자 이름을 입력하세요"
           required
         />
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-          Password
-        </label>
+        <label htmlFor="password">Password</label>
         <input
           id="password"
           type="password"
           name="password"
           value={formData.password}
           onChange={handleChange}
-          className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-neutral-900 dark:text-white focus:border-neutral-900 dark:focus:border-white focus:ring-neutral-900 dark:focus:ring-white"
           placeholder="비밀번호를 입력하세요"
           required
         />
       </div>
 
       <div>
-        <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-          Confirm Password
-        </label>
+        <label htmlFor="confirmPassword">Confirm Password</label>
         <input
           id="confirmPassword"
           type="password"
           name="confirmPassword"
           value={formData.confirmPassword}
           onChange={handleChange}
-          className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-neutral-900 dark:text-white focus:border-neutral-900 dark:focus:border-white focus:ring-neutral-900 dark:focus:ring-white"
           placeholder="비밀번호를 다시 입력하세요"
           required
         />
       </div>
 
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      {/* Error Messages */}
+      {passwordError && <div className="text-red-500">{passwordError}</div>}
+      {error && <Modal message={error} onClose={() => {}} />}
+      {message && <SuccessModal isOpen={true} onClose={() => {}} onConfirm={() => {}} />}
 
-      <div>
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full rounded-lg py-2 px-4 text-white ${
-            loading ? "bg-gray-500" : "bg-blue-600 hover:bg-blue-700"
-          } focus:outline-none`}
-        >
-          {loading ? "가입 중..." : "회원가입"}
-        </button>
-      </div>
+      {/* Submit Button */}
+      <button type="submit" disabled={loading}>
+        {loading ? <Loader2 className="animate-spin" /> : "회원가입"}
+      </button>
     </form>
   );
 };

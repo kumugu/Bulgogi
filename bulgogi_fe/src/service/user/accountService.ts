@@ -1,34 +1,66 @@
 import { register, changePassword, deleteAccount } from "@/api/user/accountApi";
 import { ChangePasswordRequest, DeleteAccountRequest, RegisterRequest } from "@/types/user/accountTypes";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
+import { CustomError } from "@/utils/CustomError";
 
 
 // 회원가입 서비스
 const registerService = async (registerData: RegisterRequest): Promise<string> => {
-    try {
-      await register(registerData);
-      return "회원가입이 성공적으로 완료되었습니다.";
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        // 400, 409 오류 처리
-        if (error.response?.status === 400) {
-          return "입력값이 올바르지 않습니다. 다시 확인해주세요.";
+  try {
+    const successMessage = await register(registerData);
+    console.log("Register Service Success:", successMessage);
+    setMessage(successMessage);
+    return "회원가입이 성공적으로 완료되었습니다.";
+  } catch (error) {
+    console.error("Register Service Error:", error);
+    // AxiosError 타입 확인 및 에러 객체 검증
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      const response = error.response;
+      
+      // response 객체 존재 여부 명시적 확인
+      if (response) {
+        const { status, data } = response;
+
+        switch (status) {
+          case 400:
+            // 데이터 내용을 더 자세히 확인
+            const badRequestErrorDetails  = (data as any)?.error || (data as any)?.message;
+            throw new CustomError(
+              badRequestErrorDetails  || "입력값이 올바르지 않습니다. 다시 확인해주세요."
+            );
+          case 409:
+            const duplicateErrorMessage  = 
+              (data as any)?.error ||
+              (data as any)?.message ||
+               "이미 사용 중인 이메일입니다.";
+            console.log("Final Error Message:", duplicateErrorMessage );
+            throw new CustomError(duplicateErrorMessage );
+          default:
+            // 비밀번호 관련 오류 처리 강화
+            const defaultErrorMessage  = 
+              (data as any)?.error || 
+              (data as any)?.message || 
+              "회원가입에 실패했습니다. 다시 시도해주세요.";
+            
+            // 비밀번호 관련 오류 키워드 확인
+            if (
+              defaultErrorMessage .includes("비밀번호") || 
+              defaultErrorMessage .includes("password")
+            ) {
+              throw new CustomError(
+                "비밀번호 조건을 확인해주세요. 최소 8자 이상, 대소문자, 숫자 및 특수문자를 포함해야 합니다."
+              );
+            }
+
+            throw new CustomError(defaultErrorMessage );
         }
-        if (error.response?.status === 409) {
-          return "이미 사용 중인 이메일입니다.";
-        }
-  
-        // 비밀번호 오류 처리
-        if (error.response?.data?.error?.includes("비밀번호는 최소 8자 이상")) {
-          return "비밀번호는 최소 8자 이상, 대소문자, 숫자 및 특수문자를 포함하고 최대 20자여야 합니다.";
-        }
-  
-        // 그 외의 오류 처리
-        return error.response?.data?.message || "회원가입에 실패했습니다. 다시 시도해주세요.";
-      }
-      return "알 수 없는 오류가 발생했습니다. 다시 시도해주세요.";
+      } 
     }
-  };
+
+    throw new CustomError("예상치 못한 오류가 발생했습니다.");
+  }
+};
 
 
 // 비밀번호 변경 서비스
