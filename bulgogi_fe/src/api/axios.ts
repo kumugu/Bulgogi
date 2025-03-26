@@ -1,5 +1,5 @@
 import axios from "axios";
-import { tokenUtils } from "@/utils/tokenUtils";
+import { tokenUtils } from "@/utils/user/tokenUtils";
 import { LoginResponse } from "@/types/user/authTypes";
 import { getIsRefreshing, setIsRefreshing, processQueue, addToQueue } from "./queue";
 

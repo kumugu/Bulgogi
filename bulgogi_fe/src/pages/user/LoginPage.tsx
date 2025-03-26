@@ -1,24 +1,23 @@
 import React, { useState } from "react";
 import { useLogin } from "@/features/user/auth/useLogin";
-import Modal from "@/components/modal/ErrorMessage";
 import ForgotPasswordLink from "@/components/user/auth/ForgotPasswordLing";
 import SocialLogin from "@/components/user/auth/SocialLogin";
 import TermsAndPrivacyAgreement from "@/components/user/auth/TermsAndPrivacyAgreement";
 import LoginForm from "@/components/user/auth/LoginForm";
 import { Link } from "react-router-dom";
+import ErrorModal from "@/components/modal/ErrorMessage";
+
 
 const LoginPage = () => {
-  const { login, errorMessage, setErrorMessage } = useLogin();
+  const { login } = useLogin();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (email: string, password: string) => {
     setLoading(true);
-    const loginSuccess = await login(email, password);
-    setLoading(false);
-
-    // 로그인 실패 시 에러 메시지를 설정
-    if (!loginSuccess) {
-      setErrorMessage("로그인에 실패했습니다. 다시 시도해주세요.");
+    try {
+      await login(email, password);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,13 +38,16 @@ const LoginPage = () => {
           </p>
         </div>
 
-        {/* {errorMessage && <Modal message={errorMessage} onClose={() => setErrorMessage(null)} />} */}
-
-        <LoginForm onSubmit={handleSubmit} loading={loading} />
+        <LoginForm 
+          onSubmit={handleSubmit} 
+          loading={loading}
+        />
         <ForgotPasswordLink />
         <SocialLogin />
         <TermsAndPrivacyAgreement />
 
+        {/* Error Modal */}
+        <ErrorModal />
       </div>
     </div>
   );

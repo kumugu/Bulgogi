@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/store/user/authStore"
-import { tokenUtils } from "@/utils/tokenUtils";
+import { tokenUtils } from "@/utils/user/auth/tokenUtils";
 import { useNavigate } from "react-router-dom";
 
 // 로그아웃 

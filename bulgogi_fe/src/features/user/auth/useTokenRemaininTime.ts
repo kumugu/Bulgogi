@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { tokenUtils } from "@/utils/tokenUtils";
+import { tokenUtils } from "@/utils/user/auth/tokenUtils";
 
 export const useTokenRemainingTime = () => {
     const [tokenRemainingTime, setTokenRemainingTime] = useState<number | null>(null);

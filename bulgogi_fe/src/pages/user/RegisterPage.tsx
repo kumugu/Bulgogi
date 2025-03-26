@@ -4,7 +4,7 @@ import SuccessModal from "@/components/modal/SuccessModal";
 import ErrorModal from "@/components/modal/ErrorMessage";
 import { useRegister } from "@/features/user/account/useRegister";
 import { RegisterFormData } from "@/types/user/accountTypes";
-import { validateRegisterForm } from "@/utils/validators";
+import { validateRegisterForm } from "@/utils/user/register/validators";
 import { useModalStore } from "@/store/user/modalStore";
 import { CustomError } from "@/utils/CustomError";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,7 @@ const RegisterPage: React.FC = () => {
   const { openModal, closeModal, type, isOpen, message } = useModalStore();
 
   const handleSubmit = async (formData: RegisterFormData) => {
+    
     const validationError = validateRegisterForm(formData);
     if (validationError) {
       openModal("error", validationError);

@@ -8,6 +8,7 @@ interface AuthState {
   };
   setAuth: (token: { accessToken: string; username: string }) => void;
   logout: () => void;
+  resetAuthState: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -22,6 +23,11 @@ export const useAuthStore = create<AuthState>()(
       logout: () =>  {
         set({ auth: { accessToken: null, username: null } });
         sessionStorage.removeItem("auth-storage");
+      },
+      resetAuthState: () => {
+        set({
+          auth: { accessToken: null, username: null }
+        });
       },
     }),
     {

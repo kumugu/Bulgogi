@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { tokenUtils } from "@/utils/tokenUtils";
+import { tokenUtils } from "@/utils/user/auth/tokenUtils";
 import { useAuthStore } from "@/store/user/authStore";
 
 export const useTokenMonitor = () => {

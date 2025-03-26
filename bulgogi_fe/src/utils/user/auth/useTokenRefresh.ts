@@ -1,5 +1,5 @@
 import { refreshAccessToken } from "@/api/user/authApi";
-import { tokenUtils } from "@/utils/tokenUtils";
+import { tokenUtils } from "@/utils/user/tokenUtils";
 import { useAuthStore } from "@/store/user/authStore";
 import { useAuth } from "@/features/user/auth/useLogin";
 

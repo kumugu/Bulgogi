@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { RegisterFormData, RegisterRequest } from "@/types/user/accountTypes";
 import { registerService } from "@/service/user/accountService";
-import { convertToRegisterRequest } from "@/utils/convertToRegisterRequest";
+import { convertToRegisterRequest } from "@/utils/user/register/convertToRegisterRequest";
 
 // 회원가입
 export const useRegister = () => {

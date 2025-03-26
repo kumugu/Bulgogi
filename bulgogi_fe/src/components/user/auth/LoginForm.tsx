@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 
 interface LoginFormProps {
-  onSubmit: (email: string, password: string) => void;
+  onSubmit: (email: string, password: string) => Promise<void>;
   loading: boolean;
+  errorMessage?: string | null;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading, errorMessage }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(email, password);
   };
@@ -28,6 +29,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
             onChange={(e) => setEmail(e.target.value)}
             className="block w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:ring-neutral-900 sm:text-sm"
             placeholder="아이디"
+            disabled={loading}
           />
         </div>
         <div>
@@ -41,8 +43,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, loading }) => {
             onChange={(e) => setPassword(e.target.value)}
             className="block w-full rounded-lg border border-neutral-200 px-4 py-3 text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:ring-neutral-900 sm:text-sm"
             placeholder="비밀번호"
+            disabled={loading}
           />
         </div>
+        {errorMessage && (
+          <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
+        )}
       </div>
       <button
         type="submit"
