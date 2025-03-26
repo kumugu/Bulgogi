@@ -9,7 +9,6 @@ const handleApiError = (error: unknown): never => {
     if (axios.isAxiosError(error)) {
         const axiosError = error as AxiosError<AccountApiResponse<null>>;
 
-        // 상세한 에러 로깅
         console.error("API Error:", {
             status: axiosError.response?.status,
             data: axiosError.response?.data,

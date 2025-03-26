@@ -10,30 +10,24 @@ const registerService = async (registerData: RegisterRequest): Promise<string> =
     return "회원가입이 성공적으로 완료되었습니다.";
   } catch (error) {
     if (error instanceof AxiosError) {
-      const response = error.response?.data as AccountApiResponse;
+      const response = error.response?.data;
 
       if (response) {
-        const { status, message } = response;
+        const { status } = response;
+        const errMsg = (response as any)?.data?.error || response.message;
 
         switch (status) {
           case 400:
-            const badRequestError = message || "입력값이 올바르지 않습니다. 다시 확인해주세요.";
-            throw new CustomError(badRequestError);
+            throw new CustomError(errMsg || "입력값이 올바르지 않습니다. 다시 확인해주세요.");
           case 409:
-            const duplicateError = message || "이미 사용 중인 이메일입니다.";
-            throw new CustomError(duplicateError);
+            throw new CustomError(errMsg || "이미 사용 중인 이메일입니다.");
           case 500:
             throw new CustomError("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
           default:
-            // 비밀번호 관련 오류 처리
-            if (message?.includes("비밀번호") || message?.includes("password")) {
-              throw new CustomError("비밀번호 조건을 확인해주세요. 최소 8자 이상, 대소문자, 숫자 및 특수문자를 포함해야 합니다.");
-            }
-            throw new CustomError(message || "회원가입에 실패했습니다. 다시 시도해주세요.");
+            throw new CustomError(errMsg || "회원가입에 실패했습니다. 다시 시도해주세요.");
         }
       }
     }
-
     throw new CustomError("예상치 못한 오류가 발생했습니다.");
   }
 };

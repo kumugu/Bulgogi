@@ -22,17 +22,17 @@ export interface RegisterResponse {
 
 // 클라이언트에서 사용하는 폼 데이터 타입
 export interface RegisterFormData {
-  email: string;
-  username: string;
-  password: string;
-  confirmPassword: string;
-  profileImage?: string;
-  bio?: string;
-  role?: "USER" | "ADMIN";
+    email: string;
+    username: string;
+    password: string;
+    confirmPassword: string; 
+    bio?: string;            
+    role?: "USER" | "ADMIN"; 
+    profileImage?: string;
 }
 
 export interface RegisterFormProps {
-    onSubmit: (formData: RegisterRequest) => Promise<void>;
+    onSubmit: (data: RegisterFormData) => Promise<void>;
     loading: boolean;
     error?: string;
     message?: string;

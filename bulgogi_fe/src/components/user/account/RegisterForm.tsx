@@ -1,13 +1,9 @@
 import { useState } from "react";
-import { RegisterRequest, RegisterFormData, RegisterFormProps } from "@/types/user/accountTypes";
+import { RegisterFormData, RegisterFormProps } from "@/types/user/accountTypes";
 import { Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import SuccessModal from "@/components/modal/SuccessModal";
-import ErrorModal from "@/components/modal/ErrorMessage";
-import { useNavigate } from "react-router-dom";
 
-
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, message }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading }) => {
   const [formData, setFormData] = useState<RegisterFormData>({
     email: "",
     username: "",
@@ -15,54 +11,21 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, m
     confirmPassword: "",
   });
 
-  const navigate = useNavigate();
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    setPasswordError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // 비밀번호 확인 검사
     if (formData.password !== formData.confirmPassword) {
-      setPasswordError("비밀번호가 일치하지 않습니다.");
       return;
     }
-  
-    // RegisterRequest로 변환 (confirmPassword 제거)
-    const registerRequest: RegisterRequest = {
-      email: formData.email,
-      password: formData.password,
-      username: formData.username,
-      profileImage: formData.profileImage || "/static/images/profile/pi1.png", 
-      bio: formData.bio || "Hello World!", 
-      role: "USER", 
-    };
-
-    try {
-      // register 호출 시 RegisterRequest 사용
-      await onSubmit(registerRequest);
-      // 성공 시 성공 모달 오픈
-      setIsSuccessModalOpen(true); 
-      setFormData({
-        email: "",
-        username: "",
-        password: "",
-        confirmPassword: "",
-      });
-    } catch (error) {
-      // 에러 시 에러 모달 오픈
-      setIsErrorModalOpen(true);
-    }
+    await onSubmit(formData);
   };
 
   return (
@@ -80,14 +43,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, m
           </Link>
         </p>
       </div>
-
-      {error && (
-          <div className="rounded-lg bg-red-50 p-4 text-sm text-red-500 transition-all duration-300">{error}</div>
-        )}
-
-      {message && (
-        <div className="rounded-lg bg-green-50 p-4 text-sm text-green-500 transition-all duration-300">{message}</div>
-      )}
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
         <div className="space-y-4 rounded-md">
@@ -150,27 +105,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, error, m
             />
           </div>
         </div>
-
-        {/* Error Messages */}
-        {passwordError && <div className="text-red-500">{passwordError}</div>}
-
-        {/* Error Modal */}
-        {/* <ErrorModal
-          isOpen={isErrorModalOpen}
-          onClose={() => setIsErrorModalOpen(false)}
-          message={error || "알 수 없는 오류가 발생했습니다."}
-        /> */}
-
-        {/* SuccesssModal */}
-        {/* <SuccessModal
-          isOpen={isSuccessModalOpen}
-          onClose={() => setIsSuccessModalOpen(false)}
-          onConfirm={() => {
-            setIsSuccessModalOpen(false);
-            navigate("/login"); // 회원가입 성공 시 로그인 페이지로 이동
-          }}
-          message={message || "회원가입이 성공적으로 완료되었습니다."}
-        /> */}
 
         {/* Submit Button */}
         <button 
