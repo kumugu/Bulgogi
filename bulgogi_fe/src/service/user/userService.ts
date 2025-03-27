@@ -1,5 +1,6 @@
 import { getMyInfo, updateMyBio, updateMyProfileImage } from "@/api/user/userApi";
 import { MyProfile, UpdatedMyBioRequest, UpdateMyProfileImageRequest } from "@/types/user/userTypes";
+import { getProfileImageList } from "@/api/user/userApi";
 import { AxiosError } from "axios";
 
 // 사용자 정보 조회 서비스
@@ -43,10 +44,24 @@ const  updateMyBioService = async (updateData: UpdatedMyBioRequest): Promise<MyP
     }
 };
 
+// profileImage 가져오기
+const getProfileImageListService = async (): Promise<string[]> => {
+    try {
+        return await getProfileImageList();
+    } catch (error) {
+        throw new Error("프로필 이미지 리스트를 가져오는 데 실패했습니다.");
+    }
+};
 
 // 자기 자신 ProfileImage 수정 서비스
-const updateMyProfileImageService = async (updateData: UpdateMyProfileImageRequest): Promise<MyProfile> => {
+const updateMyProfileImageService = async (formData: FormData): Promise<MyProfile> => {
     try {
+        // FormData에서 파일을 가져와 UpdateMyProfileImageRequest 형태로 변환
+        const updateData: UpdateMyProfileImageRequest = {
+            profileImage: formData.get("profileImage") as File,
+        };
+
+        // API 호출
         const response = await updateMyProfileImage(updateData);
 
         if (!response.success) {
@@ -67,4 +82,4 @@ const updateMyProfileImageService = async (updateData: UpdateMyProfileImageReque
 };
 
 
-export { getMyInfoService, updateMyBioService, updateMyProfileImageService }
+export { getMyInfoService, updateMyBioService, getProfileImageListService, updateMyProfileImageService }

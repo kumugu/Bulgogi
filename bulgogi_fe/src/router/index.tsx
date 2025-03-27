@@ -5,6 +5,7 @@ import Header from "../pages/Header";
 import Register from "../pages/user/RegisterPage";
 import PostDetail from "../pages/PostDetail";
 import MyBlogHome from "../pages/MyBlogHome";
+import UserSettings from "@/pages/user/UserSettings";
 import Navbar from "@/components/layout/Navbar";
 import { RedirectIfAuthenticated } from "./AuthRoutes";
 import { ProtectedRoute } from "./AuthRoutes";
@@ -30,6 +31,7 @@ const Router = () => {
                 
                 {/* 로그인이 필요한 라우트 */}
                 <Route element={<ProtectedRoute />}>
+                    <Route path="/user-settings" element={<UserSettings />} />
                 </Route>
             </Routes>
         </div>

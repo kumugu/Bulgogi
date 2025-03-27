@@ -6,7 +6,7 @@ interface AuthState {
     accessToken: string | null;
     username: string | null;
   };
-  setAuth: (token: { accessToken: string; username: string }) => void;
+  setAuth: (token: { accessToken: string; username: string | null }) => void;
   logout: () => void;
   resetAuthState: () => void;
 }

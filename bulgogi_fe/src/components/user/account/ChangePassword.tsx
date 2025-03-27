@@ -22,7 +22,9 @@ const ChangePasswordForm = () => {
 
     return (
     <form onSubmit={handleSubmit} className="mb-8">
-        <h3 className="text-lg font-medium mb-4 dark:text-white">Change Password</h3>
+        <h2 className="text-xl font-semibold mb-6 flex items-center dark:text-white">
+                Change Password
+        </h2>
         <div className="space-y-4">
         {/* 기존 비밀번호 입력 */}
         <div>
@@ -84,7 +86,7 @@ const ChangePasswordForm = () => {
             disabled={loading}
             className="w-full mt-4 px-4 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-lg text-sm font-medium hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors duration-200 disabled:opacity-50"
             >
-            {loading ? "비밀번호 변경 중..." : "비밀번호 변경"}
+            {loading ? "비밀번호 변경 중..." : "Change Password"}
         </button>
         </div>
     </form>

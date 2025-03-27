@@ -18,7 +18,7 @@ const DeleteAccountForm = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm p-6">
+        <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm">
             <h2 className="text-xl font-semibold mb-6 flex items-center dark:text-white">
                 <Lock className="h-5 w-5 mr-2" />
                 Delete Account
@@ -56,6 +56,7 @@ const DeleteAccountForm = () => {
                     Delete Account
                     {loading ? "Deleting..." : "Delete Account"}
                 </button>
+                <br></br>
             </form>
         </div>
     );

@@ -17,6 +17,9 @@ const BioEditForm = () => {
 
     return (
         <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-6 flex items-center dark:text-white">
+                Bio
+            </h2>
             <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Bio
             </label>
@@ -28,7 +31,7 @@ const BioEditForm = () => {
             />
             <button 
                 onClick={handleUpdate} 
-                className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md"
+                className="w-full mt-4 px-4 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-lg text-sm font-medium hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors duration-200 disabled:opacity-50"
                 disabled={loading}
             >
                 {loading ? "Saving..." : "Save Bio"}

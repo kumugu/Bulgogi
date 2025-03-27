@@ -12,9 +12,6 @@ public class UserUpdateProfileImageRequestDTO {
         if (profileImage == null || profileImage.isBlank()) {
             throw new IllegalArgumentException("ProfileImage 값은 비어 있을 수 없습니다.");
         }
-        if (!profileImage.startsWith("/static/images/profile/")) {
-            throw new IllegalArgumentException("유효하지 않은 ProfileImage 경로입니다.");
-        }
     }
 
     // 생성자

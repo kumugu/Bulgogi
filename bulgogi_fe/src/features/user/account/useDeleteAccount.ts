@@ -18,7 +18,7 @@ export const useDeleteAccount = () => {
         try {
             const successMessage = await deleteAccountService(data);
             setMessage(successMessage);
-            setTimeout(() => navigate("/home"), 1000);
+            setTimeout(() => navigate("/home"), 1000);  // 로그아웃도 해야함함
         } catch (error: any) {
             setError(error.message || "회원탈퇴 중 오류가 발생했습니다. 다시 시도해주세요.");
         } finally {

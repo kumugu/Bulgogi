@@ -14,16 +14,16 @@ public class ImageController {
     @GetMapping("/profile-options")
     public ResponseEntity<List<String>> getProfileOptions() {
         List<String> imageUrls = List.of(
-                "/static/images/profile/pi1.png",
-                "/static/images/profile/pi2.png",
-                "/static/images/profile/pi3.png",
-                "/static/images/profile/pi4.png",
-                "/static/images/profile/pi5.png",
-                "/static/images/profile/pi6.png",
-                "/static/images/profile/pi7.png",
-                "/static/images/profile/pi8.png",
-                "/static/images/profile/pi9.png",
-                "/static/images/profile/pi10.png"
+                "/images/profile/pi1.png",
+                "/images/profile/pi2.png",
+                "/images/profile/pi3.png",
+                "/images/profile/pi4.png",
+                "/images/profile/pi5.png",
+                "/images/profile/pi6.png",
+                "/images/profile/pi7.png",
+                "/images/profile/pi8.png",
+                "/images/profile/pi9.png",
+                "/images/profile/pi10.png"
         );
         return ResponseEntity.ok(imageUrls);
     }

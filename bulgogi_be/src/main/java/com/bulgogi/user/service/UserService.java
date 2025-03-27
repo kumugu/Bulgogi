@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -121,7 +122,26 @@ public class UserService {
     public UserResponseDTO updateProfileImage(Long userId, UserUpdateProfileImageRequestDTO profileImageRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+        // DTO 기본 검증 실행
         profileImageRequest.validate();
+        // 프로필 이미지 URL 검증
+        List<String> validImageUrls = List.of(
+                "/images/profile/pi1.png",
+                "/images/profile/pi2.png",
+                "/images/profile/pi3.png",
+                "/images/profile/pi4.png",
+                "/images/profile/pi5.png",
+                "/images/profile/pi6.png",
+                "/images/profile/pi7.png",
+                "/images/profile/pi8.png",
+                "/images/profile/pi9.png",
+                "/images/profile/pi10.png"
+        );
+        if (!validImageUrls.contains(profileImageRequest.getProfileImage())) {
+            throw new IllegalArgumentException("유효하지 않은 프로필 이미지 URL입니다.");
+        }
+
+        // 프로필 이미지 업데이트
         user.setProfileImage(profileImageRequest.getProfileImage());
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);

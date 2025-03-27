@@ -100,6 +100,7 @@ public class UserController {
             throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
         }
         Long userId = extractUserIdFormToken(token);
+
         UserResponseDTO updatedUser = userService.updateProfileImage(userId, profileImageDTO);
         return ResponseEntity.ok(updatedUser);
     }

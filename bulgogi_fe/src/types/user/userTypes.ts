@@ -11,9 +11,20 @@ export interface UpdatedMyBioRequest {
     bio: string;
 }
 
-export interface UpdateMyProfileImageRequest {
-    profileImage: string;
+export interface ProfileImage {
+    image: string;
+    file: File | null;
 }
+
+export interface ProfileImageListProps {
+    onSelect: (image: string, file: File | null) => void;
+    selectedImage: string | null;
+}
+
+export interface UpdateMyProfileImageRequest {
+    profileImage: File;
+}
+
 
 export interface ApiResponse<T = any> {
     success: boolean;

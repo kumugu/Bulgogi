@@ -1,73 +1,72 @@
 import { useUpdateMyProfileImage } from "@/features/user/userSettings/useUpdateMyProfileImage";
-import { useState } from "react";
-import { FaUpload } from "react-icons/fa"; // 아이콘 사용
+import React, { useState } from "react";
+import ProfileImageList from "./ProfileImageList";
 
-// 미리 제공된 프로필 이미지 목록
-const profileImageOptions = [
-    "/static/images/profile/pi1.png",
-    "/static/images/profile/pi2.png",
-    "/static/images/profile/pi3.png",
-    "/static/images/profile/pi4.png",
-    "/static/images/profile/pi5.png",
-    "/static/images/profile/pi6.png",
-    "/static/images/profile/pi7.png",
-    "/static/images/profile/pi8.png",
-    "/static/images/profile/pi9.png",
-    "/static/images/profile/pi10.png",
-];
 
 const ProfileImageEditForm = () => {
     const { updateMyProfileImage, loading, error, message } = useUpdateMyProfileImage();
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false); 
 
-    // 프로필 이미지 선택 처리
-    const handleImageSelect = (image: string) => {
-        setSelectedImage(image); // 선택된 이미지 업데이트
+    // 프로필 이미지 선택
+    const handleImageSelect = (image: string, file: File | null) => {
+        setSelectedImage(image);    // 미리보기용 URL
+        setSelectedFile(file)       // 실제 업로드할 파일
+        setIsModalOpen(false);      // 선택 후 모달 닫기
     };
 
-    // 이미지 선택 후 업로드 처리
+    // 프로필 이미지 저장
     const handleImageUpload = async (event: React.FormEvent) => {
         event.preventDefault();
-        if (!selectedImage) return;
+        
+        if (!selectedFile) {
+            console.error("파일이 선택되지 않았습니다!");
+            return;
+        }
 
         const formData = new FormData();
-        formData.append("profileImage", selectedImage); // 선택된 이미지 보내기
+        formData.append("profileImage", selectedFile);
+
         updateMyProfileImage(formData);
+    };
+
+    // 파일 선택 처리
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0] || null;
+        setSelectedFile(file);
     };
 
     return (
         <div className="mb-6">
-            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+            <h2 className="text-xl font-semibold mb-6 flex items-center dark:text-white">
                 Profile Image
-            </label>
+            </h2>
 
-            {/* 이미지 목록 표시 */}
-            <div className="flex space-x-4 mb-6">
-                {profileImageOptions.map((image, index) => (
-                    <div key={index} className="relative">
-                        <img
-                            src={image}
-                            alt={`Profile ${index + 1}`}
-                            className={`w-24 h-24 rounded-full cursor-pointer object-cover ${selectedImage === image ? "border-4 border-blue-500" : ""}`}
-                            onClick={() => handleImageSelect(image)} // 이미지 클릭 시 선택
-                        />
-                    </div>
-                ))}
+            {/* 기존 프로필 이미지 (처음부터 표시) */}
+            <div className="mb-4 flex flex-col items-center">
+                <h3 className="text-sm text-neutral-700 dark:text-neutral-300 mb-2">Current Profile Image</h3>
+                <img
+                    src={selectedImage || "/static/images/profile/pi1.png"} // 경로 체크해봐야함함
+                    alt="Profile"
+                    className="w-32 h-32 rounded-full object-cover border-2 border-gray-300"
+                />
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="mt-3 px-4 py-2 bg-black text-white rounded-md" 
+                >
+                    Change Profile Image
+                </button>
+
+                {/* 파일 선택 input */}
+                <input
+                    type="file"
+                    onChange={handleFileChange}
+                    className="mt-4"
+                />
             </div>
 
-            {/* 선택된 이미지 미리보기 */}
-            {selectedImage && (
-                <div className="mb-6">
-                    <h3 className="text-sm text-neutral-700 dark:text-neutral-300 mb-2">Selected Image</h3>
-                    <img
-                        src={selectedImage}
-                        alt="Selected Profile"
-                        className="w-32 h-32 rounded-full object-cover border-2 border-gray-300"
-                    />
-                </div>
-            )}
-
-            {/* 이미지 선택 후 업로드 */}
+            {/* 프로필 이미지 저장 버튼 */}
             <form onSubmit={handleImageUpload}>
                 <button
                     type="submit"
@@ -78,7 +77,22 @@ const ProfileImageEditForm = () => {
                 </button>
             </form>
 
-            {/* 메시지 */}
+            {/* 모달 (이미지 선택) */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md">
+                        <h3 className="text-lg font-semibold mb-4">Select a Profile Image</h3>
+                        <ProfileImageList onSelect={handleImageSelect} selectedImage={selectedImage} />
+                        <button
+                            onClick={() => setIsModalOpen(false)}
+                            className="w-full px-4 py-2 bg-red-500 text-white rounded-md"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {message && <p className="text-green-600">{message}</p>}
             {error && <p className="text-red-600">{error}</p>}
         </div>
