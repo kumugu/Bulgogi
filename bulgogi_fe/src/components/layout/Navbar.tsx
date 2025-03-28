@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/user/authStore";
 import { LogOut, User, Settings, ChevronDown } from "react-feather";
+import ProfileImage from "../user/userSettings/ProfileImage";
 
 const Navbar = () => {
   const { auth, logout } = useAuthStore();
@@ -24,9 +25,10 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md py-4 px-6">
       <div className="max-w-screen-xl mx-auto flex justify-between items-center">
-            <Link to="/" className="flex-shrink-0">
-              <span className="font-serif text-3xl font-bold tracking-tight text-neutral-900">Bulgogi</span>
-            </Link>
+        <Link to="/" className="flex-shrink-0">
+          <span className="font-serif text-3xl font-bold tracking-tight text-neutral-900">Bulgogi</span>
+        </Link>
+
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           <Link
@@ -55,9 +57,14 @@ const Navbar = () => {
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center space-x-2 text-neutral-600 hover:text-neutral-900 focus:outline-none"
               >
-                <div className="w-8 h-8 rounded-full bg-neutral-900 text-white flex items-center justify-center text-sm font-medium">
-                  {getInitials(auth.username)}
-                </div>
+                {/* 프로필 이미지 표시 */}
+                {auth.profileImage ? (
+                  <ProfileImage imageUrl={auth.profileImage} alt={auth.username || "User"} size={8} />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-neutral-900 text-white flex items-center justify-center text-sm font-medium">
+                    {getInitials(auth.username)}
+                  </div>
+                )}
                 <span className="text-sm font-medium">{auth.username}</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
@@ -95,12 +102,12 @@ const Navbar = () => {
               )}
             </div>
           ) : (
-          <Link 
+            <Link 
               to="/login" 
               className="inline-flex items-center justify-center px-4 py-2 border border-neutral-900 text-white bg-black text-sm font-medium rounded-full hover:text-black hover:bg-white transition-colors duration-200"
-          >
+            >
               Get Started
-          </Link>
+            </Link>
           )}
         </div>
       </div>

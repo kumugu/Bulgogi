@@ -24,6 +24,9 @@ public class JwtProvider {
             @Value("${spring.jwt.secret_key}") String secretKey,
             @Value("${spring.jwt.expiration}") long expirationTime,
             @Value("${spring.jwt.refresh_expiration}") long refreshExpirationTime) {
+        System.out.println("Secret Key: " + secretKey);
+        System.out.println("Expiration Time: " + expirationTime);
+        System.out.println("Refresh Expiration Time: " + refreshExpirationTime);
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.expirationTime = expirationTime;
         this.refreshExpirationTime = refreshExpirationTime;

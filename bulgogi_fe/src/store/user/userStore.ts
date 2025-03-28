@@ -1,14 +1,16 @@
 import { create } from "zustand";
 
-interface UserState {
-    userProfile: {
+interface userProfile {
         username: string | null;
         bio: string | null;
         profileImage: string | null;
-        deleted: boolean | null;
-    };
+        deleted: boolean;
+}
+
+interface UserState {
+    userProfile: userProfile;
     isProfileUpdated: boolean;
-    setUserProfile: (profile: { username: string, bio: string; profileImage: string; deleted: boolean }) => void;
+    setUserProfile: (profile: Partial<userProfile>) => void;
     setProfileUpdateStatus: (status: boolean) => void;
 }
 
@@ -17,9 +19,12 @@ export const useUserStore = create<UserState>()((set) => ({
         username: null,
         bio: null,
         profileImage: null,
-        deleted: null,
+        deleted: false,
     },
     isProfileUpdated: false,
-    setUserProfile: (profile) => set({ userProfile: profile }),
+    setUserProfile: (profile) => 
+        set((state) => ({ 
+        userProfile: { ...state.userProfile, ...profile },
+        })),
     setProfileUpdateStatus: (status) => set({ isProfileUpdated: status }),
 }));

@@ -6,6 +6,7 @@ import com.bulgogi.user.security.UserAuthorization;
 import com.bulgogi.user.service.TokenService;
 import com.bulgogi.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,8 @@ public class UserController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
     private final TokenService tokenService;
+    @Value("${aws.s3.bucketUrl}")
+    private String s3BucketUrl;
 
     @Autowired
     public UserController(UserService userService, JwtProvider jwtProvider, TokenService tokenService) {
@@ -86,22 +89,6 @@ public class UserController {
         // 3. 사용자 Bio 업데이트 (서비스 계층 호출)
         UserResponseDTO updatedUser = userService.updateBio(userId, bioDTO);
         // 4. HTTP 응답 반환 (업데이트된 사용자 정보)
-        return ResponseEntity.ok(updatedUser);
-    }
-
-    // 자기 정보 수정 (profileImage)
-    @PutMapping("/my-info/profileImage")
-    @UserAuthorization
-    public ResponseEntity<?> updateProfileImage(
-            @RequestHeader("Authorization") String token,
-            @RequestBody UserUpdateProfileImageRequestDTO profileImageDTO) {
-
-        if (!token.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
-        }
-        Long userId = extractUserIdFormToken(token);
-
-        UserResponseDTO updatedUser = userService.updateProfileImage(userId, profileImageDTO);
         return ResponseEntity.ok(updatedUser);
     }
 }

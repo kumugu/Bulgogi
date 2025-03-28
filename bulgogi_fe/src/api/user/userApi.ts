@@ -1,4 +1,4 @@
-import { MyProfile, ApiResponse, UpdatedMyBioRequest, UpdateMyProfileImageRequest } from "@/types/user/userTypes";
+import { MyProfile, ApiResponse, UpdatedMyBioRequest } from "@/types/user/userTypes";
 import { api } from "../axios";
 
 
@@ -22,26 +22,15 @@ const updateMyBio = async (updateData: UpdatedMyBioRequest): Promise<ApiResponse
     }
 }
 
-// 자기 정보 수정 (profileImage 가져오기)
-const getProfileImageList = async (): Promise<string[]> => {
-    try {
-        const response = await api.get<string[]>('/users/images/profile-options');
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
-};
 
 // 자기 정보 수정 (profileImage)
-const updateMyProfileImage = async (updateData: UpdateMyProfileImageRequest | FormData): Promise<ApiResponse<MyProfile>> => {
+const updateMyProfileImage = async (updateData: { profileImage: string }): Promise<ApiResponse<MyProfile>> => {
     try {
-        const response = await api.put<ApiResponse<MyProfile>>(`/users/my-info/profileImage`, updateData,
-            { headers: { "Content-Type": "multipart/form-data" } }
-        );
-        return response.data;
+        const response = await api.put<ApiResponse<MyProfile>>(`/users/profile-image`, updateData);
+            return response.data;
     } catch (error) {
         throw error;
     }
 };
 
-export { getMyInfo, updateMyBio, getProfileImageList, updateMyProfileImage };
+export { getMyInfo, updateMyBio, updateMyProfileImage };

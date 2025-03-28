@@ -1,9 +1,7 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/user/authStore";
 import { getIsRefreshing, setIsRefreshing, processQueue, addToQueue } from "./queue";
-import { resolve } from "path";
-import { rejects } from "assert";
-import { useAuth } from "@/features/user/auth/useAuth";
+
 
 /**
  * 기본 Axios 인스턴스 설정

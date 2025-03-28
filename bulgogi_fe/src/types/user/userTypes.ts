@@ -21,11 +21,6 @@ export interface ProfileImageListProps {
     selectedImage: string | null;
 }
 
-export interface UpdateMyProfileImageRequest {
-    profileImage: File;
-}
-
-
 export interface ApiResponse<T = any> {
     success: boolean;
     message: string;

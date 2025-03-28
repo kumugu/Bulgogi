@@ -3,6 +3,7 @@ import { useAuthStore } from "@/store/user/authStore";
 import { getErrorMessage } from "@/utils/user/login/loginErrorMessage ";
 import { tokenUtils } from "@/utils/user/auth/tokenUtils";
 import { AxiosError } from "axios";
+import { getProfileImage } from "@/api/user/authApi";
 
 // 로그인 서비스
 const loginService = async (email: string, password: string) => {
@@ -25,6 +26,30 @@ const loginService = async (email: string, password: string) => {
             throw new Error(getErrorMessage(error));
         }
         throw new Error("알 수 없는 오류가 발생했습니다.");
+    }
+};
+
+// 프로필 이미지 가져오기 서비스
+const getProfileImageService = async () => {
+    try {
+        const profileImage = await getProfileImage();
+        const { accessToken, username } = useAuthStore.getState().auth;
+
+        // null 체크 후 기본값 설정
+        useAuthStore.getState().setAuth({
+            accessToken: accessToken || "",  // accessToken이 null이면 빈 문자열로 대체
+            username: username || "Unknown User",  // username이 null이면 기본값 설정
+            profileImage: profileImage || ""  // profileImage가 null이면 빈 문자열로 대체
+        });
+
+        return profileImage;
+    } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+            console.error("프로필 이미지 가져오기 실패", error.response?.data || error.message);
+        } else {
+            console.error("알 수 없는 오류 발생", error);
+        }
+        return null;
     }
 };
 
@@ -78,4 +103,4 @@ const logoutService = async () => {
     }
 };
 
-export { loginService, refreshTokenService, logoutService };
+export { loginService, getProfileImageService, refreshTokenService, logoutService };

@@ -1,7 +1,6 @@
 import { getMyInfo, updateMyBio, updateMyProfileImage } from "@/api/user/userApi";
-import { MyProfile, UpdatedMyBioRequest, UpdateMyProfileImageRequest } from "@/types/user/userTypes";
-import { getProfileImageList } from "@/api/user/userApi";
-import { AxiosError } from "axios";
+import { MyProfile, UpdatedMyBioRequest } from "@/types/user/userTypes";
+import axios, { AxiosError } from "axios";
 
 // 사용자 정보 조회 서비스
 const getMyInfoService = async (): Promise<MyProfile> => {
@@ -44,42 +43,26 @@ const  updateMyBioService = async (updateData: UpdatedMyBioRequest): Promise<MyP
     }
 };
 
-// profileImage 가져오기
-const getProfileImageListService = async (): Promise<string[]> => {
-    try {
-        return await getProfileImageList();
-    } catch (error) {
-        throw new Error("프로필 이미지 리스트를 가져오는 데 실패했습니다.");
-    }
-};
 
 // 자기 자신 ProfileImage 수정 서비스
-const updateMyProfileImageService = async (formData: FormData): Promise<MyProfile> => {
+const updateMyProfileImageService = async (file: File): Promise<MyProfile> => {
+    const formData = new FormData();
+    formData.append("profileImage", file);
+
+
     try {
-        // FormData에서 파일을 가져와 UpdateMyProfileImageRequest 형태로 변환
-        const updateData: UpdateMyProfileImageRequest = {
-            profileImage: formData.get("profileImage") as File,
-        };
-
         // API 호출
-        const response = await updateMyProfileImage(updateData);
+        const response = await axios.put("/users/profile-image", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
 
-        if (!response.success) {
-            throw new Error(response.message || "프로필 이미지 수정에 실패했습니다.");
-        }
-        
-        if (!response.data) {
-            throw new Error("프로필 이미지 수정 후 반환된 데이터가 없습니다.");
-        }
-
-        return response.data;
+        return response.data.profileImageUrl;
     } catch (error) {
-        if (error instanceof AxiosError) {
-            return error.response?.data?.message || "프로필 이미지 수정 중 오류가 발생했습니다.";
-        }
-        throw new Error("알 수 없는 오류가 발생했습니다. 다시 시도해주세요.");
+        console.error("프로필 이미지 서비스 오류:", error);
+        throw error;
     }
 };
 
-
-export { getMyInfoService, updateMyBioService, getProfileImageListService, updateMyProfileImageService }
+export { getMyInfoService, updateMyBioService, updateMyProfileImageService }

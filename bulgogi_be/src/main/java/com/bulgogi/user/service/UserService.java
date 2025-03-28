@@ -7,13 +7,14 @@ import com.bulgogi.user.model.User;
 import com.bulgogi.user.repository.UserRepository;
 import com.bulgogi.user.security.JwtProvider;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -21,39 +22,31 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    private final UserMapper userMapper;
-    private final JwtProvider jwtProvider;
-    private final TokenService tokenService;
+
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final S3Service s3Service;
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(UserService.class);
-
-    @Autowired
-    public UserService(UserMapper userMapper, UserRepository userRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider, TokenService tokenService) {
-        this.userMapper = userMapper;
-        this.jwtProvider = jwtProvider;
-        this.tokenService = tokenService;
+    public UserService(UserRepository userRepository, S3Service s3Service) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.s3Service = s3Service;
     }
 
+
     /**
-     *
      * 1. 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
      * 2. 사용자명으로 사용자 조회 (프로필 검색 시 사용)
      * 3. 다른 사용자 정보 조회 (username 조회: 외부 검색 용도, 공개된 정보 조회)
      * 4. 특정 유저 정보 조회 (userId 조회: 내부 사용 용도, 공개된 정보 조회)
      * 5. 자기 정보 조회
      * 6. 자기 정보 수정(bio)
-     * 7. 자기 정보 수정(profileImage)
+     * 7. 자기 정보 수정(profileImage - S3)
      *
-     * 마지막 업데이트: 2025-03-22 13:11
+     * 마지막 업데이트: 2025-03-28 17:03
      */
 
     // 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
     public UserResponseDTO getUserByEmail(String email) {
-        Optional< User> user = userRepository.findByEmail(email);
+        Optional<User> user = userRepository.findByEmail(email);
         return user.map(UserMapper::toUserResponseDTO)
                 .orElseThrow(() -> new UserNotFoundException("해당 이메일을 가진 사용자를 찾을 수 없습니다."));
     }
@@ -119,32 +112,19 @@ public class UserService {
 
     // 자기 정보 수정 - ProfileImage
     @Transactional
-    public UserResponseDTO updateProfileImage(Long userId, UserUpdateProfileImageRequestDTO profileImageRequest) {
+    public UserResponseDTO updateProfileImage(Long userId, MultipartFile file) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
-        // DTO 기본 검증 실행
-        profileImageRequest.validate();
-        // 프로필 이미지 URL 검증
-        List<String> validImageUrls = List.of(
-                "/images/profile/pi1.png",
-                "/images/profile/pi2.png",
-                "/images/profile/pi3.png",
-                "/images/profile/pi4.png",
-                "/images/profile/pi5.png",
-                "/images/profile/pi6.png",
-                "/images/profile/pi7.png",
-                "/images/profile/pi8.png",
-                "/images/profile/pi9.png",
-                "/images/profile/pi10.png"
-        );
-        if (!validImageUrls.contains(profileImageRequest.getProfileImage())) {
-            throw new IllegalArgumentException("유효하지 않은 프로필 이미지 URL입니다.");
-        }
 
-        // 프로필 이미지 업데이트
-        user.setProfileImage(profileImageRequest.getProfileImage());
-        user.setUpdatedAt(LocalDateTime.now());
-        userRepository.save(user);
-        return UserMapper.toUserResponseDTO(user);
+        try {
+            String profileImageUrl = s3Service.uploadFile(file);
+            user.setProfileImage(profileImageUrl);
+            user.setUpdatedAt(LocalDateTime.now());
+
+            User updateUser = userRepository.save(user);
+            return UserMapper.toUserResponseDTO(updateUser);
+        } catch (IOException e) {
+            throw new RuntimeException("파일 업로드 중 오류 발생", e);
+        }
     }
 }

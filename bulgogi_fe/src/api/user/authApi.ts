@@ -8,6 +8,11 @@ const login = async (email: string, password: string) => {
   return response.data;
 };
 
+// 프로필 이미지 URL 가져오기
+const getProfileImage = async (): Promise<string> => {
+  const response = await api.get("/users/profile-image");  
+  return response.data;  
+};
 
 // 토큰 갱신
 const refreshAccessToken = async (): Promise<LoginResponse> => {
@@ -20,4 +25,4 @@ const logout = async () => {
   await api.post("/users/logout", {});
 }
 
-export { login, refreshAccessToken, logout }
+export { login, getProfileImage, refreshAccessToken, logout }
