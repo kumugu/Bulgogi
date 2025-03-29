@@ -3,15 +3,17 @@ import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/user/authStore";
 import { LogOut, User, Settings, ChevronDown } from "react-feather";
 import ProfileImage from "../user/userSettings/ProfileImage";
+import { useUserStore } from "@/store/user/userStore";
 
 const Navbar = () => {
   const { auth, logout } = useAuthStore();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+   const { userProfile } = useUserStore();
   const isAuthenticated = !!auth.accessToken;
 
   const handleLogout = () => {
     logout();
-    setIsProfileOpen(false); // 드롭다운을 닫습니다.
+    setIsProfileOpen(false); 
   };
 
   const getInitials = (username: string | null) => {
@@ -59,7 +61,7 @@ const Navbar = () => {
               >
                 {/* 프로필 이미지 표시 */}
                 {auth.profileImage ? (
-                  <ProfileImage imageUrl={auth.profileImage} alt={auth.username || "User"} size={8} />
+                    <ProfileImage imageUrl={userProfile.profileImage} />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-neutral-900 text-white flex items-center justify-center text-sm font-medium">
                     {getInitials(auth.username)}

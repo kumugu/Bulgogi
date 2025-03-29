@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class UserLoginDTO {
+public class UserLoginRequestDTO {
     private Long id;
 
     @Size(min = 4, max = 20, message = "이름은 최소 4자 이상, 최대 20자이어야 합니다.")
@@ -18,27 +18,28 @@ public class UserLoginDTO {
     @Size(min = 4, max = 20, message = "비밀번호는 최소 4자 이상, 최대 20자이어야 합니다.")
     private String password;
 
+    private String profileImageUrl;
     private boolean deleted;
 
     // 기본 생성자
-    public UserLoginDTO () {}
+    public UserLoginRequestDTO() {}
 
     // 파라미터가 있는 생성자
-    public UserLoginDTO(String email, String password, boolean deleted) {
+    public UserLoginRequestDTO(Long id, String email, String password, String username, boolean deleted, String profileImageUrl) {
+        this.id = id;
         this.email = email;
         this.password = password;
+        this.username = username;
         this.deleted = deleted;
+        this.profileImageUrl = profileImageUrl;
     }
-
-    public UserLoginDTO(Long id, String email, String password, String username, boolean deleted) {
+    public UserLoginRequestDTO(Long id, String email, String password, String username, boolean deleted) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.username = username;
         this.deleted = deleted;
     }
-
-
 
     public Long getId() {
         return id;
@@ -70,6 +71,14 @@ public class UserLoginDTO {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     public boolean isDeleted() {

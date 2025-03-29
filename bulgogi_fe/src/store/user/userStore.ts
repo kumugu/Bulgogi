@@ -1,30 +1,44 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-interface userProfile {
-        username: string | null;
-        bio: string | null;
-        profileImage: string | null;
-        deleted: boolean;
+export interface UserProfile {
+  username: string | null;
+  bio: string | null;
+  profileImage: string | null;
+  profileImageUrl: string | null;
 }
 
 interface UserState {
-    userProfile: userProfile;
-    isProfileUpdated: boolean;
-    setUserProfile: (profile: Partial<userProfile>) => void;
-    setProfileUpdateStatus: (status: boolean) => void;
+  userProfile: UserProfile;
+  isProfileUpdated: boolean;
+  setUserProfile: (profile: Partial<UserProfile>) => void;
+  setProfileUpdateStatus: (status: boolean) => void;
+  setProfileImageUrl: (url: string | null) => void;
 }
 
-export const useUserStore = create<UserState>()((set) => ({
-    userProfile: {
+export const useUserStore = create<UserState>()(
+  persist(
+    (set) => ({
+      userProfile: {
         username: null,
         bio: null,
         profileImage: null,
-        deleted: false,
-    },
-    isProfileUpdated: false,
-    setUserProfile: (profile) => 
-        set((state) => ({ 
-        userProfile: { ...state.userProfile, ...profile },
+        profileImageUrl: null,
+      },
+      isProfileUpdated: false,
+      setUserProfile: (profile) =>
+        set((state) => ({
+          userProfile: { ...state.userProfile, ...profile },
         })),
-    setProfileUpdateStatus: (status) => set({ isProfileUpdated: status }),
-}));
+      setProfileUpdateStatus: (status) => set({ isProfileUpdated: status }),
+      setProfileImageUrl: (url) =>
+        set((state) => ({
+          userProfile: { ...state.userProfile, profileImageUrl: url },
+        })),
+    }),
+    {
+      name: "user-storage", 
+      storage: createJSONStorage(() => sessionStorage), // 또는 sessionStorage
+    }
+  )
+);

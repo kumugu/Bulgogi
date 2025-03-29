@@ -1,6 +1,7 @@
 package com.bulgogi.user.controller;
 
-import com.bulgogi.user.dto.UserLoginDTO;
+import com.bulgogi.user.dto.UserLoginRequestDTO;
+import com.bulgogi.user.dto.UserLoginResponseDTO;
 import com.bulgogi.user.exception.InvalidPasswordException;
 import com.bulgogi.user.exception.InvalidTokenException;
 import com.bulgogi.user.exception.UserDeactivatedException;
@@ -37,10 +38,13 @@ public class AuthenticationController {
 
     // 로그인 (사용자 인증 및 JWT 발급)
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody @Valid UserLoginDTO userLoginDTO, HttpServletResponse response, BindingResult bindingResult) {
-        // 유효성 검사 오류가 있는 경우
+    public ResponseEntity<UserLoginResponseDTO> login(
+            @RequestBody @Valid UserLoginRequestDTO userLoginRequestDTO,
+            HttpServletResponse response,
+            BindingResult bindingResult) {
+
+        // 유효성 검사 오류 처리
         if (bindingResult.hasErrors()) {
-            // 첫 번째 오류 메시지 가져오기
             String errorMessage = bindingResult.getFieldErrors()
                     .stream()
                     .findFirst()
@@ -48,17 +52,21 @@ public class AuthenticationController {
                     .orElse("입력값이 올바르지 않습니다.");
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Collections.singletonMap("message", errorMessage));
+                    .body(new UserLoginResponseDTO(null, null, errorMessage));
         }
+
         try {
-            // 로그인 시 엑세스 토큰과 리프레시 토큰 발급
-            Map<String, String> tokens = authenticationService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword(), response);
-            return ResponseEntity.ok(tokens);
+            UserLoginResponseDTO loginResponseDTO = authenticationService.login(
+                    userLoginRequestDTO.getEmail(),
+                    userLoginRequestDTO.getPassword(),
+                    response);
+            return ResponseEntity.ok(loginResponseDTO);
         } catch (UserNotFoundException | InvalidPasswordException | UserDeactivatedException e) {
-            // 예외에 맞는 메시지를 반환
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Collections.singletonMap("message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new UserLoginResponseDTO(null, null, e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("message", "서버 오류가 발생했습니다."));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new UserLoginResponseDTO(null, null, "서버 오류가 발생했습니다."));
         }
     }
 

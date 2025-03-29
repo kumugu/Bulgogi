@@ -1,6 +1,7 @@
 package com.bulgogi.user.controller;
 
 import com.bulgogi.user.dto.UserResponseDTO;
+import com.bulgogi.user.model.User;
 import com.bulgogi.user.security.JwtProvider;
 import com.bulgogi.user.security.UserAuthorization;
 import com.bulgogi.user.service.S3Service;
@@ -10,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -27,29 +31,6 @@ public class S3Controller {
         this.tokenService = tokenService;
     }
 
-    // 자기 정보 수정 (profile Image 업데이트)
-    @PutMapping("/profile-image")
-    @UserAuthorization
-    public ResponseEntity<?> updateProfileImage(
-            @RequestHeader("Authorization") String token,
-            @RequestParam("file") MultipartFile file) {
-
-        // 토큰에서 userId 추출
-        if (!token.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
-        }
-        Long userId = extractUserIdFromToken(token);
-
-        try {
-            // UserService를 통해 프로필 이미지 URL 업데이트
-            UserResponseDTO updatedUser = userService.updateProfileImage(userId, file);
-            return ResponseEntity.ok(updatedUser);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("프로필 이미지 업데이트 실패: " + e.getMessage());
-        }
-    }
-
     // 자기 정보 조회 (profileImage URL 조회)
     @GetMapping("/profile-image")
     @UserAuthorization
@@ -57,10 +38,16 @@ public class S3Controller {
         Long userId = extractUserIdFromToken(token);
 
         try {
-            // S3Service를 통해 파일 URL 가져오기
-            String fileName = "profile-images/" + userId + ".png"; // 예시로 파일 이름을 userId로 설정
-            String profileImageUrl = s3Service.getFileUrl(fileName);
+            // 사용자 정보에서 프로필 이미지 키 가져오기
+            UserResponseDTO userDTO = userService.getMyInfo(userId);
+            String profileImageKey = userDTO.getProfileImage();
 
+            if (profileImageKey == null || profileImageKey.isEmpty()) {
+                return ResponseEntity.ok("");
+            }
+
+            // S3Service에서 파일 URL 가져오기
+            String profileImageUrl = s3Service.getFileUrl(profileImageKey);
             return ResponseEntity.ok(profileImageUrl);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -75,4 +62,63 @@ public class S3Controller {
         // 이 부분에서 JWT를 파싱하여 userId를 반환합니다.
         return jwtProvider.extractUserId(jwtToken);
     }
+
+    // 자기 정보 수정 (profile Image 업데이트)
+    @PutMapping("/profile-image")
+    @UserAuthorization
+    public ResponseEntity<Map<String, String>> updateProfileImage(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("file") MultipartFile file) {
+
+        Long userId = extractUserIdFromToken(token);
+
+        try {
+            // 기존 프로필 이미지가 있다면 삭제
+            UserResponseDTO userDTO = userService.getMyInfo(userId);
+            if (userDTO.getProfileImage() != null && !userDTO.getProfileImage().isEmpty()) {
+                s3Service.deleteFile(userDTO.getProfileImage());
+            }
+
+            // 파일 업로드 후 s3에 저장된 파일 경로 반환
+            String fileKey = s3Service.uploadFile(file);
+
+            // 사용자 정보 업데이트
+            userService.updateProfileImage(userId, fileKey);
+
+            // 클라이언트에게 접근 가능한 URL 반환
+            String fileUrl = s3Service.getFileUrl(fileKey);
+
+            // JSON 객체로 응답 반환
+            Map<String, String> response = new HashMap<>();
+            response.put("profileImageUrl", fileUrl);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "프로필 이미지 업데이트 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(errorResponse);
+        }
+    }
+
+    // 자기 정보 삭제 (profile Image 삭제)
+    @DeleteMapping("/profile-image")
+    @UserAuthorization
+    public ResponseEntity<?> deleteProfileImage(@RequestHeader("Authorization") String token) {
+        Long userId = extractUserIdFromToken(token);
+
+        try {
+            // s3에서 프로필 이미지 파일 삭제
+            String fileName = "profile-images/" + userId + ".png";
+            s3Service.deleteFile(fileName);
+
+            // 프로필 이미지 URL 삭제 후, 사용자 정보에서 이미지 경로를 초기화할 수 있다면 추가 로직 작성
+            userService.removeProfileImage(userId);
+
+            return ResponseEntity.ok("프로필 이미지가 삭제되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("프로필 이미지 삭제 실패: " + e.getMessage());
+        }
+    }
+
 }

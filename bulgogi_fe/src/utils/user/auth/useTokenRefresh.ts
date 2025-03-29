@@ -1,13 +1,13 @@
 import { refreshAccessToken } from "@/api/user/authApi";
-import { tokenUtils } from "@/utils/user/tokenUtils";
-import { useAuthStore } from "@/store/user/authStore";
-import { useAuth } from "@/features/user/auth/useLogin";
+import { tokenUtils } from "./tokenUtils";
 
 // 토큰 갱신 공통 함수
 const refreshToken = async (setAuth: any, handleLogout: any) => {
     try {
         console.log("토큰 갱신 요청...");
-        const accessToken = await refreshAccessToken();
+        const response = await refreshAccessToken();
+        const { accessToken } = response;
+
         if (accessToken) {
             const newDecoded = tokenUtils.setToken(accessToken);
             if (newDecoded) {

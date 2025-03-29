@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
@@ -38,11 +39,6 @@ public class S3Service {
             @Value("${aws.s3.access-key}") String accessKey,
             @Value("${aws.s3.secret-key}") String secretKey,
             @Value("${aws.s3.region}") String region) {
-        // 전달된 설정 값을 출력하여 주입이 제대로 되었는지 확인 (개발 시 디버깅용, 운영 환경에서는 제거 권장)
-        System.out.println("Bucket Name: " + bucketName);
-        System.out.println("Access Key: " + accessKey);
-        System.out.println("Secret Key: " + secretKey);
-        System.out.println("Region: " + region);
 
         this.bucketName = bucketName;
         this.accessKey = accessKey;
@@ -73,21 +69,31 @@ public class S3Service {
                         .bucket(this.bucketName)  // 버킷 이름 설정
                         .key(fileName)            // 파일 경로 지정 (키)
                         .build(),
-                software.amazon.awssdk.core.sync.RequestBody.fromBytes(file.getBytes()));
+                RequestBody.fromBytes(file.getBytes()));
 
-        // 업로드한 파일의 URL을 생성하여 반환
-        return "https://" + this.bucketName + ".s3." + this.region + ".amazonaws.com/" + fileName;
+        return fileName;
     }
 
     /**
-     * 저장된 프로필 이미지의 URL을 생성하여 반환
+     * 저장된 프로필 이미지의 URL을 생성하여 반환.
+     * 만약 이미 저장된 값이 full URL이라면 그대로 반환하고,
+     * 그렇지 않으면 S3 버킷, 리전, 그리고 파일 key를 조합하여 URL을 생성.
      *
-     * @param fileName S3에 저장된 파일의 이름(키)
-     * @return 파일 접근에 사용할 URL 문자열
+     * @param fileKey S3에 저장된 파일의 키 또는 기존 full URL
+     * @return 클라이언트가 접근 가능한 full URL 문자열
      */
-    public String getFileUrl(String fileName) {
-        // URL은 "profile-images/" 경로에 저장되어 있다고 가정
-        return "https://" + this.bucketName + ".s3." + this.region + ".amazonaws.com/profile-images/" + fileName;
+    public String getFileUrl(String fileKey) {
+        // 만약 fileKey가 없으면 기본 프로필 이미지를 반환
+        if (fileKey == null || fileKey.isEmpty()) {
+            return "https://bulgogoi-image.s3.ap-northeast-2.amazonaws.com/profile-images/default-profile.png";
+        }
+        // 이미 full URL 형식이면 그대로 반환
+        if (fileKey.startsWith("http")) {
+            return fileKey;
+        }
+        // 상대 경로의 경우, S3 URL 생성
+        return String.format("https://%s.s3.%s.amazonaws.com/%s",
+                this.bucketName, this.region, fileKey);
     }
 
     /**
@@ -128,5 +134,19 @@ public class S3Service {
         // 지정된 객체를 바이트 배열로 가져옴
         ResponseBytes<GetObjectResponse> objectBytes = s3.getObjectAsBytes(request);
         return objectBytes.asByteArray();
+    }
+
+    /**
+     * S3에서 특정 파일 삭제
+     *
+     * @param fileName 삭제할 파일 이름 (예: "profile-images/abc123.png")
+     */
+    public void deleteFile(String fileName) {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(this.bucketName)
+                .key(fileName)
+                .build();
+
+        s3.deleteObject(deleteObjectRequest);
     }
 }

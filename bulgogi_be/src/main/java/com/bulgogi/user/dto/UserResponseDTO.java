@@ -8,6 +8,7 @@ public class UserResponseDTO {
     private String email;
     private String username;
     private String profileImage;
+    private String profileImageUrl;
     private String bio;
     private String role;
     private LocalDateTime createdAt;
@@ -56,6 +57,14 @@ public class UserResponseDTO {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     public String getBio() {

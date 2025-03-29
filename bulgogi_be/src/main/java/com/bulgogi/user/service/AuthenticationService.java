@@ -1,6 +1,7 @@
 package com.bulgogi.user.service;
 
-import com.bulgogi.user.dto.UserLoginDTO;
+import com.bulgogi.user.dto.UserLoginRequestDTO;
+import com.bulgogi.user.dto.UserLoginResponseDTO;
 import com.bulgogi.user.exception.InvalidPasswordException;
 import com.bulgogi.user.exception.InvalidTokenException;
 import com.bulgogi.user.exception.UserDeactivatedException;
@@ -28,12 +29,14 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(AuthenticationService.class);
+    private final S3Service s3Service;
 
-    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider, TokenService tokenService) {
+    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider, TokenService tokenService, S3Service s3Service) {
         this.jwtProvider = jwtProvider;
         this.tokenService = tokenService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.s3Service = s3Service;
     }
 
     /**
@@ -47,10 +50,10 @@ public class AuthenticationService {
      */
 
     // 로그인 (사용자 인증 및 JWT 발급)
-    public Map<String, String> login(String email, String password, HttpServletResponse response) {
+    public UserLoginResponseDTO login(String email, String password, HttpServletResponse response) {
         try {
             // 이메일로 사용자 찾기
-            UserLoginDTO userLoginDTO = userRepository.findEmailAndPasswordByEmail(email)
+            UserLoginRequestDTO userLoginDTO = userRepository.findEmailAndPasswordByEmail(email)
                     .orElseThrow(() -> new UserNotFoundException("이메일을 찾을 수 없습니다."));
             // 로그 - 디버깅용
             logger.debug("Found user: {}", userLoginDTO.getEmail());
@@ -88,11 +91,11 @@ public class AuthenticationService {
             // Refresh Token을 HttpOnly 쿠키에 저장
             jwtProvider.setRefreshToken(response, refreshToken);
 
-            // 토큰을 Map에 저장
-            Map<String, String> token = new HashMap<>();
-            token.put("accessToken", accessToken);
+            // 프로필 이미지 URL 반환
+            String profileImageUrl = s3Service.getFileUrl(userLoginDTO.getProfileImageUrl());
 
-            return token;
+            // JWT 토큰과 사용자 정보를 포함하는 응답 DTO 생성
+            return new UserLoginResponseDTO(accessToken, username, profileImageUrl);
         } catch (UserNotFoundException | InvalidPasswordException | UserDeactivatedException e) {
             throw e;
         } catch (Exception e) {

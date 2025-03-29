@@ -111,8 +111,13 @@ api.interceptors.response.use(
       try {
         const newToken = await refreshTokenFunction();
         if (newToken) {
-          const currentUsername = useAuthStore.getState().auth.username ?? "";
-          useAuthStore.getState().setAuth({ accessToken: newToken, username: currentUsername });
+          const currentAuth = useAuthStore.getState().auth;
+          const currentUsername = useAuthStore.getState().auth.username;
+          useAuthStore.getState().setAuth({
+            accessToken: newToken, 
+            username: currentUsername ?? "",
+            profileImage: currentAuth.profileImage ?? null,
+          });
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return api(originalRequest);
         }
