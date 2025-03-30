@@ -2,7 +2,7 @@ import { MyProfile, ApiResponse, UpdatedMyBioRequest, ProfileImageResponse } fro
 import { api } from "../axios";
 
 
-// 자기 정보 조회
+// 자기 정보 조회 (전체 조회회)
 const getMyInfo = async (): Promise<ApiResponse> => {
     try {
         const response = await api.get<ApiResponse<MyProfile>>('/users/my-info');
@@ -23,15 +23,16 @@ const updateMyBio = async (bioData: { bio: string }): Promise<ApiResponse> => {
     }
 }
 
-// 자기 정보 조회 (profileImage)
-const getProfileImageByToken = async (): Promise<ApiResponse<string>> => {
+
+// 자기 정보 조회 (profileImage get)
+const getProfileImage = async (): Promise<ApiResponse<string>> => {
     try {
       const response = await api.get<ApiResponse<string>>("/users/profile-image");
-      console.log('getProfileImageByToken 응답:', response);  // 응답 확인
-      return response.data;  // 응답 데이터를 반환하도록 수정
+      console.log('getProfileImageByToken 응답:', response);  
+      return response.data; 
     } catch (error) {
-      console.error('getProfileImageByToken 호출 중 오류 발생:', error);  // 오류 확인
-      throw error;  // 오류를 호출자에게 던져서 처리하도록
+      console.error('getProfileImageByToken 호출 중 오류 발생:', error); 
+      throw error;  
     }
   }
 
@@ -65,4 +66,4 @@ const removeMyProfileImage = async (): Promise<ApiResponse> => {
     }
 };
 
-export { getMyInfo, updateMyBio, getProfileImageByToken, updateMyProfileImage, removeMyProfileImage };
+export { getMyInfo, updateMyBio, getProfileImage, updateMyProfileImage, removeMyProfileImage };

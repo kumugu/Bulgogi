@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useAuthStore } from "@/store/user/authStore";
 import ProfileImage from "@/components/user/userSettings/ProfileImage";
+import { useAuthStore } from "@/store/user/authStore";
 import { useUserStore } from "@/store/user/userStore";
+
+const DEFAULT_PROFILE_IMAGE = "https://bulgogoi-image.s3.ap-northeast-2.amazonaws.com/profile-images/default-profile.png";
 
 const MyBlogHome = () => {
   const { auth } = useAuthStore();
-  const [profileImage, setProfileImage] = useState(auth.profileImage);
   const { userProfile } = useUserStore();
+  const profileImage = userProfile.profileImage || auth.profileImage || DEFAULT_PROFILE_IMAGE; // 상태 우선순위 설정
 
   useEffect(() => {
     console.log("Current auth.profileImage:", auth.profileImage);
-    console.log("Current state profileImage:", profileImage);
-    
-    if (auth.profileImage !== profileImage) {
-      setProfileImage(auth.profileImage);
-    }
-  }, [auth.profileImage, profileImage]);
+    console.log("Current userProfile.profileImage:", userProfile.profileImage);
+  }, [auth.profileImage, userProfile.profileImage]);
 
   return (
     <div className="min-h-screen bg-neutral-100 py-8 px-4">
@@ -28,7 +26,7 @@ const MyBlogHome = () => {
         <div className="bg-white shadow-md rounded-lg p-6 mt-8">
           <h2 className="text-xl font-semibold text-neutral-800 mb-4">User Information</h2>
           <div className="flex items-center space-x-4">
-            <ProfileImage imageUrl={userProfile.profileImage} />
+            <ProfileImage imageUrl={profileImage} />
             <p className="text-sm text-neutral-600">{auth.username || "Username not set"}</p>
           </div>
         </div>

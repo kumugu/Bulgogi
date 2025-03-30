@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/store/user/authStore";
 import { api } from "../axios";
 import { LoginResponse } from "@/types/user/authTypes";
 
@@ -5,13 +6,12 @@ import { LoginResponse } from "@/types/user/authTypes";
 // 로그인
 const login = async (email: string, password: string) => {
   const response = await api.post<LoginResponse>("/users/login", { email, password });
+  useAuthStore.getState().setAuth({
+    accessToken: response.data.accessToken,
+    username: response.data.username,
+    profileImage: response.data.profileImageUrl,
+  });
   return response.data;
-};
-
-// 프로필 이미지 URL 가져오기
-const getProfileImage = async (): Promise<string> => {
-  const response = await api.get("/users/profile-image");  
-  return response.data;  
 };
 
 // 토큰 갱신
@@ -25,4 +25,4 @@ const logout = async () => {
   await api.post("/users/logout", {});
 }
 
-export { login, getProfileImage, refreshAccessToken, logout }
+export { login, refreshAccessToken, logout }

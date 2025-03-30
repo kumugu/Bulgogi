@@ -109,9 +109,10 @@ public class UserService {
         return dto;
     }
 
-    // 자기 정보 수정 - profileImage 수정
+
+    // 자기 정보 수정 - profileImage 파일 업로드
     @Transactional
-    public UserResponseDTO updateProfileImage(Long userId, MultipartFile file) {
+    public UserResponseDTO uploadAndSetProfileImage(Long userId, MultipartFile file) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
@@ -136,12 +137,15 @@ public class UserService {
         }
     }
 
+
+    // 자기 정보 수정 - ImageKey 업데이트
     public void updateProfileImage(Long userId, String imageKey) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         user.setProfileImage(imageKey);
         userRepository.save(user);
     }
+
 
     // 자기 정보 삭제 - profileImage 삭제
     public void removeProfileImage(Long userId) {

@@ -5,7 +5,6 @@ import SocialLogin from "@/components/user/auth/SocialLogin";
 import TermsAndPrivacyAgreement from "@/components/user/auth/TermsAndPrivacyAgreement";
 import LoginForm from "@/components/user/auth/LoginForm";
 import { Link } from "react-router-dom";
-import ErrorModal from "@/components/modal/ErrorMessage";
 
 
 const LoginPage = () => {
@@ -46,8 +45,6 @@ const LoginPage = () => {
         <SocialLogin />
         <TermsAndPrivacyAgreement />
 
-        {/* Error Modal */}
-        <ErrorModal />
       </div>
     </div>
   );

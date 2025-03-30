@@ -3,52 +3,42 @@ import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/user/authStore";
 import { LogOut, User, Settings, ChevronDown } from "react-feather";
 import ProfileImage from "../user/userSettings/ProfileImage";
-import { useUserStore } from "@/store/user/userStore";
+
+const DEFAULT_PROFILE_IMAGE = "https://bulgogoi-image.s3.ap-northeast-2.amazonaws.com/profile-images/default-profile.png";
 
 const Navbar = () => {
-  const { auth, logout } = useAuthStore();
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-   const { userProfile } = useUserStore();
-  const isAuthenticated = !!auth.accessToken;
+  const { auth, logout } = useAuthStore(); // 인증 상태와 로그아웃 함수
+  const [isProfileOpen, setIsProfileOpen] = useState(false); // 프로필 드롭다운 메뉴 상태
+  const isAuthenticated = !!auth.accessToken; // 로그인 여부 확인
 
   const handleLogout = () => {
-    logout();
-    setIsProfileOpen(false); 
+    logout(); // 로그아웃 처리
+    setIsProfileOpen(false); // 드롭다운 메뉴 닫기
   };
 
   const getInitials = (username: string | null) => {
-    if (!username) return '';
-    const nameParts = username.split(" ");
-    return nameParts
-      .map((part) => part[0].toUpperCase())
-      .join("");
+    // 사용자 이름의 이니셜 반환
+    if (!username) return "";
+    return username.split(" ").map((part) => part[0].toUpperCase()).join("");
   };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md py-4 px-6">
       <div className="max-w-screen-xl mx-auto flex justify-between items-center">
+        {/* Logo */}
         <Link to="/" className="flex-shrink-0">
           <span className="font-serif text-3xl font-bold tracking-tight text-neutral-900">Bulgogi</span>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* 네비게이션 링크 */}
         <div className="hidden md:flex items-center space-x-8">
-          <Link
-            to="/about"
-            className="text-neutral-600 hover:text-neutral-900 text-sm font-medium transition-colors duration-200"
-          >
+          <Link to="/about" className="text-neutral-600 hover:text-neutral-900 text-sm font-medium transition-colors duration-200">
             About
           </Link>
-          <Link
-            to="/blogHome"
-            className="text-neutral-600 hover:text-neutral-900 text-sm font-medium transition-colors duration-200"
-          >
+          <Link to="/blogHome" className="text-neutral-600 hover:text-neutral-900 text-sm font-medium transition-colors duration-200">
             Blog
           </Link>
-          <Link
-            to="/write"
-            className="text-neutral-600 hover:text-neutral-900 text-sm font-medium transition-colors duration-200"
-          >
+          <Link to="/write" className="text-neutral-600 hover:text-neutral-900 text-sm font-medium transition-colors duration-200">
             Write
           </Link>
 
@@ -60,13 +50,8 @@ const Navbar = () => {
                 className="flex items-center space-x-2 text-neutral-600 hover:text-neutral-900 focus:outline-none"
               >
                 {/* 프로필 이미지 표시 */}
-                {auth.profileImage ? (
-                    <ProfileImage imageUrl={userProfile.profileImage} />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-neutral-900 text-white flex items-center justify-center text-sm font-medium">
-                    {getInitials(auth.username)}
-                  </div>
-                )}
+                <ProfileImage imageUrl={auth.profileImage || DEFAULT_PROFILE_IMAGE} />
+
                 <span className="text-sm font-medium">{auth.username}</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
@@ -104,8 +89,8 @@ const Navbar = () => {
               )}
             </div>
           ) : (
-            <Link 
-              to="/login" 
+            <Link
+              to="/login"
               className="inline-flex items-center justify-center px-4 py-2 border border-neutral-900 text-white bg-black text-sm font-medium rounded-full hover:text-black hover:bg-white transition-colors duration-200"
             >
               Get Started

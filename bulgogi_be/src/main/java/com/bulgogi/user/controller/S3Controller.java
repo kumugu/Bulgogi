@@ -1,7 +1,6 @@
 package com.bulgogi.user.controller;
 
 import com.bulgogi.user.dto.UserResponseDTO;
-import com.bulgogi.user.model.User;
 import com.bulgogi.user.security.JwtProvider;
 import com.bulgogi.user.security.UserAuthorization;
 import com.bulgogi.user.service.S3Service;

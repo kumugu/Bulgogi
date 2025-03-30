@@ -11,8 +11,7 @@ export const useLogin = () => {
     const navigate = useNavigate();
 
     const login = async (email: string, password: string) => {
-        // 유효성 검증
-        if (!email.trim()) { 
+        if (!email.trim()) {
             openModal("error", "이메일을 입력하세요.");
             return false;
         }
@@ -24,13 +23,16 @@ export const useLogin = () => {
         try {
             const user = await loginService(email, password);
 
-            // 로그인 성공 시
-            setAuth({ accessToken: user.accessToken, username: user.username });
+            // 로그인 성공 시 프로필 이미지 포함
+            setAuth({
+                accessToken: user.accessToken,
+                username: user.username,
+                profileImage: user.profileImageUrl, // Ensure profileImage is included
+            });
             navigate("/");
             return true;
 
         } catch (error) {
-            // Axios Error 상세 표시
             if (axios.isAxiosError(error)) {
                 const errorMessage = getErrorMessage(error);
 
@@ -38,7 +40,7 @@ export const useLogin = () => {
                     openModal("error", errorMessage);
                 }
             } else {
-                openModal("error", "예상치 못한 오류가 발생했습니다.훅");
+                openModal("error", "예상치 못한 오류가 발생했습니다.");
             }
             return false;
         }

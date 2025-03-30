@@ -84,7 +84,7 @@ public class S3Service {
      */
     public String getFileUrl(String fileKey) {
         // 만약 fileKey가 없으면 기본 프로필 이미지를 반환
-        if (fileKey == null || fileKey.isEmpty()) {
+        if (fileKey == null || fileKey.trim().isEmpty()) {
             return "https://bulgogoi-image.s3.ap-northeast-2.amazonaws.com/profile-images/default-profile.png";
         }
         // 이미 full URL 형식이면 그대로 반환

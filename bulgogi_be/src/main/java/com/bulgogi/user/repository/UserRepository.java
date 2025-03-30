@@ -34,8 +34,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
 
     // 로그인 (이메일, 비밀번호, 사용자 이름, 탈퇴 여부만 조회)
-    @Query("SELECT new com.bulgogi.user.dto.UserLoginRequestDTO(u.id, u.email, u.password, u.username, u.deleted) FROM User u WHERE u.email = :email")
+    @Query("SELECT new com.bulgogi.user.dto.UserLoginRequestDTO(u.id, u.email, u.password, u.username, u.deleted, u.profileImage) FROM User u WHERE u.email = :email")
     Optional<UserLoginRequestDTO> findEmailAndPasswordByEmail(@Param("email") String email);
+
 
     // 탈퇴(소프트 삭제)되지 않은 사용자들을 조회
     @Query("SELECT u FROM User u WHERE u.deleted = false")

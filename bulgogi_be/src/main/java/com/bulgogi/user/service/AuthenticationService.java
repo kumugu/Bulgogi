@@ -92,7 +92,13 @@ public class AuthenticationService {
             jwtProvider.setRefreshToken(response, refreshToken);
 
             // 프로필 이미지 URL 반환
+            String profileImageFromDB = userLoginDTO.getProfileImageUrl();
             String profileImageUrl = s3Service.getFileUrl(userLoginDTO.getProfileImageUrl());
+
+            // 디버깅 로그 추가
+            logger.debug("Profile image from DB: {}", userLoginDTO.getProfileImageUrl());
+            logger.debug("Converted profile image URL: {}", profileImageUrl);
+
 
             // JWT 토큰과 사용자 정보를 포함하는 응답 DTO 생성
             return new UserLoginResponseDTO(accessToken, username, profileImageUrl);

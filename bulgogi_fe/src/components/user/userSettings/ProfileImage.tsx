@@ -1,5 +1,7 @@
 import React from "react";
 
+const DEFAULT_PROFILE_IMAGE = "https://bulgogoi-image.s3.ap-northeast-2.amazonaws.com/profile-images/default-profile.png";
+
 interface ProfileImageProps {
     imageUrl: string | null;
     size?: number;
@@ -14,7 +16,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
         
     return (
         <img 
-            src={imageUrl || "https://bulgogoi-image.s3.ap-northeast-2.amazonaws.com/profile-images/default-profile.png"}
+            src={imageUrl || DEFAULT_PROFILE_IMAGE}
             alt={altText}
             className="rounded-full object-cover"
             style={{ width: size, height: size }}
