@@ -1,7 +1,4 @@
-import { fail } from "assert";
-import { error } from "console";
-import { resolve } from "path";
-import { QueueItem } from "../types/apiTypes";
+import { QueueItem } from "@/types/apiTypes";
 
 let failedQueue: QueueItem[] = [];
 let isRefreshing = false;

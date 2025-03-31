@@ -33,6 +33,7 @@ public class User {
     @Column(nullable = false)
     private Role role = Role.USER;
 
+    @Column(nullable = true)
     private String profileImage;
 
     private String bio;
@@ -48,14 +49,13 @@ public class User {
         this.createdAt = now;
         this.updatedAt = now;
     }
+    @Column(nullable = false)
+    private boolean deleted = false;
 
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-    @Column(nullable = false)
-    private boolean deleted = false;
 
     public void deactivate() {
         this.deleted = true;

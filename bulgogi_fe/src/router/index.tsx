@@ -1,34 +1,20 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
-import Login from "../pages/Login";
+import Login from "../pages/user/LoginPage";
 import Header from "../pages/Header";
-import Register from "../pages/Register";
+import Register from "../pages/user/RegisterPage";
 import PostDetail from "../pages/PostDetail";
 import MyBlogHome from "../pages/MyBlogHome";
-import Navigation from "@/components/Navigation";
-import UserSettings from "../pages/UserSettings";
-import { useAuthStore } from "@/store/authStore";
-import { Navigate, Outlet } from "react-router-dom";
-
-// 로그인된 사용자가 접근하면 홈으로 리디렉션하는 컴포넌트
-const RedirectIfAuthenticated = () => {
-    const { isAuthenticated } = useAuthStore();
-
-    return isAuthenticated ? <Navigate to="/" replace /> : <Outlet />;
-};
-
-// 로그인이 필요한 페이지를 보호하는 컴포넌트
-const ProtectedRoute = () => {
-    const { isAuthenticated } = useAuthStore();
-
-    return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
-};
-
+import UserSettings from "@/pages/user/UserSettings";
+import Navbar from "@/components/layout/Navbar";
+import { RedirectIfAuthenticated } from "./AuthRoutes";
+import { ProtectedRoute } from "./AuthRoutes";
 
 const Router = () => {
     return (
     <BrowserRouter>
-    <Navigation />
+        <Navbar />
+
         <div className="pt-16">
             <Routes>
                 {/* 로그인된 사용자는 접근 불가 (리디렉션) */}

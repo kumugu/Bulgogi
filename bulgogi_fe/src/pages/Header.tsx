@@ -1,9 +1,9 @@
-import { useAuth } from "@/features/auth/useAuth";
-import { useTokenRemainingTime } from "@/features/auth/useTokenRemaininTime";
+import { useTokenRemainingTime } from "@/features/user/auth/useTokenRemaininTime";
+import { useLogout } from "@/features/user/auth/useLogout";
 
 const Header = () => {
     const tokenRemainingTime = useTokenRemainingTime();
-    const { handleLogout } = useAuth();
+    const { logoutUser } = useLogout();
 
     let tokenStatusMessage = "토큰 정보 없음";  // 기본 메시지지
 
@@ -21,7 +21,7 @@ const Header = () => {
             <h1>My Blog</h1>
             <div className="flex items-center space-x-4">
                 <span>{tokenStatusMessage}</span>
-                <button onClick={handleLogout} className="bg-red-500 px-3 py-1 rounded">로그아웃</button>
+                <button onClick={logoutUser} className="bg-red-500 px-3 py-1 rounded">로그아웃</button>
             </div>
         </header>
     );

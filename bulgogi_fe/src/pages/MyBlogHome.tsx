@@ -1,26 +1,36 @@
-import { useAuth } from "@/features/auth/useAuth";
-import {useTokenRefresh } from "@/features/auth/useManualTokenRefresh";
-import Header from "./Header";
+import React, { useEffect, useState } from "react";
+import ProfileImage from "@/components/user/userSettings/ProfileImage";
+import { useAuthStore } from "@/store/user/authStore";
+import { useUserStore } from "@/store/user/userStore";
+import { DEFAULT_PROFILE_IMAGE } from "@/utils/constants/constants";
 
 const MyBlogHome = () => {
-  const { handleLogout, isAuthenticated } = useAuth();
-  const { refreshTokenManually } = useTokenRefresh();
+  const { auth } = useAuthStore();
+  const { userProfile } = useUserStore();
+  const profileImage = userProfile.profileImage || auth.profileImage || DEFAULT_PROFILE_IMAGE; // 상태 우선순위 설정
+
+  useEffect(() => {
+    console.log("Current auth.profileImage:", auth.profileImage);
+    console.log("Current userProfile.profileImage:", userProfile.profileImage);
+  }, [auth.profileImage, userProfile.profileImage]);
 
   return (
-    <header className="flex justify-between p-4 border-b">
-      <h1 className="text-lg font-bold">Bulgogi Blog</h1>
-      <Header /> {/* Header 컴포넌트를 사용 */}
-      {isAuthenticated ? (
-        <div className="flex gap-4">
-          <button onClick={refreshTokenManually} className="text-blue-500 border p-2 rounded">
-            로그인 연장
-          </button>
-          <button onClick={handleLogout} className="text-red-500 border p-2 rounded">
-            로그아웃
-          </button>
+    <div className="min-h-screen bg-neutral-100 py-8 px-4">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-neutral-900">My Blog</h1>
         </div>
-      ) : null}
-    </header>
+
+        {/* 사용자 정보 */}
+        <div className="bg-white shadow-md rounded-lg p-6 mt-8">
+          <h2 className="text-xl font-semibold text-neutral-800 mb-4">User Information</h2>
+          <div className="flex items-center space-x-4">
+            <ProfileImage imageUrl={profileImage} />
+            <p className="text-sm text-neutral-600">{auth.username || "Username not set"}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

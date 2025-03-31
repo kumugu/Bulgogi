@@ -30,7 +30,7 @@ public class UserRequestDTO {
     // 비밀번호 유효성 검사 메소드
     public boolean isValidPassword() {
         // 최소 8자, 대문자, 소문자, 숫자, 특수문자를 포함한 패턴
-        String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$";
+        String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,20}$";
         return Pattern.matches(passwordPattern, this.password);
     }
 
