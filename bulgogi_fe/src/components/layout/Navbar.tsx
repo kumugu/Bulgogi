@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/user/authStore";
 import { LogOut, User, Settings, ChevronDown } from "react-feather";
 import ProfileImage from "../user/userSettings/ProfileImage";
-
-const DEFAULT_PROFILE_IMAGE = "https://bulgogoi-image.s3.ap-northeast-2.amazonaws.com/profile-images/default-profile.png";
+import { DEFAULT_PROFILE_IMAGE } from "@/utils/constants/constants";
 
 const Navbar = () => {
   const { auth, logout } = useAuthStore(); // 인증 상태와 로그아웃 함수
@@ -14,12 +13,6 @@ const Navbar = () => {
   const handleLogout = () => {
     logout(); // 로그아웃 처리
     setIsProfileOpen(false); // 드롭다운 메뉴 닫기
-  };
-
-  const getInitials = (username: string | null) => {
-    // 사용자 이름의 이니셜 반환
-    if (!username) return "";
-    return username.split(" ").map((part) => part[0].toUpperCase()).join("");
   };
 
   return (

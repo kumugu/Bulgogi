@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -76,7 +78,7 @@ public class UserController {
     // 자기 정보 수정 (bio)
     @PutMapping("/my-info/bio")
     @UserAuthorization
-    public ResponseEntity<?> updateMyBio(
+    public ResponseEntity<UserUpdateBioResponseDTO> updateMyBio(
             @RequestHeader("Authorization") String token,   // 요청 헤더에서 Authorization 토큰 추출
             @RequestBody UserUpdateBioRequestDTO bioDTO) {  // 클라이언트로부터 전달받은 bio 업데이트 데이터
 
@@ -87,7 +89,7 @@ public class UserController {
         // 2. JWT 토큰에서 사용자 ID 추출
         Long userId = extractUserIdFormToken(token);
         // 3. 사용자 Bio 업데이트 (서비스 계층 호출)
-        UserResponseDTO updatedUser = userService.updateBio(userId, bioDTO);
+        UserUpdateBioResponseDTO  updatedUser = userService.updateBio(userId, bioDTO);
         // 4. HTTP 응답 반환 (업데이트된 사용자 정보)
         return ResponseEntity.ok(updatedUser);
     }

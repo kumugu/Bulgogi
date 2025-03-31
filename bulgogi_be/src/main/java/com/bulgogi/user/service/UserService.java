@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -88,7 +87,7 @@ public class UserService {
 
     // 자기 정보 수정 - Bio
     @Transactional
-    public UserResponseDTO updateBio(Long userId, UserUpdateBioRequestDTO bioRequest) {
+    public UserUpdateBioResponseDTO updateBio(Long userId, UserUpdateBioRequestDTO bioRequest) {
         // 1. 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
@@ -104,9 +103,7 @@ public class UserService {
         userRepository.save(user);
 
         // 5. 응답 DTO 반환
-        UserResponseDTO dto = userMapper.toUserResponseDTO(user);
-        dto.setProfileImageUrl(s3Service.getFileUrl(user.getProfileImage()));
-        return dto;
+        return new UserUpdateBioResponseDTO(user.getBio());
     }
 
 

@@ -1,18 +1,48 @@
-import { useState } from "react";
-import { useUpdateMyBio } from "@/features/user/userSettings/useUpdateMyBio";
+import { useState, useEffect } from "react";
+import { useUserStore } from "@/store/user/userStore";
+import { getMyInfoService, updateMyBioService } from "@/service/user/userService";
 
 const BioEditForm = () => {
-    const { updateMyBio, loading, error, message } = useUpdateMyBio();
-    const [bio, setBio] = useState(""); // 상태 추가
+    const { userProfile, setUserProfile } = useUserStore(); // zustand에서 userProfile 가져오기
+    const [bio, setBio] = useState(userProfile.bio || ""); // 상태 초기화
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
+
+    // 사용자 정보 조회 (초기 bio 설정)
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const userInfo = await getMyInfoService();
+                setBio(userInfo.bio); // 가져온 bio로 초기 상태 설정
+                setUserProfile({ bio: userInfo.bio }); // zustand에 저장
+            } catch (err) {
+                setError("사용자 정보를 가져오는 데 실패했습니다.");
+            }
+        };
+        fetchUserInfo();
+    }, [setUserProfile]);
 
     // 입력 값 변경 핸들러
     const handleBioChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setBio(event.target.value);
     };
 
-    // 업데이트 함수
-    const handleUpdate = () => {
-        updateMyBio({ bio }); // API 요청
+    // 자기소개 수정 함수
+    const handleUpdate = async () => {
+        setLoading(true);
+        setError(null);
+        setMessage(null);
+        try {
+            const updatedProfile = await updateMyBioService({ bio }); // API 호출
+            setMessage("자기소개가 성공적으로 업데이트되었습니다.");
+            setBio(updatedProfile.bio); // 업데이트된 bio로 상태 변경
+            setUserProfile({ bio: updatedProfile.bio }); // zustand에 업데이트된 bio 저장
+        } catch (err: any) {
+            setError(err.message || "자기소개 수정에 실패했습니다.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

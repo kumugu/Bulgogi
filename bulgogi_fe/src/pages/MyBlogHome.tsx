@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import ProfileImage from "@/components/user/userSettings/ProfileImage";
 import { useAuthStore } from "@/store/user/authStore";
 import { useUserStore } from "@/store/user/userStore";
-
-const DEFAULT_PROFILE_IMAGE = "https://bulgogoi-image.s3.ap-northeast-2.amazonaws.com/profile-images/default-profile.png";
+import { DEFAULT_PROFILE_IMAGE } from "@/utils/constants/constants";
 
 const MyBlogHome = () => {
   const { auth } = useAuthStore();

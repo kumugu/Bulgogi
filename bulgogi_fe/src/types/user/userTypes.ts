@@ -1,7 +1,7 @@
 export interface MyProfile {
     email: string;
     username: string;
-    profileImageUrl?: string; 
+    profileImageUrl: string | null;  
     profileImage: string | null; 
     bio: string;
     createdAt: string;
@@ -13,7 +13,7 @@ export interface UpdatedMyBioRequest {
 }
 
 export interface ProfileImageResponse {
-    profileImageUrl: string;
+    profileImageUrl: string;  // API 응답에서 반환되는 profileImageUrl
 }
 
 export interface ProfileImage {

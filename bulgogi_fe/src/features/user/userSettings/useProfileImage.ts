@@ -1,28 +1,33 @@
 import { useState } from "react";
+import { useAuthStore } from "@/store/user/authStore";
 import { useUserStore } from "@/store/user/userStore";
-import { deleteMyProfileImageService, updateMyProfileImageService } from "@/service/user/userService";
+import { updateMyProfileImageService, deleteMyProfileImageService } from "@/service/user/userService";
 
 export const useProfileImage = () => {
-    const { setUserProfile, userProfile } = useUserStore(); // userProfile 가져오기
+    const { setUserProfile, userProfile } = useUserStore();
+    const { setAuth, auth } = useAuthStore();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [profileImageUrl, setProfileImageUrl] = useState<string | null>(userProfile.profileImageUrl || null);
 
-    // 프로필 이미지 수정
+    // 프로필 이미지 업데이트
     const updateProfileImage = async (file: File) => {
         setLoading(true);
         setError(null);
-        
+
         try {
-            const imageUrl = await updateMyProfileImageService(file);
-            
-            // 프로필 이미지 상태 업데이트
-            setProfileImageUrl(imageUrl);
+            const newImageUrl = await updateMyProfileImageService(file);
+
+            // 상태 업데이트 (네비바, 마이블로그홈 등 최신 이미지 반영)
             setUserProfile({
-                profileImage: imageUrl,
-                profileImageUrl: imageUrl,
+                ...userProfile,
+                profileImage: newImageUrl,
             });
-        } catch (error: any) {
+
+            setAuth({
+                ...auth,
+                profileImage: newImageUrl,
+            });
+        } catch (error) {
             console.error("프로필 이미지 업데이트 실패:", error);
             setError("프로필 이미지 업데이트에 실패했습니다.");
         } finally {
@@ -36,16 +41,19 @@ export const useProfileImage = () => {
         setError(null);
 
         try {
-            await deleteMyProfileImageService();
-            
-            // 상태 초기화
-            setProfileImageUrl(null);
+            const defaultImageUrl = await deleteMyProfileImageService();
+
+            // 상태 업데이트 (기본 이미지로 변경)
             setUserProfile({
-                ...userProfile, // 기존 데이터 유지
-                profileImage: null,
-                profileImageUrl: null,
+                ...userProfile,
+                profileImage: defaultImageUrl,
             });
-        } catch (error: any) {
+
+            setAuth({
+                ...auth,
+                profileImage: defaultImageUrl,
+            });
+        } catch (error) {
             console.error("프로필 이미지 삭제 실패:", error);
             setError("프로필 이미지 삭제에 실패했습니다.");
         } finally {
@@ -53,6 +61,5 @@ export const useProfileImage = () => {
         }
     };
 
-    // 반환 객체에 profileImageUrl 추가
-    return { profileImageUrl, updateProfileImage, deleteProfileImage, loading, error };
+    return { updateProfileImage, deleteProfileImage, loading, error };
 };

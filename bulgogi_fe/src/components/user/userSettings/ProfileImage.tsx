@@ -1,13 +1,11 @@
 import React from "react";
-
-const DEFAULT_PROFILE_IMAGE = "https://bulgogoi-image.s3.ap-northeast-2.amazonaws.com/profile-images/default-profile.png";
+import { DEFAULT_PROFILE_IMAGE } from "@/utils/constants/constants";
 
 interface ProfileImageProps {
     imageUrl: string | null;
     size?: number;
     altText?: string;
 }
-
 
 const ProfileImage: React.FC<ProfileImageProps> = ({ 
     imageUrl, 

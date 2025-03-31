@@ -102,22 +102,27 @@ public class S3Controller {
     // 자기 정보 삭제 (profile Image 삭제)
     @DeleteMapping("/profile-image")
     @UserAuthorization
-    public ResponseEntity<?> deleteProfileImage(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<Map<String, String>> deleteProfileImage(@RequestHeader("Authorization") String token) {
         Long userId = extractUserIdFromToken(token);
 
         try {
-            // s3에서 프로필 이미지 파일 삭제
+            // S3에서 파일 삭제
             String fileName = "profile-images/" + userId + ".png";
             s3Service.deleteFile(fileName);
 
-            // 프로필 이미지 URL 삭제 후, 사용자 정보에서 이미지 경로를 초기화할 수 있다면 추가 로직 작성
-            userService.removeProfileImage(userId);
+            // 기본 프로필 이미지 URL 반환
+            String defaultImageUrl = "https://bulgogoi-image.s3.ap-northeast-2.amazonaws.com/profile-images/default-profile.png";
+            userService.updateProfileImage(userId, defaultImageUrl);
 
-            return ResponseEntity.ok("프로필 이미지가 삭제되었습니다.");
+            // 성공 응답
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "프로필 이미지가 기본값으로 변경되었습니다.");
+            response.put("profileImageUrl", defaultImageUrl);
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("프로필 이미지 삭제 실패: " + e.getMessage());
+                    .body(Map.of("message", "프로필 이미지 삭제 실패: " + e.getMessage()));
         }
     }
-
 }

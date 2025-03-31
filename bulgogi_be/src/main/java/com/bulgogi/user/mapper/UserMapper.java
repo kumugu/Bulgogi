@@ -2,8 +2,6 @@ package com.bulgogi.user.mapper;
 
 import com.bulgogi.user.dto.UserRequestDTO;
 import com.bulgogi.user.dto.UserResponseDTO;
-import com.bulgogi.user.dto.UserUpdateBioRequestDTO;
-import com.bulgogi.user.dto.UserUpdateProfileImageRequestDTO;
 import com.bulgogi.user.model.User;
 import com.bulgogi.user.service.S3Service;
 import org.modelmapper.ModelMapper;
@@ -14,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDateTime;
 @Component
 public class UserMapper {
 
@@ -52,20 +49,4 @@ public class UserMapper {
         return modelMapper.map(userRequestDTO, User.class);
     }
 
-    // 공통 Timestamp 업데이트
-    private void updateTimestamp(User user) {
-        user.setUpdatedAt(LocalDateTime.now());
-    }
-
-    // Bio 업데이트 (static -> instance 메소드로 변경)
-    public void updateBio(User user, UserUpdateBioRequestDTO bioDTO) {
-        modelMapper.map(bioDTO, user);
-        updateTimestamp(user);
-    }
-
-    // ProfileImage 업데이트 (static -> instance 메소드로 변경)
-    public void updateProfileImage(User user, UserUpdateProfileImageRequestDTO profileImageDTO) {
-        modelMapper.map(profileImageDTO, user);
-        updateTimestamp(user);
-    }
 }
