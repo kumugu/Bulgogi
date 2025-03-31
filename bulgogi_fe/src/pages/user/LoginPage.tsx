@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLogin } from "@/features/user/auth/useLogin";
+import { useLogin } from "@/hooks/user/auth/useLogin";
 import ForgotPasswordLink from "@/components/user/auth/ForgotPasswordLing";
 import SocialLogin from "@/components/user/auth/SocialLogin";
 import TermsAndPrivacyAgreement from "@/components/user/auth/TermsAndPrivacyAgreement";

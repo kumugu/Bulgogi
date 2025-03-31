@@ -29,6 +29,14 @@ public class UserController {
         this.tokenService = tokenService;
     }
 
+    // JWT 토큰에서 userId 추출
+    private Long extractUserIdFormToken(String token) {
+        // 1. "Bearer " 접두어 제거
+        String jwtToken = token.replace("Bearer ", "");
+        // 2. JWT 토큰에서 userId 추출
+        return jwtProvider.extractUserId(jwtToken);
+    }
+
     // 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
     @GetMapping(value = "/email/{email}", produces = "application/json")
     public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email) {
@@ -57,7 +65,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    // 자기 정보 조회 (로그인한 사용자의 정보 조회)
+    // 자기 정보 조회 (로그인한 사용자의 정보 전체 조회)
     @GetMapping("/my-info")
     public ResponseEntity<UserResponseDTO> getMyInfo(@RequestHeader("Authorization") String token) {
         String jwtToken = token.replace("Bearer ", "");
@@ -67,12 +75,17 @@ public class UserController {
         return ResponseEntity.ok(userResponseDTO);
     }
 
-    // JWT 토큰에서 userId 추출
-    private Long extractUserIdFormToken(String token) {
-        // 1. "Bearer " 접두어 제거
+
+
+
+    // 자기 정보 조회 (bio)
+    @GetMapping("/my-info/bio")
+    public ResponseEntity<UserUpdateBioResponseDTO> getMyBio(@RequestHeader("Authorization") String token) {
         String jwtToken = token.replace("Bearer ", "");
-        // 2. JWT 토큰에서 userId 추출
-        return jwtProvider.extractUserId(jwtToken);
+        Long userId = jwtProvider.extractUserId(jwtToken);
+
+        UserUpdateBioResponseDTO updatedUser = userService.getMyBio(userId);
+        return ResponseEntity.ok(updatedUser);
     }
 
     // 자기 정보 수정 (bio)

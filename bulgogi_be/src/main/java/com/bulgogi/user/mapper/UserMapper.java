@@ -1,7 +1,9 @@
 package com.bulgogi.user.mapper;
 
+import com.bulgogi.user.dto.UserProfileImageResponseDTO;
 import com.bulgogi.user.dto.UserRequestDTO;
 import com.bulgogi.user.dto.UserResponseDTO;
+import com.bulgogi.user.dto.UserUpdateBioResponseDTO;
 import com.bulgogi.user.model.User;
 import com.bulgogi.user.service.S3Service;
 import org.modelmapper.ModelMapper;
@@ -41,8 +43,15 @@ public class UserMapper {
     }
 
     public UserResponseDTO toUserResponseDTO(User user) {
-        logger.debug("Profile image in User object: {}", user.getProfileImage());
         return modelMapper.map(user, UserResponseDTO.class);
+    }
+
+    public UserUpdateBioResponseDTO toUserUpdateBioResponseDTO(User user) {
+        return new UserUpdateBioResponseDTO(user.getBio());
+    }
+
+    public UserProfileImageResponseDTO toUserProfileImageResponseDTO(User user) {
+        return new UserProfileImageResponseDTO(user.getProfileImage());
     }
 
     public User toUser(UserRequestDTO userRequestDTO) {

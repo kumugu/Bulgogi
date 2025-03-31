@@ -1,7 +1,7 @@
-import BioEditForm from "@/components/user/userSettings/BioEdit";
+import BioEditForm from "@/components/user/userSettings/BioUpdate";
 import ChangePasswordForm from "@/components/user/account/ChangePassword";
 import DeleteAccountForm from "@/components/user/account/DeleteAccount";
-import ProfileImageUploader from "@/components/user/userSettings/ProfileImageUploader";
+import ProfileImageUploader from "@/components/user/userSettings/ProfileImageUpdate";
 
 const userSettingsPage = () => {
     return (

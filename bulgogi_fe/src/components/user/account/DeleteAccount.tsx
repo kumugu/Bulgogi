@@ -1,4 +1,4 @@
-import { useDeleteAccount } from "@/features/user/account/useDeleteAccount"
+import { useDeleteAccount } from "@/hooks/user/account/useDeleteAccount"
 import React, { useState } from "react";
 import { FaLock as Lock } from "react-icons/fa";
 

@@ -2,7 +2,7 @@ import React from "react";
 import RegisterForm from "@/components/user/account/RegisterForm";
 import SuccessModal from "@/components/modal/SuccessModal";
 import ErrorModal from "@/components/modal/ErrorMessage";
-import { useRegister } from "@/features/user/account/useRegister";
+import { useRegister } from "@/hooks/user/account/useRegister";
 import { RegisterFormData } from "@/types/user/accountTypes";
 import { validateRegisterForm } from "@/utils/user/register/validators";
 import { useModalStore } from "@/store/user/modalStore";

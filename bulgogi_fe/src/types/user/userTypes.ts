@@ -26,3 +26,14 @@ export interface ApiResponse<T = any> {
     message: string;
     data: T;
 }
+
+// 사용자 자기소개 조회 API 응답 타입
+export interface UserBioResponse {
+    bio: string
+  }
+  
+  
+// 사용자 자기소개 수정 요청 타입
+export interface UserBioUpdateRequest {
+bio: string
+}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAdminUpdateUser } from "@/features/user/admin/useAdminUpdateUser";
+import { useAdminUpdateUser } from "@/hooks/user/admin/useAdminUpdateUser";
 import { AdminUpdateUserRequest } from "@/types/user/adminTypes";
 
 const AdminUserUpdateForm = () => {

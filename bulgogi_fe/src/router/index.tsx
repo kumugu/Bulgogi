@@ -1,9 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import Login from "../pages/user/LoginPage";
-import Header from "../pages/Header";
+import Header from "../components/user/auth/TokenMonitor";
 import Register from "../pages/user/RegisterPage";
-import PostDetail from "../pages/PostDetail";
 import MyBlogHome from "../pages/MyBlogHome";
 import UserSettings from "@/pages/user/UserSettings";
 import Navbar from "@/components/layout/Navbar";
@@ -25,7 +24,6 @@ const Router = () => {
 
                 {/* 일반 접근 가능 라우트 */}
                 <Route path="/" element={<Home />} />
-                <Route path="/post/:id" element={<PostDetail />} />
                 <Route path="/header" element={<Header />} />
                 <Route path="/my-blog-home/:username" element={ <MyBlogHome />} />
                 

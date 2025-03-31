@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/user/authStore";
 import { LogOut, User, Settings, ChevronDown } from "react-feather";
-import ProfileImage from "../user/userSettings/ProfileImage";
+import ProfileImage from "../user/userSettings/ProfileImageRead";
 import { DEFAULT_PROFILE_IMAGE } from "@/utils/constants/constants";
 
 const Navbar = () => {

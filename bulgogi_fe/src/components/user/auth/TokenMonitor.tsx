@@ -1,5 +1,5 @@
-import { useTokenRemainingTime } from "@/features/user/auth/useTokenRemaininTime";
-import { useLogout } from "@/features/user/auth/useLogout";
+import { useTokenRemainingTime } from "@/hooks/user/auth/useTokenRemaininTime";
+import { useLogout } from "@/hooks/user/auth/useLogout";
 
 const Header = () => {
     const tokenRemainingTime = useTokenRemainingTime();

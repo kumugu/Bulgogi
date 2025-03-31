@@ -37,6 +37,7 @@ public class UserService {
      * 마지막 업데이트: 2025-03-28 17:03
      */
 
+
     // 이메일로 사용자 조회 (로그인 및 계정 조회 시 사용)
     public UserResponseDTO getUserByEmail(String email) {
        User user = userRepository.findByEmail(email)
@@ -73,7 +74,7 @@ public class UserService {
         return dto;
     }
 
-    // 자기 정보 조회 (로그인한 사용자의 정보 조회)
+    // 자기 정보 조회 (로그인한 사용자의 정보 전체 조회)
     public UserResponseDTO getMyInfo(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
@@ -84,6 +85,13 @@ public class UserService {
         return dto;
     }
 
+
+    // 자기 정보 조회 - Bio
+    public UserUpdateBioResponseDTO getMyBio(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+        return new UserUpdateBioResponseDTO(user.getBio());
+    }
 
     // 자기 정보 수정 - Bio
     @Transactional
@@ -106,10 +114,16 @@ public class UserService {
         return new UserUpdateBioResponseDTO(user.getBio());
     }
 
+    // 자기 정보 조회 - profileImage
+    public UserProfileImageResponseDTO getProfileImage(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+        return new UserProfileImageResponseDTO(s3Service.getFileUrl(user.getProfileImage()));
+    }
 
     // 자기 정보 수정 - profileImage 파일 업로드
     @Transactional
-    public UserResponseDTO uploadAndSetProfileImage(Long userId, MultipartFile file) {
+    public UserProfileImageResponseDTO uploadAndSetProfileImage(Long userId, MultipartFile file) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
@@ -126,7 +140,7 @@ public class UserService {
 
             // DB에 최신 사용자 정보 저장 (반환된 엔티티 사용)
             User updateUser = userRepository.save(user);
-            UserResponseDTO dto = userMapper.toUserResponseDTO(updateUser);
+            UserProfileImageResponseDTO dto = userMapper.toUserProfileImageResponseDTO(updateUser);
             dto.setProfileImageUrl(s3Service.getFileUrl(updateUser.getProfileImage()));
             return dto;
         } catch (IOException e) {
