@@ -2,18 +2,16 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { refreshAccessToken } from "@/api/user/authApi";
 import { tokenUtils } from "@/utils/user/auth/tokenUtils";
 import { useAuthStore } from "@/store/user/authStore";
-import { access } from "fs";
-import { useTokenRemainingTime } from "./useTokenRemaininTime";
+
 
 interface RefreshTokenParams {
-    setAuth: (authData: { accessToken: string; username: string }) => void;
+    setAuth: (authData: { accessToken: string; username: string; profileImage: string | null }) => void;
     logout: () => void;
 }
 
+
 // 토큰 갱신 함수
-const refreshToken = async ({
-    setAuth, logout
-}: RefreshTokenParams) => {
+const refreshToken = async ({ setAuth, logout }: RefreshTokenParams) => {
     try {
         console.log("토큰 갱신 시도...");
         const response = await refreshAccessToken();
@@ -26,7 +24,8 @@ const refreshToken = async ({
         if (newDecoded) {
             setAuth({
                 accessToken: response.accessToken,
-                username: newDecoded.username
+                username: newDecoded.username,
+                profileImage: response.profileImageUrl || null // ✅ 프로필 이미지는 응답에서 가져오기
             });
             console.log("토큰 갱신 성공");
             return true;

@@ -27,7 +27,7 @@ const UserBio = () => {
   }
 
   if (error) {
-    return null // 에러가 있을 경우 아무것도 표시하지 않거나 필요에 따라 에러 메시지 표시
+    return <div className="text-sm text-red-500">{error}</div> 
   }
 
   if (!bio) {
@@ -41,5 +41,4 @@ const UserBio = () => {
   )
 }
 
-export default UserBio
-
+export default UserBio;

@@ -6,10 +6,10 @@ import ProfileImageUploader from "@/components/user/userSettings/ProfileImageUpd
 const userSettingsPage = () => {
     return (
         <div className="max-w-md mx-auto mt-10">
-            <ProfileImageUploader />
-            <BioEditForm />
-            <ChangePasswordForm />
-            <DeleteAccountForm />
+            <ProfileImageUploader /><br /><br />
+            <BioEditForm /><br /><br />
+            <ChangePasswordForm /><br /><br />
+            <DeleteAccountForm /><br /><br />
         </div>
     );
 };

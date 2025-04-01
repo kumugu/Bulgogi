@@ -1,7 +1,9 @@
 import { useDeleteAccount } from "@/hooks/user/account/useDeleteAccount"
 import type React from "react"
 import { useState } from "react"
-import { FaLock as Lock } from "react-icons/fa"
+import { RiLogoutBoxLine } from "react-icons/ri";
+import { MdDeleteForever } from "react-icons/md";
+import { TiUserDelete } from "react-icons/ti";
 import { IoWarningOutline as Warning } from "react-icons/io5"
 
 const DeleteAccountForm = () => {
@@ -32,14 +34,15 @@ const DeleteAccountForm = () => {
   }
 
   return (
-    <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm p-6">
+    <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm mb-8">
       <h2 className="text-xl font-semibold mb-6 flex items-center dark:text-white">
-        <Lock className="h-5 w-5 mr-2" />
+        <TiUserDelete className="h-6 w-6 mr-2" />
         Delete Account
       </h2>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-        Once you delete your account, there is no going back. Please be certain.
+      <p className="text-sm text-red-600 dark:text-red-600 mb-4">
+        계정을 삭제하면 되돌릴 수 없습니다. 신중하게 결정하세요.
       </p>
+
 
       {error && <div className="mt-3 p-2 bg-red-100 text-red-600 rounded">{error}</div>}
 
@@ -52,7 +55,7 @@ const DeleteAccountForm = () => {
           </label>
           <input
             type="password"
-            placeholder="Enter your password"
+            placeholder="비밀번호 입력"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-neutral-900 dark:text-white focus:border-neutral-900 dark:focus:border-white focus:ring-neutral-900 dark:focus:ring-white"

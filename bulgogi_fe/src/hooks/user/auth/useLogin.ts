@@ -1,50 +1,60 @@
-import { useAuthStore } from "@/store/user/authStore";
-import { useModalStore } from "@/store/user/modalStore";
-import { useNavigate } from "react-router-dom";
-import { loginService } from "@/service/user/authService";
-import axios from "axios";
-import { getErrorMessage } from "@/utils/user/login/loginErrorMessage ";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useAuthStore } from "@/store/user/authStore"
+import { useUserStore } from "@/store/user/userStore"
+import { loginService } from "@/service/user/authService"
+import type { LoginFormData } from "@/types/user/authTypes"
+import axios from "axios"
+import { getErrorMessage } from "@/utils/user/login/loginErrorMessage "
 
 export const useLogin = () => {
-    const { openModal } = useModalStore();
-    const { setAuth } = useAuthStore();
-    const navigate = useNavigate();
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const { setAuth } = useAuthStore()
+  const { setUserProfile } = useUserStore()
+  const navigate = useNavigate()
 
-    const login = async (email: string, password: string) => {
-        if (!email.trim()) {
-            openModal("error", "이메일을 입력하세요.");
-            return false;
-        }
-        if (!password.trim()) {
-            openModal("error", "비밀번호를 입력하세요.");
-            return false;
-        }
-        
-        try {
-            const user = await loginService(email, password);
+  const login = async (formData: LoginFormData) => {
+    setLoading(true)
+    setError(null)
 
-            // 로그인 성공 시 프로필 이미지 포함
-            setAuth({
-                accessToken: user.accessToken,
-                username: user.username,
-                profileImage: user.profileImageUrl, // Ensure profileImage is included
-            });
-            navigate("/");
-            return true;
+    try {
+      const user = await loginService(formData.email, formData.password)
 
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                const errorMessage = getErrorMessage(error);
+      // 로그인 성공 시 프로필 이미지 포함
+      setAuth({
+        accessToken: user.accessToken,
+        username: user.username,
+        profileImage: user.profileImageUrl,
+      })
 
-                if (error.response && error.response.data && error.response.data.message) {
-                    openModal("error", errorMessage);
-                }
-            } else {
-                openModal("error", "예상치 못한 오류가 발생했습니다.");
-            }
-            return false;
-        }
-    };
-    
-    return { login };
-};
+      // 사용자 프로필 정보 업데이트
+      setUserProfile({
+        username: user.username,
+        profileImageUrl: user.profileImageUrl,
+      })
+
+      navigate("/")
+      return true
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage = getErrorMessage(error)
+        console.log("로그인 에러 상세 정보:", {
+          status: error.response?.status,
+          data: error.response?.data,
+          message: errorMessage,
+        })
+        setError(errorMessage)
+      } else {
+        console.error("예상치 못한 로그인 오류:", error)
+        setError("예상치 못한 오류가 발생했습니다. 다시 시도해주세요.")
+      }
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { login, loading, error }
+}
+

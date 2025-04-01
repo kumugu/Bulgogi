@@ -14,7 +14,7 @@ const MyBlogHome = () => {
   }, [auth.profileImage, userProfile.profileImage])
 
   return (
-    <div className="min-h-screen bg-neutral-100 py-8 px-4">
+    <div className="min-h-screen bg-white py-8 px-4">
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-neutral-900">My Blog</h1>
