@@ -6,7 +6,10 @@ import Register from "../pages/user/RegisterPage";
 import AdminPage from "@/pages/user/AdminPage";
 import MyBlogHome from "../pages/MyBlogHome";
 import UserSettings from "@/pages/user/UserSettings";
+import WritePage from "@/pages/Write";
 import TestPage from "@/pages/TestPage";
+import BlogHomePage from "@/pages/BlogHome";
+import AboutPage from "@/pages/About";
 import Navbar from "@/components/layout/Navbar";
 import { RedirectIfAuthenticated } from "./AuthRoutes";
 import { ProtectedRoute } from "./AuthRoutes";
@@ -26,13 +29,17 @@ const Router = () => {
 
                 {/* 일반 접근 가능 라우트 */}
                 <Route path="/" element={<Home />} />
-                <Route path="/header" element={<Header />} />
-                <Route path="/my-blog-home/:username" element={ <MyBlogHome />} />
+                <Route path="/about" element={ <AboutPage />} />
+                <Route path="/write" element={ <WritePage />} />
                 <Route path="/test-page" element={ <TestPage />} />
+                <Route path="/blog-home" element={ <BlogHomePage />} />
                 
                 {/* 로그인이 필요한 라우트 */}
                 <Route element={<ProtectedRoute />}>
+                    <Route path="/header" element={<Header />} />
+                    <Route path="/my-blog-home/:username" element={ <MyBlogHome />} />
                     <Route path="/user-settings" element={<UserSettings />} />
+
                     <Route path="/admin" element={<AdminPage />} />
                 </Route>
             </Routes>

@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import ProfileImage from "@/components/user/userSettings/ProfileImageRead"
 import UserBio from "@/components/user/userSettings/BioRead";
+import TokenMonitor from "@/components/user/auth/TokenMonitor"
 import { useAuthStore } from "@/store/user/authStore"
 import { useUserStore } from "@/store/user/userStore"
 import { DEFAULT_PROFILE_IMAGE } from "@/utils/constants/constants"
@@ -28,7 +29,6 @@ const MyBlogHome = () => {
           <div className="flex flex-col">
             <div className="flex items-center space-x-4">
               <ProfileImage imageUrl={profileImage} />
-              
             </div>
 
             {/* 자기소개 컴포넌트 추가 */}
@@ -37,7 +37,9 @@ const MyBlogHome = () => {
               <UserBio />
             </div>
           </div>
+
         </div>
+            <TokenMonitor />
       </div>
     </div>
   )

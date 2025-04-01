@@ -25,7 +25,7 @@ const refreshToken = async ({ setAuth, logout }: RefreshTokenParams) => {
             setAuth({
                 accessToken: response.accessToken,
                 username: newDecoded.username,
-                profileImage: response.profileImageUrl || null // ✅ 프로필 이미지는 응답에서 가져오기
+                profileImage: response.profileImageUrl || null 
             });
             console.log("토큰 갱신 성공");
             return true;
