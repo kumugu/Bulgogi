@@ -22,16 +22,18 @@ const MyBlogHome = () => {
 
         {/* 사용자 정보 */}
         <div className="bg-white shadow-md rounded-lg p-6 mt-8">
-          <h2 className="text-xl font-semibold text-neutral-800 mb-4">User Information</h2>
+          <h2 className="text-xl font-semibold text-neutral-800 mb-4">
+            <p className="text-xl text-neutral-600">{auth.username || "Username not set"}</p>
+          </h2>
           <div className="flex flex-col">
             <div className="flex items-center space-x-4">
               <ProfileImage imageUrl={profileImage} />
-              <p className="text-sm text-neutral-600">{auth.username || "Username not set"}</p>
+              
             </div>
 
             {/* 자기소개 컴포넌트 추가 */}
             <div className="mt-4">
-              <h3 className="text-md font-medium text-neutral-700">자기소개</h3>
+              <h3 className="text-md font-medium text-neutral-700">-</h3>
               <UserBio />
             </div>
           </div>
