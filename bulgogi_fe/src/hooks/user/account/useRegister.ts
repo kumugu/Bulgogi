@@ -1,33 +1,49 @@
-import { useState } from "react";
-import { RegisterFormData, RegisterRequest } from "@/types/user/accountTypes";
-import { registerService } from "@/service/user/accountService";
-import { convertToRegisterRequest } from "@/utils/user/register/convertToRegisterRequest";
+"use client"
 
-// 회원가입
+import { useState } from "react"
+import type { RegisterFormData, RegisterRequest } from "@/types/user/accountTypes"
+import { register as registerApi } from "@/api/user/accountApi"
+import { useAccountStore } from "@/store/user/accountStore"
+
 export const useRegister = () => {
-  // 상태 관리: 로딩, 에러 메시지, 성공 메시지
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+  const { setAccountStatus } = useAccountStore()
 
-  // 회원가입 함수
-  const register = async (data: RegisterFormData) => {
-    setLoading(true); // 로딩 시작
-    setError(""); // 이전 에러 초기화
-    setMessage(""); // 이전 메시지 초기화
+  const registerUser = async (formData: RegisterFormData) => {
+    setLoading(true)
+    setError(null)
+    setSuccess(null)
+    setAccountStatus("pending")
 
     try {
-      const requestData: RegisterRequest = convertToRegisterRequest(data);
-      const successMessage = await registerService(requestData);
-      setMessage(successMessage);
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.error || "알 수 없는 오류가 발생했습니다.";
-      setError(errorMessage);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
+      // 폼 데이터를 API 요청 데이터로 변환
+      const registerData: RegisterRequest = {
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+        bio: formData.bio || "",
+        role: "USER",
+        profileImage: formData.profileImage,
+      }
 
-  return { register, loading, error, message };
-};
+      // API 직접 호출
+      await registerApi(registerData)
+
+      setSuccess("회원가입이 성공적으로 완료되었습니다.")
+      setAccountStatus("success")
+      return true
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || "회원가입에 실패했습니다."
+      setError(errorMessage)
+      setAccountStatus("error")
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { registerUser, loading, error, success }
+}
+

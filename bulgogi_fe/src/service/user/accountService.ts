@@ -1,78 +1,58 @@
-import { register, changePassword, deleteAccount } from "@/api/user/accountApi";
-import { ChangePasswordRequest, DeleteAccountRequest, RegisterRequest, RegisterResponse, AccountApiResponse } from "@/types/user/accountTypes";
-import { AxiosError } from "axios";
-import { CustomError } from "@/utils/CustomError";
+import { register, changePassword, deleteAccount } from "@/api/user/accountApi"
+import type {
+  RegisterFormData,
+  RegisterRequest,
+  ChangePasswordRequest,
+  DeleteAccountRequest,
+} from "@/types/user/accountTypes"
+import { CustomError } from "@/utils/CustomError"
+
+// 폼 데이터를 API 요청 데이터로 변환
+const transformRegisterData = (formData: RegisterFormData): RegisterRequest => {
+  return {
+    email: formData.email,
+    username: formData.username,
+    password: formData.password,
+    bio: formData.bio || "", // 기본값 설정
+    role: "USER", // 기본 역할 설정
+    profileImage: formData.profileImage,
+  }
+}
 
 // 회원가입 서비스
-const registerService = async (registerData: RegisterRequest): Promise<string> => {
+export const registerService = async (formData: RegisterFormData): Promise<string> => {
   try {
-    await register(registerData);
-    return "회원가입이 성공적으로 완료되었습니다.";
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      const response = error.response?.data;
+    // 폼 데이터를 API 요청 데이터로 변환
+    const registerData = transformRegisterData(formData)
 
-      if (response) {
-        const { status } = response;
-        const errMsg = (response as any)?.data?.error || response.message;
-
-        switch (status) {
-          case 400:
-            throw new CustomError(errMsg || "입력값이 올바르지 않습니다. 다시 확인해주세요.");
-          case 409:
-            throw new CustomError(errMsg || "이미 사용 중인 이메일입니다.");
-          case 500:
-            throw new CustomError("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-          default:
-            throw new CustomError(errMsg || "회원가입에 실패했습니다. 다시 시도해주세요.");
-        }
-      }
-    }
-    throw new CustomError("예상치 못한 오류가 발생했습니다.");
+    // API 호출
+    await register(registerData)
+    return "회원가입이 성공적으로 완료되었습니다."
+  } catch (error: any) {
+    // API 에러 처리
+    const errorMessage = error.response?.data?.message || "회원가입에 실패했습니다."
+    throw new CustomError(errorMessage)
   }
-};
+}
 
 // 비밀번호 변경 서비스
-const changePasswordService = async (passwordData: ChangePasswordRequest): Promise<string> => {
+export const changePasswordService = async (passwordData: ChangePasswordRequest): Promise<string> => {
   try {
-    await changePassword(passwordData);
-    return "비밀번호가 성공적으로 변경되었습니다.";
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      const response = error.response?.data as AccountApiResponse;
-      
-      if (response) {
-        switch (error.response?.status) {
-          case 400:
-            return "입력값이 올바르지 않습니다. 다시 확인해주세요.";
-          case 401:
-            return "현재 비밀번호가 올바르지 않습니다.";
-          default:
-            return response.message || "비밀번호 변경에 실패했습니다. 다시 시도해주세요.";
-        }
-      }
-    }
-    return "알 수 없는 오류가 발생했습니다. 다시 시도해주세요.";
+    await changePassword(passwordData)
+    return "비밀번호가 성공적으로 변경되었습니다."
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || "비밀번호 변경에 실패했습니다."
+    throw new CustomError(errorMessage)
   }
-};
+}
 
 // 계정 삭제 서비스
-const deleteAccountService = async (deleteData: DeleteAccountRequest): Promise<string> => {
+export const deleteAccountService = async (deleteData: DeleteAccountRequest): Promise<string> => {
   try {
-    await deleteAccount(deleteData);
-    return "회원 탈퇴가 성공적으로 처리되었습니다.";
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      const response = error.response?.data as AccountApiResponse;
-
-      console.error("회원 탈퇴 중 오류 발생:", response?.message || error.message);
-
-      throw new CustomError(response?.message || "회원 탈퇴에 실패했습니다. 다시 시도해주세요.");
-    } else {
-      console.error("회원 탈퇴 중 알 수 없는 오류 발생:", error);
-      throw new CustomError("회원 탈퇴에 실패했습니다. 다시 시도해주세요.");
-    }
+    await deleteAccount(deleteData)
+    return "회원 탈퇴가 성공적으로 처리되었습니다."
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || "회원 탈퇴에 실패했습니다."
+    throw new CustomError(errorMessage)
   }
-};
-
-export { registerService, changePasswordService, deleteAccountService };
+}
