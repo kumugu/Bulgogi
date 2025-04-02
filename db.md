@@ -139,6 +139,85 @@ erDiagram
 
 ```
 
+
+```mermaid
+
+erDiagram
+    User ||--o{ Post : "authors"
+    User ||--o{ Comment : "writes"
+    User ||--o{ PostFolderCategory : "owns"
+    
+    Post ||--|| PostContent : "has"
+    Post ||--o{ PostImage : "has"
+    Post ||--o{ Comment : "has"
+    Post }o--|| Topic : "belongs to"
+    Post }o--o{ Tag : "has"
+    Post }o--|| PostFolderCategory : "organized in"
+    
+    PostTag }|--|| Post : "references"
+    PostTag }|--|| Tag : "references"
+    
+    Topic ||--o{ Post : "contains"
+    
+    PostFolderCategory ||--o{ Post : "contains"
+    
+    User {
+        BIGINT id PK
+        VARCHAR username
+        VARCHAR email
+    }
+    
+    Post {
+        BIGINT id PK
+        VARCHAR title
+        BIGINT author_id FK
+        BIGINT topic_id FK
+        DATETIME created_at
+        DATETIME updated_at
+    }
+    
+    PostContent {
+        BIGINT id PK,FK
+        TEXT content
+    }
+    
+    PostImage {
+        BIGINT id PK
+        BIGINT post_id FK
+        VARCHAR image_url
+    }
+    
+    Comment {
+        BIGINT id PK
+        BIGINT post_id FK
+        BIGINT author_id FK
+        TEXT content
+        DATETIME created_at
+    }
+    
+    Tag {
+        BIGINT id PK
+        VARCHAR name
+    }
+    
+    PostTag {
+        BIGINT id PK
+        BIGINT post_id FK
+        BIGINT tag_id FK
+    }
+    
+    Topic {
+        BIGINT id PK
+        VARCHAR name
+    }
+    
+    PostFolderCategory {
+        BIGINT id PK
+        BIGINT user_id FK
+        VARCHAR name
+    }
+```
+
 ## 테이블 설계
 
 ### 1. `users` (사용자 정보)
@@ -429,4 +508,74 @@ CREATE TABLE user_activity_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 활동 발생 시간
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE -- 외래 키, 사용자 ID와 연관됨
 );
+```
+
+
+## Blog Domain
+```sql
+CREATE TABLE User (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE Post (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    author_id BIGINT NOT NULL,
+    topic_id BIGINT,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    FOREIGN KEY (author_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (topic_id) REFERENCES Topic(id)
+);
+
+CREATE TABLE PostContent (
+    id BIGINT PRIMARY KEY,
+    content TEXT NOT NULL,
+    FOREIGN KEY (id) REFERENCES Post(id) ON DELETE CASCADE
+);
+
+CREATE TABLE PostImage (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    post_id BIGINT NOT NULL,
+    image_url VARCHAR(500) NOT NULL,
+    FOREIGN KEY (post_id) REFERENCES Post(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Comment (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    post_id BIGINT NOT NULL,
+    author_id BIGINT NOT NULL,
+    content TEXT NOT NULL,
+    created_at DATETIME NOT NULL,
+    FOREIGN KEY (post_id) REFERENCES Post(id) ON DELETE CASCADE,
+    FOREIGN KEY (author_id) REFERENCES User(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Tag (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE PostTag (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    post_id BIGINT NOT NULL,
+    tag_id BIGINT NOT NULL,
+    FOREIGN KEY (post_id) REFERENCES Post(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Topic (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE PostFolderCategory (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
+);
+
 ```
