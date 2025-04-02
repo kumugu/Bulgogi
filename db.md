@@ -141,32 +141,29 @@ erDiagram
 
 
 ```mermaid
-
 erDiagram
     User ||--o{ Post : "authors"
     User ||--o{ Comment : "writes"
     User ||--o{ PostFolderCategory : "owns"
-    
-    Post ||--|| PostContent : "has"
+
     Post ||--o{ PostImage : "has"
     Post ||--o{ Comment : "has"
     Post }o--|| Topic : "belongs to"
     Post }o--o{ Tag : "has"
     Post }o--|| PostFolderCategory : "organized in"
-    
+
     PostTag }|--|| Post : "references"
     PostTag }|--|| Tag : "references"
-    
+
     Topic ||--o{ Post : "contains"
-    
     PostFolderCategory ||--o{ Post : "contains"
-    
+
     User {
         BIGINT id PK
-        VARCHAR username
-        VARCHAR email
+        VARCHAR username UNIQUE
+        VARCHAR email UNIQUE
     }
-    
+
     Post {
         BIGINT id PK
         VARCHAR title
@@ -175,47 +172,50 @@ erDiagram
         DATETIME created_at
         DATETIME updated_at
     }
-    
+
     PostContent {
-        BIGINT id PK,FK
+        BIGINT id PK
+        BIGINT post_id FK
         TEXT content
     }
-    
+
     PostImage {
         BIGINT id PK
         BIGINT post_id FK
         VARCHAR image_url
+        DATETIME created_at
     }
-    
+
     Comment {
         BIGINT id PK
         BIGINT post_id FK
         BIGINT author_id FK
         TEXT content
         DATETIME created_at
+        DATETIME updated_at
     }
-    
+
     Tag {
         BIGINT id PK
         VARCHAR name
     }
-    
+
     PostTag {
-        BIGINT id PK
-        BIGINT post_id FK
-        BIGINT tag_id FK
+        BIGINT post_id PK, FK
+        BIGINT tag_id PK, FK
     }
-    
+
     Topic {
         BIGINT id PK
         VARCHAR name
     }
-    
+
     PostFolderCategory {
         BIGINT id PK
         BIGINT user_id FK
         VARCHAR name
     }
+
 ```
 
 ## 테이블 설계
