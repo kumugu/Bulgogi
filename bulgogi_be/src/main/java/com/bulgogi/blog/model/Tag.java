@@ -6,30 +6,29 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "tags")
+@Table(
+        name = "tags",
+        indexes = {
+                @Index(name = "idx_tag_name", columnList = "name")
+        }
+)
 public class Tag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, length = 100, unique = true)
     private String name;
 
-    @ManyToMany(mappedBy = "tags")
+    @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
     private Set<Post> posts = new HashSet<>();
 
-
-    // Constructor
     public Tag() {}
 
-    public Tag(Long id, String name, Set<Post> posts) {
-        this.id = id;
+    public Tag(String name) {
         this.name = name;
-        this.posts = posts;
     }
-
-    // Getter, Setter
 
     public Long getId() {
         return id;
