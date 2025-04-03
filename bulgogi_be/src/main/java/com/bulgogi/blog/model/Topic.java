@@ -22,6 +22,9 @@ public class Topic {
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
+    @Column(length = 255)
+    private String description;
+
     // 정렬순서
     @Column(name = "display_order")
     private Integer displayOrder = 0;
@@ -35,8 +38,9 @@ public class Topic {
 
     public Topic() {}
 
-    public Topic(String name) {
+    public Topic(String name, String description) {
         this.name = name;
+        this.description = description;
     }
 
     public Long getId() {
@@ -53,6 +57,14 @@ public class Topic {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Integer getDisplayOrder() {

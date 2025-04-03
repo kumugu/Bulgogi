@@ -2,6 +2,8 @@ package com.bulgogi.blog.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "post_images")
 public class PostImage {
@@ -46,5 +48,8 @@ public class PostImage {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void setUploadedAt(LocalDateTime now) {
     }
 }
