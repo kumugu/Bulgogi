@@ -150,6 +150,7 @@ public class Post {
         this.folderCategory = builder.folderCategory;
     }
 
+
     // Builder 클래스
     public static class Builder {
         // 필수 파라미터
@@ -203,11 +204,11 @@ public class Post {
         this.title = title;
     }
 
-    public PostContent getpostContent() {
+    public PostContent getPostContent() {
         return postContent;
     }
 
-    public void setpostContent(PostContent postContent) {
+    public void setPostContent(PostContent postContent) {
         this.postContent = postContent;
     }
 

@@ -50,6 +50,4 @@ public class PostImage {
         this.imageUrl = imageUrl;
     }
 
-    public void setUploadedAt(LocalDateTime now) {
-    }
 }

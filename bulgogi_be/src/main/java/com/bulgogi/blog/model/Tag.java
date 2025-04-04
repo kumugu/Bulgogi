@@ -2,6 +2,7 @@ package com.bulgogi.blog.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,8 +27,13 @@ public class Tag {
 
     public Tag() {}
 
-    public Tag(String name) {
+    public Tag(Long id, String name, Set<Post> posts) {
+        this.id = id;
         this.name = name;
+        this.posts = posts;
+    }
+
+    public Tag(String name) {
     }
 
     public Long getId() {
@@ -53,4 +59,6 @@ public class Tag {
     public void setPosts(Set<Post> posts) {
         this.posts = posts;
     }
+
+
 }
