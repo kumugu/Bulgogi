@@ -1,0 +1,48 @@
+# 2025년 4월 4일 작업내역
+
+## BE Blog 도메인 Entity, DTO, Mapper, Repository, Service 작성
+DTO 및 Mapper 변경으로 인해 다른 부분도 적용해야함.
+
+
+### 1️.DTO와 매퍼 설계 및 개선
+
+- `PostMapper`, `TagMapper`, `ImageMapper`, `CommentMapper`, `TopicMapper`, `FolderCategoryMapper`, `PostContentMapper` 등 도메인별 매퍼 클래스 작성
+- 기존 코드에서 **직접 엔티티를 반환하던 구조**를 개선하여, **DTO를 활용한 계층 분리 구조로 전환**
+- 각 매퍼에 `toEntity()`, `toDto()` 메서드를 구현하여 DTO ↔ 엔티티 변환을 명확하게 수행
+
+### 2️.서비스 인터페이스 수정
+
+- `PostService`, `TagService` 인터페이스의 메서드 시그니처를 **엔티티 기반 → DTO 기반**으로 변경
+- 주요 변경 메서드:
+  - `createPost(PostCreateRequestDto requestDto)`
+  - `updatePost(Long postId, PostUpdateRequestDto requestDto)`
+  - `getPostById(Long postId)` → `PostResponseDto` 반환
+  - `getPosts(...)` → `List<PostResponseDto>` 반환
+- `TagService`에서도 `TagDto`를 활용하여 **태그 조회 및 생성 로직의 일관성 확보**
+
+
+### 3.서비스 구현체 개선 (`PostServiceImpl`)
+
+- 기존에 엔티티를 직접 처리하던 방식에서 → **DTO 및 매퍼를 적극 활용하는 구조로 리팩토링**
+- `PostContentRepository`를 추가하여, 게시글 본문 데이터도 별도로 관리
+- 게시글 조회, 수정, 삭제 시 `PostMapper`와 `PostContentMapper`를 활용하여 DTO 변환 수행
+- **조회수 관리 최적화**
+  - `Redis`를 활용하여 조회수(`views`) 증가를 캐싱
+  - `INCR views:{postId}` 방식으로 조회수 증가 후, 주기적으로 DB에 반영
+  - 클라이언트 조회 시 Redis에서 조회수 불러오기
+
+------
+
+## 이후 작업계획
+
+### 빌더 패턴 적용
+
+- DTO 생성 시 `new DTO()` 방식 대신 **`builder()` 패턴** 도입
+- 적용 대상:
+  - `PostResponseDto`
+  - `PostImageDto`
+  - `TagDto`
+  - 기타 각 도메인에 해당하는 Response/Request DTO들
+- **가독성과 유지보수성 향상**, 선택적 필드 설정이 용이하여 확장성 확보
+
+### Service Interface, Impl DTO, Mapper 변경에 맞게 수정 필요
