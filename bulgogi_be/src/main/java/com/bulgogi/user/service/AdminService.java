@@ -2,8 +2,8 @@ package com.bulgogi.user.service;
 
 import com.bulgogi.user.dto.UserRequestDTO;
 import com.bulgogi.user.dto.UserResponseDTO;
-import com.bulgogi.user.exception.UnauthorizedException;
-import com.bulgogi.user.exception.UserNotFoundException;
+import com.bulgogi.common.exception.UnauthorizedException;
+import com.bulgogi.common.exception.UserNotFoundException;
 import com.bulgogi.user.mapper.UserMapper;
 import com.bulgogi.user.model.User;
 import com.bulgogi.user.repository.UserRepository;

@@ -43,7 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/register", "/api/users/login").permitAll()
                         .requestMatchers("/api/users/logout", "/api/users/refresh-token").authenticated()
                         .requestMatchers("/api/users/**").authenticated()
-                        .requestMatchers("/api/posts/**").authenticated()
+                        .requestMatchers("/api/blog/**").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );

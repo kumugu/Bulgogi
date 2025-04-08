@@ -1,21 +1,26 @@
 package com.bulgogi.blog.service.impl;
 
-import com.bulgogi.blog.exception.ResourceNotFoundException;
+import com.bulgogi.blog.dto.PostCreateRequestDTO;
+import com.bulgogi.blog.dto.PostImageRequestDTO;
+import com.bulgogi.blog.dto.PostResponseDTO;
+import com.bulgogi.blog.dto.PostUpdateRequestDTO;
+import com.bulgogi.common.exception.ResourceNotFoundException;
+import com.bulgogi.blog.mapper.PostMapper;
 import com.bulgogi.blog.model.*;
 import com.bulgogi.blog.repository.*;
 import com.bulgogi.blog.service.PostService;
-import com.bulgogi.user.exception.UnauthorizedException;
+import com.bulgogi.user.dto.UserResponseDTO;
+import com.bulgogi.common.exception.UnauthorizedException;
 import com.bulgogi.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.View;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -28,16 +33,10 @@ public class PostServiceImpl implements PostService {
     private final TagRepository tagRepository;
     private final PostImageRepository postImageRepository;
     private final PostViewCountRepository postViewCountRepository;
+    private final PostMapper postMapper;
     private final View view;
 
-    public PostServiceImpl(
-            PostRepository postRepository,
-            PostContentRepository postContentRepository,
-            TopicRepository topicRepository,
-            FolderCategoryRepository folderCategoryRepository,
-            TagRepository tagRepository,
-            PostImageRepository postImageRepository,
-            PostViewCountRepository postViewCountRepository, View view) {
+    public PostServiceImpl(PostRepository postRepository, PostContentRepository postContentRepository, TopicRepository topicRepository, FolderCategoryRepository folderCategoryRepository, TagRepository tagRepository, PostImageRepository postImageRepository, PostViewCountRepository postViewCountRepository, PostMapper postMapper, View view) {
         this.postRepository = postRepository;
         this.postContentRepository = postContentRepository;
         this.topicRepository = topicRepository;
@@ -45,22 +44,24 @@ public class PostServiceImpl implements PostService {
         this.tagRepository = tagRepository;
         this.postImageRepository = postImageRepository;
         this.postViewCountRepository = postViewCountRepository;
+        this.postMapper = postMapper;
         this.view = view;
     }
+
 
     // 게시글 생성
     @Override
     @Transactional
-    public Post createPost(String title, String content, Long topicId, Long folderCategoryId, Set<Long> tagIds, List<String> imageUrls, User currentUser) {
+    public PostResponseDTO createPost(PostCreateRequestDTO requestDTO, User currentUser) {
         // 토픽 조회
-        Topic topic = topicRepository.findById(topicId)
-                .orElseThrow(() -> new ResourceNotFoundException("Topic not found with id: " + topicId));
+        Topic topic = topicRepository.findById(requestDTO.getTopicId())
+                .orElseThrow(() -> new ResourceNotFoundException("Topic not found with id: " + requestDTO.getTopicId()));
 
         // 폴더 카테고리 조회
         FolderCategory folderCategory = null;
-        if (folderCategoryId != null) {
-            folderCategory = folderCategoryRepository.findById(folderCategoryId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Folder category not found with id: " + folderCategoryId));
+        if (requestDTO.getFolderCategoryId() != null) {
+            folderCategory = folderCategoryRepository.findById(requestDTO.getFolderCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Folder category not found with id: " + requestDTO.getFolderCategoryId()));
 
             // 폴더 소유자 확인
             if (!folderCategory.getUser().getId().equals(currentUser.getId())) {
@@ -70,13 +71,13 @@ public class PostServiceImpl implements PostService {
 
         // 태그 조회
         Set<Tag> tags = Collections.emptySet();
-        if (tags != null && !tagIds.isEmpty()) {
-            tags = new HashSet<>(tagRepository.findByIdIn(tagIds));
+        if (requestDTO.getTagIds() != null && !requestDTO.getTagIds().isEmpty()) {
+            tags = new HashSet<>(tagRepository.findByIdIn(requestDTO.getTagIds()));
         }
 
         // 게시글 생성
         Post post = new Post();
-        post.setTitle(title);
+        post.setTitle(requestDTO.getTitle());
         post.setUser(currentUser);
         post.setTopic(topic);
         post.setFolderCategory(folderCategory);
@@ -91,47 +92,48 @@ public class PostServiceImpl implements PostService {
         // 게시글 내용 저장
         PostContent postContent = new PostContent();
         postContent.setPost(savedPost);
-        postContent.setContent(content);
+        postContent.setContent(requestDTO.getContent());
+        postContent.setCreatedAt(LocalDateTime.now());
         postContentRepository.save(postContent);
 
         // 이미지 저장
-        if (imageUrls != null && !imageUrls.isEmpty()) {
-            for (String imageUrl : imageUrls) {
+        if (requestDTO.getImageUrls() != null && !requestDTO.getImageUrls().isEmpty()) {
+            for (String imageUrls : requestDTO.getImageUrls()) {
                 PostImage postImage = new PostImage();
                 postImage.setPost(savedPost);
-                postImage.setImageUrl(imageUrl);
-                postImage.setUploadedAt(LocalDateTime.now());
+                postImage.setImageUrl(imageUrls);
                 postImageRepository.save(postImage);
             }
         }
 
-        return savedPost;
+        return postMapper.toDTO(savedPost);
     }
+
 
     // 게시글 수정
     @Override
     @Transactional
-    public Post updatePost(Long postId, String title, String content, Long topicId, Long folderCategoryId, Set<Long> tagIds, User currentUser) {
+    public PostResponseDTO updatePost(Long postId, PostUpdateRequestDTO requestDTO, User currentUser) {
         // 게시글 조회
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
 
         // 권한 확인
         if (!post.getUser().getId().equals(currentUser.getId())) {
-            throw new UnauthorizedException("Yout don't hanve permission to update this post");
+            throw new UnauthorizedException("You don't have permission to update this post");
         }
 
         // 토픽 업데이트
-        if (topicId != null) {
-            Topic topic = topicRepository.findById(topicId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Topic not found with id: " + topicId));
+        if (requestDTO.getTopicId() != null) {
+            Topic topic = topicRepository.findById(requestDTO.getTopicId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Topic not found with id: " +requestDTO.getTopicId()));
             post.setTopic(topic);
         }
 
         // 폴더 카테고리 업데이트
-        if (folderCategoryId != null) {
-            FolderCategory folderCategory = folderCategoryRepository.findById(folderCategoryId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Folder category not found with id: " + folderCategoryId));
+        if (requestDTO.getFolderCategoryId() != null) {
+            FolderCategory folderCategory = folderCategoryRepository.findById(requestDTO.getFolderCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Folder category not found with id: " + requestDTO.getFolderCategoryId()));
 
             // 폴더 소유자 확인
             if (!folderCategory.getUser().getId().equals(currentUser.getId())) {
@@ -142,26 +144,28 @@ public class PostServiceImpl implements PostService {
         }
 
         // 태그 업데이트
-        if (tagIds != null) {
-            Set<Tag> tags = new HashSet<>(tagRepository.findByIdIn(tagIds));
+        if (requestDTO.getTagIds() != null) {
+            Set<Tag> tags = new HashSet<>(tagRepository.findByIdIn(requestDTO.getTagIds()));
             post.setTags(tags);
         }
 
         // 제목 업데이트
-        if (title != null) {
-            post.setTitle(title);
+        if (requestDTO.getTitle() != null) {
+            post.setTitle(requestDTO.getTitle());
         }
 
         // 내용 업데이트
-        if (content != null) {
+        if (requestDTO.getContent() != null) {
             PostContent postContent = postContentRepository.findByPost(post)
                     .orElseThrow(() -> new ResourceNotFoundException("Post content not found for post id: " + postId));
-            postContent.setContent(content);
+            postContent.setContent(requestDTO.getContent());
             postContentRepository.save(postContent);
         }
 
         post.setUpdatedAt(LocalDateTime.now());
-        return postRepository.save(post);
+        Post updatedPost = postRepository.save(post);
+
+        return postMapper.toDTO(updatedPost);
     }
 
 
@@ -172,7 +176,7 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
 
-        // 권한 확인(토큰으로도 가능한지 체크)
+        // 권한 확인
         if (!post.getUser().getId().equals(currentUser.getId())) {
             throw new UnauthorizedException("You don't have permission to delete this post");
         }
@@ -192,12 +196,12 @@ public class PostServiceImpl implements PostService {
     // 게시글 조회
     @Override
     @Transactional(readOnly = true)
-    public Post getPostById(Long postId) {
+    public PostResponseDTO getPostById(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
 
         // 게시글 내용과 이미지 함께 조회
-        PostContent content = postContentRepository.findByPost(post)
+        PostContent postContent = postContentRepository.findByPost(post)
                 .orElseThrow(() -> new ResourceNotFoundException("Post content not found for post id: " + postId));
 
         // Redis 조회수 반영
@@ -206,7 +210,7 @@ public class PostServiceImpl implements PostService {
             post.setViews(viewCount);
         }
 
-        return post;
+        return postMapper.toDTO(post);
     }
 
 
@@ -214,17 +218,19 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(readOnly = true)
     public String getPostContent(Long postId) {
-        PostContent content = postContentRepository.findByPostId(postId)
+        PostContent postContent = postContentRepository.findByPostId(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post content not found for post id: " + postId));
-        return content.getContent();
+        return postContent.getContent();
     }
+
 
     // 게시글 목록 조회 (필터링, 정렬 포함)
     @Override
     @Transactional(readOnly = true)
-    public Page<Post> getPosts(Long topicId, Long folderCategoryId, Set<Long> tagIds, Long authorId, String sortBy, Pageable pageable) {
-        // TODO: 복잡한 필터링 로직 추가 예정
+    public Page<PostResponseDTO> getPosts(Long topicId, Long folderCategoryId, Set<Long> tagIds, Long authorId, String sortBy, Pageable pageable) {
+        // TODO: 복잡한 필터링 로직 추가
         // 현재는 간단한 필터링 조건만 적용
+        Page<Post> postPage;
 
         if (topicId != null && folderCategoryId != null) {
             Topic topic = topicRepository.findById(topicId)
@@ -233,31 +239,33 @@ public class PostServiceImpl implements PostService {
             FolderCategory folderCategory = folderCategoryRepository.findById(folderCategoryId)
                     .orElseThrow(() -> new ResourceNotFoundException("Folder category not found with id: " + folderCategoryId));
 
-            return postRepository.findByTopicAndFolderCategory(topic, folderCategory, pageable);
+            postPage = postRepository.findByTopicAndFolderCategory(topic, folderCategory, pageable);
         } else if (topicId != null) {
             Topic topic = topicRepository.findById(topicId)
                     .orElseThrow(() -> new ResourceNotFoundException("Topic not found with id: " + topicId));
 
-            return postRepository.findByTopic(topic, pageable);
+            postPage = postRepository.findByTopic(topic, pageable);
         } else if (folderCategoryId != null) {
             FolderCategory folderCategory = folderCategoryRepository.findById(folderCategoryId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Folder category not found with id: " + folderCategoryId));
+                    .orElseThrow(() -> new ResourceNotFoundException("Folder category not found with id: " + topicId));
 
-            return postRepository.findByFolderCategory(folderCategory, pageable);
+            postPage = postRepository.findByFolderCategory(folderCategory, pageable);
         } else if (tagIds != null && !tagIds.isEmpty()) {
-            return postRepository.findByTagIds(tagIds, pageable);
+            postPage = postRepository.findByTagIds(tagIds, pageable);
         } else if ("popular".equals(sortBy)) {
-            return postRepository.findByPublishedTrueOrderByViewsDesc(pageable);
+            postPage = postRepository.findByPublishedTrueOrderByViewsDesc(pageable);
         } else {
-            return postRepository.findByPublishedTrue(pageable);
+            postPage = postRepository.findByPublishedTrue(pageable);
         }
+
+        return postPage.map(postMapper::toDTO);
     }
 
 
     // 게시글 공개 상태 변경
     @Override
     @Transactional
-    public Post updatePublishStatus(Long postId, boolean published, User currentUser) {
+    public PostResponseDTO updatePublishStatus(Long postId, boolean published, User currentUser) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
 
@@ -267,7 +275,9 @@ public class PostServiceImpl implements PostService {
         }
 
         post.setPublished(published);
-        return postRepository.save(post);
+        Post updatedPost = postRepository.save(post);
+
+        return postMapper.toDTO(updatedPost);
     }
 
 
@@ -282,7 +292,7 @@ public class PostServiceImpl implements PostService {
 
     // 게시글 조회수 조회
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Long getViewCount(Long postId) {
         // Redis에서 조회수 조회
         return postViewCountRepository.getViewCount(postId);
@@ -292,15 +302,16 @@ public class PostServiceImpl implements PostService {
     // 특정 사용자 게시글 목록 조회
     @Override
     @Transactional(readOnly = true)
-    public Page<Post> getUserPosts(User user, Pageable pageable) {
-        return postRepository.findByUser(user, pageable);
+    public Page<PostResponseDTO> getUserPosts(UserResponseDTO user, Pageable pageable) {
+        Page<Post> postPage = postRepository.findByUser(user, pageable);
+        return postPage.map(postMapper::toDTO);
     }
 
 
     // 게시글에 이미지 추가
     @Override
     @Transactional
-    public Post addImagesToPost(Long postId, List<String> imageUrls, boolean replace, User currentUser) {
+    public PostResponseDTO addImagesToPost(Long postId, PostImageRequestDTO requestDTO, User currentUser) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: " + postId));
 
@@ -310,47 +321,23 @@ public class PostServiceImpl implements PostService {
         }
 
         // 기존 이미지 삭제 (replace가 true일 경우)
-        if (replace) {
+        if (requestDTO.isReplace()) {
             postImageRepository.deleteByPost(post);
         }
 
         // 새 이미지 추가
-        if (imageUrls != null && !imageUrls.isEmpty()) {
-            for (String imageUrl : imageUrls) {
+        if (requestDTO.getImageUrls() != null && !requestDTO.getImageUrls().isEmpty()) {
+            for (String imageUrl : requestDTO.getImageUrls()) {
                 PostImage postImage = new PostImage();
                 postImage.setPost(post);
                 postImage.setImageUrl(imageUrl);
-                postImage.setUploadedAt(LocalDateTime.now());
                 postImageRepository.save(postImage);
             }
         }
 
         post.setUpdatedAt(LocalDateTime.now());
-        return postRepository.save(post);
+        Post updatedPost = postRepository.save(post);
+
+        return postMapper.toDTO(updatedPost);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,14 +1,15 @@
 package com.bulgogi.blog.mapper;
 
-import com.bulgogi.blog.dto.PostImageDTO;
-import com.bulgogi.blog.dto.PostCreateRequestDTO;
-import com.bulgogi.blog.dto.PostResponseDTO;
-import com.bulgogi.blog.dto.TagDTO;
+import com.bulgogi.blog.dto.*;
 import com.bulgogi.blog.model.*;
 import com.bulgogi.user.model.User;
+import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+@Component
 public class PostMapper {
 
     public PostResponseDTO toDTO(Post post) {
@@ -17,15 +18,15 @@ public class PostMapper {
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 post.getTitle(),
-                post.getPostContent() != null ? post.getPostContent().getContent() : "",
+                Optional.ofNullable(post.getPostContent()).map(PostContent::getContent).orElse(""),
                 post.getUser().getId(),
                 post.getUser().getUsername(),
-                post.getTopic() != null ? post.getTopic().getId() : null,
-                post.getTopic() != null ? post.getTopic().getName() : null,
-                post.getFolderCategory() != null ? post.getFolderCategory().getId() : null,
-                post.getFolderCategory() != null ? post.getFolderCategory().getName() : null,
-                post.getTags().stream().map(tag -> new TagDTO(tag.getId(), tag.getName())).toList(),
-                post.getImages().stream().map(image -> new PostImageDTO(image.getId(), image.getImageUrl())).toList(),
+                Optional.ofNullable(post.getTopic()).map(Topic::getId).orElse(null),
+                Optional.ofNullable(post.getTopic()).map(Topic::getName).orElse(null),
+                Optional.ofNullable(post.getFolderCategory()).map(FolderCategory::getId).orElse(null),
+                Optional.ofNullable(post.getFolderCategory()).map(FolderCategory::getName).orElse(null),
+                post.getTags().stream().map(tag -> new TagDTO(tag.getId(), tag.getName())).collect(Collectors.toList()),
+                post.getImages().stream().map(image -> new PostImageDTO(image.getId(), image.getImageUrl())).collect(Collectors.toList()),
                 post.getViews(),
                 post.getCommentCount(),
                 post.isPublished()
@@ -49,5 +50,16 @@ public class PostMapper {
 
         return post;
     }
-}
 
+    public PostDTO fromEntity(Post post) {
+        return new PostDTO(
+                post.getId(),
+                post.getTitle(),
+                Optional.ofNullable(post.getPostContent()).map(PostContent::getContent).orElse(""),
+                post.getUser().getId(),
+                Optional.ofNullable(post.getTopic()).map(Topic::getId).orElse(null),
+                Optional.ofNullable(post.getFolderCategory()).map(FolderCategory::getId).orElse(null),
+                post.getTags().stream().map(Tag::getId).collect(Collectors.toSet())
+        );
+    }
+}

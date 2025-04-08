@@ -1,110 +1,116 @@
 package com.bulgogi.blog.service.impl;
 
-import com.bulgogi.blog.exception.ResourceNotFoundException;
+import com.bulgogi.blog.dto.TagCreateRequestDTO;
+import com.bulgogi.blog.dto.TagDTO;
+import com.bulgogi.common.exception.ResourceNotFoundException;
+import com.bulgogi.blog.mapper.TagMapper;
 import com.bulgogi.blog.model.Tag;
 import com.bulgogi.blog.repository.TagRepository;
 import com.bulgogi.blog.service.TagService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class TagServiceImpl implements TagService {
+public class TagServiceImpl implements TagService{
 
     private final TagRepository tagRepository;
+    private final TagMapper tagMapper;
 
-    public TagServiceImpl(TagRepository tagRepository) {
+    public TagServiceImpl(TagRepository tagRepository, TagMapper tagMapper) {
         this.tagRepository = tagRepository;
+        this.tagMapper = tagMapper;
     }
 
-    // 태그 생성 메서드 (중복 태그 확인 후 존재하면 반환, 없으면 새로 생성)
+    // 태그 생성
     @Override
     @Transactional
-    public Tag createTag(String name) {
-        // 태그 중복 확인
-        if (tagRepository.existsByName(name)) {
-            return tagRepository.findByName(name).orElse(null);
+    public TagDTO createTag(TagCreateRequestDTO requestDTO) {
+        Optional<Tag> existing = tagRepository.findByName(requestDTO.getName());
+        if (existing.isPresent()) {
+            return tagMapper.toDTO(existing.get());
         }
 
         Tag tag = new Tag();
-        tag.setName(name);
-        return tagRepository.save(tag);
+        tag.setName(requestDTO.getName());
+        Tag saved = tagRepository.save(tag);
+        return tagMapper.toDTO(saved);
     }
 
 
-    // 사용자 입력(query)을 포함하는 태그 추천 검색
+    // 태그명 자동완성 제안
     @Override
     @Transactional(readOnly = true)
-    public List<Tag> getSuggestions(String query) {
-        return tagRepository.findByNameContaining(query);
+    public List<TagDTO> getSuggestions(String query) {
+        List<Tag> suggestions = tagRepository.findByNameContainingIgnoreCase(query);
+        return suggestions.stream()
+                .map(tagMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
 
-    // 모든 태그 조회 (페이징 지원)
+    // 태그 목록 조회
     @Override
     @Transactional(readOnly = true)
-    public Page<Tag> getAllTags(Pageable pageable) {
-        return tagRepository.findAll(pageable);
+    public Page<TagDTO> getAllTags(Pageable pageable) {
+        Page<Tag> tagPage = tagRepository.findAll(pageable);
+        return tagPage.map(tagMapper::toDTO);
     }
 
 
-    // 인기 태그 조회 (조회된 태그 개수 제한)
+    // 인기 태그 조회
     @Override
     @Transactional(readOnly = true)
-    public List<Tag> getPopularTags(int limit) {
-        return tagRepository.findPopularTags(PageRequest.of(0, limit)).getContent();
+    public List<TagDTO> getPopularTags(int limit) {
+        return tagRepository.findPopularTags(Pageable.ofSize(limit)).stream()
+                .map(tagMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
 
-    // 태그명으로 특정 태그 조회 (없으면 예외 발생)
+    // 태그명으로 태그 조회
     @Override
     @Transactional(readOnly = true)
-    public Tag getTagByName(String name) {
-        return tagRepository.findByName(name)
-                .orElseThrow(() -> new ResourceNotFoundException("Tag not found with name: " + name));
+    public TagDTO getTagByName(String tagName) {
+        Tag tag = tagRepository.findByName(tagName)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: " + tagName));
+        return tag != null ? tagMapper.toDTO(tag) : null;
     }
 
 
-    // 태그 ID로 특정 태그 조회 (없으면 예외 발생)
+    // 태그 ID로 태그 조회
     @Override
     @Transactional(readOnly = true)
-    public Tag getTagById(Long id) {
-        return tagRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: " + id));
+    public TagDTO getTagById(Long tagId) {
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: "+ tagId));
+        return tag != null ? tagMapper.toDTO(tag) : null;
     }
 
 
-    // 여러 태그명을 받아 존재하는 태그는 조회하고, 존재하지 않는 태그는 생성
+    // 여러 태그명으로 태그 조회 또는 생성
     @Override
     @Transactional
-    public Set<Tag> getOrCreateTagsByNames(Set<String> tagNames) {
-        Set<Tag> result = new HashSet<>();
-
-        // 기존 태그 조회
-        List<Tag> existingTags = tagRepository.findByNameIn(tagNames);
-        result.addAll(existingTags);
-
-        // 기존 태그명 확인
-        Set<String> existingTagNames = existingTags.stream()
-                .map(Tag::getName)
-                .collect(Collectors.toSet());
-
-        // 없는 태그 생성
-        for (String tagName : tagNames) {
-            if (!existingTagNames.contains(tagName)) {
+    public Set<TagDTO> getOrCreateTagsByNames(Set<String> tagNames) {
+        Set<TagDTO> tagDTOs = new HashSet<>();
+        for (String name : tagNames) {
+            Optional<Tag> existing = tagRepository.findByName(name);
+            if (existing.isPresent()) {
+                tagDTOs.add(tagMapper.toDTO(existing.get()));
+            } else {
                 Tag newTag = new Tag();
-                newTag.setName(tagName);
-                result.add(tagRepository.save(newTag));
+                newTag.setName(name);
+                Tag saved = tagRepository.save(newTag);
+                tagDTOs.add(tagMapper.toDTO(saved));
             }
         }
-
-        return Set.of();
+        return tagDTOs;
     }
 }

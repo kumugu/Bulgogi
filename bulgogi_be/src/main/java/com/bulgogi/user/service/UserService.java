@@ -1,7 +1,7 @@
 package com.bulgogi.user.service;
 
+import com.bulgogi.common.exception.UserNotFoundException;
 import com.bulgogi.user.dto.*;
-import com.bulgogi.user.exception.*;
 import com.bulgogi.user.mapper.UserMapper;
 import com.bulgogi.user.model.User;
 import com.bulgogi.user.repository.UserRepository;

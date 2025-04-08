@@ -1,4 +1,4 @@
-package com.bulgogi.user.exception;
+package com.bulgogi.common.exception;
 
 public class InvalidPasswordException extends RuntimeException{
     public InvalidPasswordException(String message){

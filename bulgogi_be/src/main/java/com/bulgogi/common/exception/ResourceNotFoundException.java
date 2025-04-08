@@ -1,4 +1,4 @@
-package com.bulgogi.blog.exception;
+package com.bulgogi.common.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

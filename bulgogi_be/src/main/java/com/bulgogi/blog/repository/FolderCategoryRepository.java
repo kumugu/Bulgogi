@@ -17,7 +17,7 @@ public interface FolderCategoryRepository extends JpaRepository<FolderCategory, 
     List<FolderCategory> findByUser(User user);
 
     // 사용자별 최상위 폴더만 조회 (부모 폴더가 없는 폴더)
-    List<FolderCategory> findByUserAdParentIsNull(User user);
+    List<FolderCategory> findByUserAndParentIsNull(User user);
 
     // 특정 부모 폴더의 하위 폴더 목록 조회
     List<FolderCategory> findByParent(FolderCategory parent);

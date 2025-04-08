@@ -46,7 +46,7 @@ public class TopicRequestDTO {
         this.displayOrder = displayOrder;
     }
 
-    public Boolean getActive() {
+    public Boolean isActive() {
         return active;
     }
 

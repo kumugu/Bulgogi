@@ -2,10 +2,10 @@ package com.bulgogi.user.controller;
 
 import com.bulgogi.user.dto.UserLoginRequestDTO;
 import com.bulgogi.user.dto.UserLoginResponseDTO;
-import com.bulgogi.user.exception.InvalidPasswordException;
-import com.bulgogi.user.exception.InvalidTokenException;
-import com.bulgogi.user.exception.UserDeactivatedException;
-import com.bulgogi.user.exception.UserNotFoundException;
+import com.bulgogi.common.exception.InvalidPasswordException;
+import com.bulgogi.common.exception.InvalidTokenException;
+import com.bulgogi.common.exception.UserDeactivatedException;
+import com.bulgogi.common.exception.UserNotFoundException;
 import com.bulgogi.user.security.JwtProvider;
 import com.bulgogi.user.service.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;

@@ -14,10 +14,10 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 게시글별 댓글 목록 조회 (페이징)
-    Page<Comment> findByPost(Post post, Pageable pageable);
+    Page<Comment> findByPostId(Long postId, Pageable pageable);
 
-    // 특정 사용자가 작성한 댓글 목록 조회
-    List<Comment> findByUser(User user);
+    // 사용자 작성 댓글 목록 조회 (페이징 처리)
+    Page<Comment> findByUserId(Long id, Pageable pageable);
 
     // 게시글별 댓글 수 카운트
     long countByPost(Post post);
@@ -27,4 +27,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 특정 게시글의 특정 사용자 댓글 조회
     List<Comment> findByPostAndUser(Post post, User user);
+
 }

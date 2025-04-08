@@ -1,4 +1,4 @@
-package com.bulgogi.user.exception;
+package com.bulgogi.common.exception;
 
 public class UnauthorizedException extends RuntimeException {
     public UnauthorizedException(String message) {

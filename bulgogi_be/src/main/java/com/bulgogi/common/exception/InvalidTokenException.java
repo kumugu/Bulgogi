@@ -1,4 +1,4 @@
-package com.bulgogi.user.exception;
+package com.bulgogi.common.exception;
 
 public class InvalidTokenException extends RuntimeException {
     public InvalidTokenException(String message) {

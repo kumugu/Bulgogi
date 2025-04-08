@@ -12,6 +12,8 @@ public class PostImageMapper {
     }
 
     public PostImage toEntity(PostImageDTO postImageDTO) {
-        return new PostImage(null, postImageDTO.getImageUrl());
+        PostImage postImage = new PostImage();
+        postImage.setImageUrl(postImageDTO.getImageUrl());
+        return postImage;
     }
 }
