@@ -12,6 +12,7 @@ import com.bulgogi.blog.service.PostService;
 import com.bulgogi.user.dto.UserResponseDTO;
 import com.bulgogi.common.exception.UnauthorizedException;
 import com.bulgogi.user.model.User;
+import com.bulgogi.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,8 +36,9 @@ public class PostServiceImpl implements PostService {
     private final PostViewCountRepository postViewCountRepository;
     private final PostMapper postMapper;
     private final View view;
+    private final UserRepository userRepository;
 
-    public PostServiceImpl(PostRepository postRepository, PostContentRepository postContentRepository, TopicRepository topicRepository, FolderCategoryRepository folderCategoryRepository, TagRepository tagRepository, PostImageRepository postImageRepository, PostViewCountRepository postViewCountRepository, PostMapper postMapper, View view) {
+    public PostServiceImpl(PostRepository postRepository, PostContentRepository postContentRepository, TopicRepository topicRepository, FolderCategoryRepository folderCategoryRepository, TagRepository tagRepository, PostImageRepository postImageRepository, PostViewCountRepository postViewCountRepository, PostMapper postMapper, View view, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.postContentRepository = postContentRepository;
         this.topicRepository = topicRepository;
@@ -46,6 +48,7 @@ public class PostServiceImpl implements PostService {
         this.postViewCountRepository = postViewCountRepository;
         this.postMapper = postMapper;
         this.view = view;
+        this.userRepository = userRepository;
     }
 
 
@@ -302,8 +305,15 @@ public class PostServiceImpl implements PostService {
     // 특정 사용자 게시글 목록 조회
     @Override
     @Transactional(readOnly = true)
-    public Page<PostResponseDTO> getUserPosts(UserResponseDTO user, Pageable pageable) {
+    public Page<PostResponseDTO> getUserPosts(UserResponseDTO userResponseDTO, Pageable pageable) {
+        // UserResponseDTO에서 ID를 추출하여 User 엔티티를 조회
+        User user = userRepository.findById(userResponseDTO.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userResponseDTO.getId()));
+
+        // 해당 사용자의 게시글 목록을 페이지네이션으로 조회
         Page<Post> postPage = postRepository.findByUser(user, pageable);
+
+        // Post 엔티티를 PostResponseDTO로 변환하여 반환
         return postPage.map(postMapper::toDTO);
     }
 

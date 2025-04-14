@@ -60,8 +60,9 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostResponseDTO>> updatePost(
             @PathVariable Long postId,
             @Valid @RequestBody PostUpdateRequestDTO requestDTO,
-            @AuthenticationPrincipal User currentUser) {
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
+        User currentUser = customUserDetails.getUser();
         PostResponseDTO postResponseDTO = postService.updatePost(postId, requestDTO, currentUser);
         return ResponseEntity.ok(
                 ApiResponse.success("게시글이 성공적으로 수정되었습니다.", postResponseDTO)
@@ -74,8 +75,9 @@ public class PostController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(
             @PathVariable Long postId,
-            @AuthenticationPrincipal User currentUser) {
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
+        User currentUser = customUserDetails.getUser();
         postService.deletePost(postId, currentUser);
         return ResponseEntity.ok(
                 ApiResponse.success("게시글이 성공적으로 삭제되었습니다.", null)
@@ -135,8 +137,9 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostResponseDTO>> updatePublishStatus(
             @PathVariable Long postId,
             @RequestParam boolean published,
-            @AuthenticationPrincipal User currentUser) {
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
+        User currentUser = customUserDetails.getUser();
         PostResponseDTO postResponseDTO = postService.updatePublishStatus(postId, published, currentUser);
         String message = published ? "게시글이 발행되었습니다." : "게시글이 비공개로 설정되었습니다.";
 
@@ -167,6 +170,7 @@ public class PostController {
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         UserResponseDTO user = userService.getUserInfoById(userId);
+
         Page<PostResponseDTO> posts = postService.getUserPosts(user, pageable);
 
         return ResponseEntity.ok(
@@ -181,8 +185,9 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostResponseDTO>> addImagesToPost(
             @PathVariable Long postId,
             @Valid @RequestBody PostImageRequestDTO requestDTO,
-            @AuthenticationPrincipal User currentUser) {
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
+        User currentUser = customUserDetails.getUser();
         PostResponseDTO postResponseDTO = postService.addImagesToPost(postId, requestDTO, currentUser);
         return ResponseEntity.ok(
                 ApiResponse.success("이미지가 게시글에 추가되었습니다.", postResponseDTO)

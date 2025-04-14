@@ -3,7 +3,6 @@ package com.bulgogi.blog.repository;
 import com.bulgogi.blog.model.FolderCategory;
 import com.bulgogi.blog.model.Post;
 import com.bulgogi.blog.model.Topic;
-import com.bulgogi.user.dto.UserResponseDTO;
 import com.bulgogi.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +19,7 @@ import java.util.Set;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 사용자별 게시글 조회
-    Page<Post> findByUser(UserResponseDTO user, Pageable pageable);
+    Page<Post> findByUser(User user, Pageable pageable);
 
     // 특정 토픽별 게시글 조회
     Page<Post> findByTopic(Topic topic, Pageable pageable);
