@@ -1,5 +1,6 @@
 package com.bulgogi.blog.controller;
 
+import com.bulgogi.blog.model.Post;
 import com.bulgogi.common.response.ApiResponse;
 import com.bulgogi.blog.dto.PostContentDTO;
 import com.bulgogi.blog.service.PostContentService;
@@ -38,9 +39,9 @@ public class PostContentController {
     @PutMapping
     public ResponseEntity<ApiResponse<PostContentDTO>> updatePostContent(
             @PathVariable Long postId,
-            @RequestBody String content) {
+            @RequestBody PostContentDTO requestDTO) {
 
-        PostContentDTO postContentDTO = postContentService.updatePostContent(postId, content);
+        PostContentDTO postContentDTO = postContentService.updatePostContent(postId, requestDTO.getContent());
         return ResponseEntity.ok(
                 ApiResponse.success("게시글 내용이 성공적으로 업데이트되었습니다.", postContentDTO)
         );
