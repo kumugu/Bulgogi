@@ -1,4 +1,5 @@
-import { ArrowRight } from "react-feather";
+import { ArrowRight } from "lucide-react"
+import { Link } from "react-router-dom"
 
 export default function Home() {
   return (
@@ -15,13 +16,17 @@ export default function Home() {
                 Cook up your ideas deliciously at Bulgogi Blog to share your own stories.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-white bg-neutral-900">
-                  Get Started
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </button>
-                <button className="inline-flex items-center justify-center px-6 py-3 border border-neutral-900 text-base font-medium rounded-full text-neutral-900 bg-white">
-                  Login
-                </button>
+                <Link to="/register">
+                  <button className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full text-white bg-neutral-900">
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </button>
+                </Link>
+                <Link to="/login">
+                  <button className="inline-flex items-center justify-center px-6 py-3 border border-neutral-900 text-base font-medium rounded-full text-neutral-900 bg-white">
+                    Login
+                  </button>
+                </Link>
               </div>
             </div>
             <div className="relative">
@@ -53,5 +58,5 @@ export default function Home() {
         </div>
       </section>
     </div>
-  );
+  )
 }
