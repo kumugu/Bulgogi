@@ -1,66 +1,121 @@
 package com.bulgogi.blog.controller;
 
+import com.bulgogi.common.response.ApiResponse;
 import com.bulgogi.blog.dto.CommentRequestDTO;
 import com.bulgogi.blog.dto.CommentResponseDTO;
 import com.bulgogi.blog.service.CommentService;
-import com.bulgogi.blog.service.PostService;
+import com.bulgogi.user.dto.UserResponseDTO;
+import com.bulgogi.user.model.User;
+import com.bulgogi.user.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/api/blog/comments")
 public class CommentController {
 
     private final CommentService commentService;
-    private final PostService postService;
+    private final UserService userService;
 
-    public CommentController(CommentService commentService, PostService postService) {
+    @Autowired
+    public CommentController(CommentService commentService, UserService userService) {
         this.commentService = commentService;
-        this.postService = postService;
+        this.userService = userService;
     }
 
     /**
-     * 댓글 작성: 게시글에 댓글을 작성할 수 있도록 처리.
-     * 댓글 단건 조회: 게시글의 댓글을 조회할 수 있도록 처리.
-     * 댓글 전체 조회: 게시글의 댓글을 전체 조회할 수 있도록 처리.
-     * 댓글 수정: 댓글을 수정할 수 있도록 처리.
-     * 댓글 삭제: 댓글을 삭제할 수 있도록 처리.
+     * 댓글 작성
      */
-
-    // 댓글 작성
-    @PostMapping("/{postId}")
-    public ResponseEntity<CommentResponseDTO> createComment(
+    @PostMapping("/posts/{postId}")
+    public ResponseEntity<ApiResponse<CommentResponseDTO>> createComment(
             @PathVariable Long postId,
-            @RequestBody CommentRequestDTO commentRequestDTO) {
+            @Valid @RequestBody CommentRequestDTO requestDTO,
+            @AuthenticationPrincipal User currentUser) {
 
-            commentRequestDTO.setPostId(postId);
-        return ResponseEntity.ok(commentService.createComment(commentRequestDTO));
+        CommentResponseDTO commentResponseDTO = commentService.createComment(postId, requestDTO, currentUser);
+        return new ResponseEntity<>(
+                ApiResponse.success("댓글이 성공적으로 작성되었습니다.", commentResponseDTO),
+                HttpStatus.CREATED
+        );
     }
 
-    // 댓글 단건 조회
-    @GetMapping("/{commentId}")
-    public ResponseEntity<CommentResponseDTO> getCommentById(@PathVariable Long commentId) {
-        return ResponseEntity.ok(commentService.getCommentById(commentId));
-    }
-
-    // 댓글 전체 조회
-    @GetMapping
-    public ResponseEntity<List<CommentResponseDTO>> getAllComments() {
-        return ResponseEntity.ok(commentService.getAllComments());
-    }
-
-    // 댓글 수정
+    /**
+     * 댓글 수정
+     */
     @PutMapping("/{commentId}")
-    public ResponseEntity<CommentResponseDTO> updateComment(@PathVariable Long commentId, @RequestBody CommentRequestDTO commentRequestDTO) {
-        return ResponseEntity.ok(commentService.updateComment(commentId, commentRequestDTO));
+    public ResponseEntity<ApiResponse<CommentResponseDTO>> updateComment(
+            @PathVariable Long commentId,
+            @Valid @RequestBody CommentRequestDTO requestDTO,
+            @AuthenticationPrincipal User currentUser) {
+
+        CommentResponseDTO commentResponseDTO = commentService.updateComment(commentId, requestDTO, currentUser);
+        return ResponseEntity.ok(
+                ApiResponse.success("댓글이 성공적으로 수정되었습니다.", commentResponseDTO)
+        );
     }
 
-    // 댓글 삭제
+    /**
+     * 댓글 삭제
+     */
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<CommentResponseDTO> deleteComment(@PathVariable Long commentId) {
-        commentService.deleteComment(commentId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ApiResponse<Void>> deleteComment(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal User currentUser) {
+
+        commentService.deleteComment(commentId, currentUser);
+        return ResponseEntity.ok(
+                ApiResponse.success("댓글이 성공적으로 삭제되었습니다.", null)
+        );
+    }
+
+    /**
+     * 게시글별 댓글 목록 조회
+     */
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<ApiResponse<Page<CommentResponseDTO>>> getCommentsByPostId(
+            @PathVariable Long postId,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable) {
+
+        Page<CommentResponseDTO> comments = commentService.getCommentsByPostId(postId, pageable);
+        return ResponseEntity.ok(
+                ApiResponse.success(comments)
+        );
+    }
+
+    /**
+     * 사용자별 댓글 목록 조회
+     */
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<ApiResponse<Page<CommentResponseDTO>>> getCommentsByUser(
+            @PathVariable Long userId,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        UserResponseDTO user = userService.getUserInfoById(userId);
+        Page<CommentResponseDTO> comments = commentService.getCommentsByUser(user, pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(comments)
+        );
+    }
+
+    /**
+     * 댓글 상세 조회
+     */
+    @GetMapping("/{commentId}")
+    public ResponseEntity<ApiResponse<CommentResponseDTO>> getCommentById(
+            @PathVariable Long commentId) {
+
+        CommentResponseDTO commentResponseDTO = commentService.getCommentById(commentId);
+        return ResponseEntity.ok(
+                ApiResponse.success(commentResponseDTO)
+        );
     }
 }

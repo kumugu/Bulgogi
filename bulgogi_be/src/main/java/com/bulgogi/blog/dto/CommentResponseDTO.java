@@ -1,33 +1,27 @@
 package com.bulgogi.blog.dto;
 
-import com.bulgogi.blog.model.Comment;
-
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-public class CommentResponseDTO {
-    private Long id;
+public class CommentResponseDTO extends AuditableDTO{
+
     private String content;
-    private LocalDateTime createdAt;
-    private String username;
+    private Long authorId;
+    private String authorName;
 
-    // Constructor
     public CommentResponseDTO() {}
 
-    public CommentResponseDTO(Comment comment) {
-        this.id = comment.getId();
-        this.content = comment.getContent();
-        this.createdAt = comment.getCreatedAt();
-        this.username = comment.getUser().getUsername();
+    public CommentResponseDTO(String content, Long authorId, String authorName) {
+        this.content = content;
+        this.authorId = authorId;
+        this.authorName = authorName;
     }
 
-    // Getter, Setter
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public CommentResponseDTO(Long id, LocalDateTime createdAt, LocalDateTime updatedAt, String content, Long authorId, String authorName) {
+        super(id, createdAt, updatedAt);
+        this.content = content;
+        this.authorId = authorId;
+        this.authorName = authorName;
     }
 
     public String getContent() {
@@ -38,19 +32,40 @@ public class CommentResponseDTO {
         this.content = content;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public Long getAuthorId() {
+        return authorId;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setAuthorId(Long authorId) {
+        this.authorId = authorId;
     }
 
-    public String getUsername() {
-        return username;
+    public String getAuthorName() {
+        return authorName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+
+    @Override
+    public String toString() {
+        return "CommentResponseDTO{" +
+                "content='" + content + '\'' +
+                ", authorId=" + authorId +
+                ", authorName='" + authorName + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof CommentResponseDTO that)) return false;
+        if (!super.equals(object)) return false;
+        return Objects.equals(content, that.content) && Objects.equals(authorId, that.authorId) && Objects.equals(authorName, that.authorName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), content, authorId, authorName);
     }
 }

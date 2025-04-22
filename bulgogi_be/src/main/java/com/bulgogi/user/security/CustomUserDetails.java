@@ -58,4 +58,9 @@ public class CustomUserDetails implements UserDetails {
         // 계정이 활성화되었음을 나타냄
         return true;
     }
+
+    public User getUser() {
+        return this.user;
+    }
+
 }

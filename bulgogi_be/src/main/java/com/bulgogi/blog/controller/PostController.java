@@ -1,107 +1,196 @@
 package com.bulgogi.blog.controller;
 
-import com.bulgogi.blog.dto.PostRequestDTO;
+import com.bulgogi.common.response.ApiResponse;
+import com.bulgogi.blog.dto.PostCreateRequestDTO;
 import com.bulgogi.blog.dto.PostResponseDTO;
+import com.bulgogi.blog.dto.PostUpdateRequestDTO;
+import com.bulgogi.blog.dto.PostImageRequestDTO;
 import com.bulgogi.blog.service.PostService;
-import com.bulgogi.user.exception.UserNotFoundException;
+import com.bulgogi.user.dto.UserResponseDTO;
 import com.bulgogi.user.model.User;
-import com.bulgogi.user.repository.UserRepository;
+import com.bulgogi.user.security.CustomUserDetails;
 import com.bulgogi.user.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Set;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/api/blog/posts")
 public class PostController {
 
     private final PostService postService;
     private final UserService userService;
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(UserService.class);
-    private final UserRepository userRepository;
-
-    public PostController(PostService postService, UserService userService, UserRepository userRepository) {
+    @Autowired
+    public PostController(PostService postService, UserService userService) {
         this.postService = postService;
         this.userService = userService;
-        this.userRepository = userRepository;
     }
 
     /**
-     * 게시글 작성: 사용자가 게시글을 작성할 수 있도록 처리.
-     * 게시글 단건 조회: 사용자가 게시글을 조회할 수 있도록 처리.
-     * 게시글 전체 조회: 사용자가 작성한 게시글 리스트를 조회할 수 있도록 처리.
-     * 게시글 수정: 기존 게시글을 수정할 수 있도록 처리.
-     * 게시글 삭제: 사용자가 게시글을 삭제할 수 있도록 처리.
-     *
-     * 16:24 2025-03-10
-     *
+     * 게시글 생성
      */
-
-    // 게시글 작성
     @PostMapping
-    public ResponseEntity<PostResponseDTO> createPost(
-            @RequestBody PostRequestDTO postRequestDTO,
-            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<ApiResponse<PostResponseDTO>> createPost(
+            @Valid @RequestBody PostCreateRequestDTO requestDTO,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        // UserDetails가 null인지 확인
-        if (userDetails == null) {
-            throw new RuntimeException("UserDetails가 null입니다. 인증이 제대로 이루어졌는지 확인하세요.");
-        }
+        User currentUser = customUserDetails.getUser();
 
-        // UserDetails에서 username 가져오기
-        String username = userDetails.getUsername();
-        System.out.println("현재 인증된 사용자 이름: " + username);
-
-        // username이 null이거나 빈 문자열인지 확인
-        if (username == null || username.isEmpty()) {
-            throw new RuntimeException("userId 변환 오류: userDetails.getUsername() 값이 없습니다.");
-        }
-
-        try {
-            // username을 통해 사용자 정보 조회
-            User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다: " + username));
-
-            // 게시글 생성
-            PostResponseDTO postResponseDTO = postService.createPost(postRequestDTO, userDetails);
-            return ResponseEntity.status(HttpStatus.CREATED).body(postResponseDTO);
-        } catch (Exception e) {
-            throw new RuntimeException("사용자 ID 또는 게시글 작성에 문제가 발생했습니다: " + e.getMessage());
-        }
+        PostResponseDTO postResponseDTO = postService.createPost(requestDTO, currentUser);
+        return new ResponseEntity<>(
+                ApiResponse.success("게시글이 성공적으로 생성되었습니다.", postResponseDTO),
+                HttpStatus.CREATED
+        );
     }
 
-
-    // 게시글 단건 조회
-    @GetMapping("/{postId}")
-    public ResponseEntity<PostResponseDTO> getById(@PathVariable Long postId) {
-        return ResponseEntity.ok(postService.getPostById(postId));
-    }
-
-    // 게시글 전체 조회
-    @GetMapping
-    public ResponseEntity<List<PostResponseDTO>> getAllPosts() {
-        return ResponseEntity.ok(postService.getAllPosts());
-    }
-
-    // 게시글 수정 (자기 자신의 게시글만 수정 되도록 수정 필요 2025-03-11)
+    /**
+     * 게시글 수정
+     */
     @PutMapping("/{postId}")
-    public ResponseEntity<PostResponseDTO> updatePost(@PathVariable Long postId, @RequestBody PostRequestDTO postRequestDTO) {
-        return ResponseEntity.ok(postService.updatePost(postId, postRequestDTO));
+    public ResponseEntity<ApiResponse<PostResponseDTO>> updatePost(
+            @PathVariable Long postId,
+            @Valid @RequestBody PostUpdateRequestDTO requestDTO,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        User currentUser = customUserDetails.getUser();
+        PostResponseDTO postResponseDTO = postService.updatePost(postId, requestDTO, currentUser);
+        return ResponseEntity.ok(
+                ApiResponse.success("게시글이 성공적으로 수정되었습니다.", postResponseDTO)
+        );
     }
 
-    // 게시글 삭제 (자기 자신의 게시글만 삭제 되도록 수정 필요 2025-03-11)
+    /**
+     * 게시글 삭제
+     */
     @DeleteMapping("/{postId}")
-    public ResponseEntity<PostResponseDTO> deletePost(@PathVariable Long postId) {
-        postService.deletePost(postId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ApiResponse<Void>> deletePost(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        User currentUser = customUserDetails.getUser();
+        postService.deletePost(postId, currentUser);
+        return ResponseEntity.ok(
+                ApiResponse.success("게시글이 성공적으로 삭제되었습니다.", null)
+        );
+    }
+
+    /**
+     * 게시글 상세 조회
+     */
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResponse<PostResponseDTO>> getPostById(
+            @PathVariable Long postId) {
+
+        PostResponseDTO postResponseDTO = postService.getPostById(postId);
+        return ResponseEntity.ok(
+                ApiResponse.success(postResponseDTO)
+        );
+    }
+
+    /**
+     * 게시글 내용만 조회
+     */
+    @GetMapping("/{postId}/content")
+    public ResponseEntity<ApiResponse<String>> getPostContent(
+            @PathVariable Long postId) {
+
+        String content = postService.getPostContent(postId);
+        return ResponseEntity.ok(
+                ApiResponse.success(content)
+        );
+    }
+
+    /**
+     * 게시글 목록 조회 (필터링 및 페이징)
+     */
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<PostResponseDTO>>> getPosts(
+            @RequestParam(required = false) Long topicId,
+            @RequestParam(required = false) Long folderCategoryId,
+            @RequestParam(required = false) Set<Long> tagIds,
+            @RequestParam(required = false) Long authorId,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<PostResponseDTO> posts = postService.getPosts(
+                topicId, folderCategoryId, tagIds, authorId, sortBy, pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(posts)
+        );
+    }
+
+    /**
+     * 게시글 발행 상태 변경
+     */
+    @PutMapping("/{postId}/publish")
+    public ResponseEntity<ApiResponse<PostResponseDTO>> updatePublishStatus(
+            @PathVariable Long postId,
+            @RequestParam boolean published,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        User currentUser = customUserDetails.getUser();
+        PostResponseDTO postResponseDTO = postService.updatePublishStatus(postId, published, currentUser);
+        String message = published ? "게시글이 발행되었습니다." : "게시글이 비공개로 설정되었습니다.";
+
+        return ResponseEntity.ok(
+                ApiResponse.success(message, postResponseDTO)
+        );
+    }
+
+    /**
+     * 게시글 조회수 조회
+     */
+    @GetMapping("/{postId}/views")
+    public ResponseEntity<ApiResponse<Long>> getViewCount(
+            @PathVariable Long postId) {
+
+        Long viewCount = postService.getViewCount(postId);
+        return ResponseEntity.ok(
+                ApiResponse.success(viewCount)
+        );
+    }
+
+    /**
+     * 사용자별 게시글 목록 조회
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse<Page<PostResponseDTO>>> getUserPosts(
+            @PathVariable Long userId,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        UserResponseDTO user = userService.getUserInfoById(userId);
+
+        Page<PostResponseDTO> posts = postService.getUserPosts(user, pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(posts)
+        );
+    }
+
+    /**
+     * 게시글에 이미지 추가
+     */
+    @PostMapping("/{postId}/images")
+    public ResponseEntity<ApiResponse<PostResponseDTO>> addImagesToPost(
+            @PathVariable Long postId,
+            @Valid @RequestBody PostImageRequestDTO requestDTO,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        User currentUser = customUserDetails.getUser();
+        PostResponseDTO postResponseDTO = postService.addImagesToPost(postId, requestDTO, currentUser);
+        return ResponseEntity.ok(
+                ApiResponse.success("이미지가 게시글에 추가되었습니다.", postResponseDTO)
+        );
     }
 }
-
-

@@ -1,20 +1,21 @@
 package com.bulgogi.blog.dto;
 
-public class CommentRequestDTO {
-    private String content;
-    private Long postId;
-    private Long userId;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-    // Constructor
+import java.util.Objects;
+
+public class CommentRequestDTO {
+
+    @NotBlank(message = "댓글 내용은 필수입니다")
+    @Size(max = 1000, message = "댓글은 1000자 이내로 작성해주세요")
+    private String content;
+
     public CommentRequestDTO() {}
 
-    public CommentRequestDTO(String content, Long postId,  Long userId) {
+    public CommentRequestDTO(String content) {
         this.content = content;
-        this.postId = postId;
-        this.userId = userId;
     }
-
-    // Getter, Setter
 
     public String getContent() {
         return content;
@@ -24,19 +25,21 @@ public class CommentRequestDTO {
         this.content = content;
     }
 
-    public Long getPostId() {
-        return postId;
+    @Override
+    public String toString() {
+        return "CommentRequestDTO{" +
+                "content='" + content + '\'' +
+                '}';
     }
 
-    public void setPostId(Long postId) {
-        this.postId = postId;
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof CommentRequestDTO that)) return false;
+        return Objects.equals(content, that.content);
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUser(Long userId) {
-        this.userId = userId;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(content);
     }
 }

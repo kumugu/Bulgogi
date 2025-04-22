@@ -7,7 +7,7 @@ import AdminPage from "@/pages/user/AdminPage";
 import MyBlogHome from "../pages/MyBlogHome";
 import UserSettings from "@/pages/user/UserSettings";
 import WritePage from "@/pages/Write";
-import TestPage from "@/pages/TestPage";
+import MyBlogHomeDev from "@/pages/MyBlogHom_Dev";
 import BlogHomePage from "@/pages/BlogHome";
 import AboutPage from "@/pages/About";
 import Navbar from "@/components/layout/Navbar";
@@ -31,8 +31,8 @@ const Router = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={ <AboutPage />} />
                 <Route path="/write" element={ <WritePage />} />
-                <Route path="/test-page" element={ <TestPage />} />
                 <Route path="/blog-home" element={ <BlogHomePage />} />
+                <Route path="/my-blog-home-dev" element={ <MyBlogHomeDev />} />
                 
                 {/* 로그인이 필요한 라우트 */}
                 <Route element={<ProtectedRoute />}>

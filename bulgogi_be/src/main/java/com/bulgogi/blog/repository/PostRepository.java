@@ -1,6 +1,8 @@
 package com.bulgogi.blog.repository;
 
+import com.bulgogi.blog.model.FolderCategory;
 import com.bulgogi.blog.model.Post;
+import com.bulgogi.blog.model.Topic;
 import com.bulgogi.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,42 +13,48 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    // 전체 데이터 조회
-    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.category LEFT JOIN FETCH p.tags")
-    List<Post> findAllWithCategoryAndTags();
 
-    // 특정 사용자가 작성한 게시글 목록 (페이징 적용)
+    // 사용자별 게시글 조회
     Page<Post> findByUser(User user, Pageable pageable);
 
-    // 카테고리별 게시글 조회 (페이징 적용)
-    Page<Post> findByCategoryId(Long categoryId, Pageable pageable);
+    // 특정 토픽별 게시글 조회
+    Page<Post> findByTopic(Topic topic, Pageable pageable);
 
-    // 태그별 게시글 조회 (페이징 적용)
-    @Query("SELECT DISTINCT p FROM Post p JOIN p.tags t WHERE t.id = :tagId")
-    Page<Post> findByTagId(@Param("tagId") Long tagId, Pageable pageable);
+    // 특정 폴더 카테고리별 게시글 조회
+    Page<Post> findByFolderCategory(FolderCategory folderCategory, Pageable pageable);
 
-    // 제목 또는 내용에 특정 키워드가 포함된 게시글 검색 (페이징 적용)
-    Page<Post> findByTitleContainingOrContentContaining(String titleKeyword, String contentKeyword, Pageable pageable);
+    // 태그 ID 목록으로 게시글 조회 (JPQL)
+    @Query("SELECT DISTINCT p FROM Post p JOIN p.tags t WHERE t.id IN :tagIds")
+    Page<Post> findByTagIds(@Param("tagIds")Set<Long> tagIds, Pageable pageable);
 
-    // 특정 사용자의 특정 게시글 조회 (소유권 확인 등에 사용)
-    Optional<Post> findByIdAndUser(Long id, User user);
+    // 제목으로 게시글 검색
+    Page<Post> findByTitleContaining(String title, Pageable pageable);
 
-    // 조회수 기준 인기 게시글 조회
-    Page<Post> findAllByOrderByViewsDesc(Pageable pageable);
+    // 토픽과 폴더 카테고리로 게시글 조회
+    Page<Post> findByTopicAndFolderCategory(Topic topic, FolderCategory folderCategory, Pageable pageable);
 
-    // 최신 게시글 조회
-    Page<Post> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    // 발행된 게시글만 조회
+    Page<Post> findByPublishedTrue(Pageable pageable);
 
-    // 조회수 증가 쿼리
+    // 발행된 인기글 조회 (조회수 기준)
+    Page<Post> findByPublishedTrueOrderByViewsDesc(Pageable pageable);
+
+    // 특정 사용자의 발행된 게시글만 조회
+    Page<Post> findByUserAndPublishedTrue(User user, Pageable pageable);
+
+    // 게시글 조회수 업데이트
     @Modifying
-    @Query("UPDATE Post p SET p.views = p.views + 1 WHERE p.id = :postId")
-    void incrementViews(@Param("postId") Long postId);
+    @Query("UPDATE Post p SET p.views = p.views + :increment WHERE p.id = :postId")
+    void incrementViewCount(@Param("postId") Long postId, @Param("increment") Long incremet);
 
-    // 특정 카테고리와 태그를 모두 만족하는 게시글 조회
-    @Query("SELECT p FROM Post p JOIN p.tags t WHERE p.category.id = :categoryId AND t.id = :tagID")
-    Page<Post> findByCategoryIdAndTagId(@Param("categoryId") Long categoryId, @Param("tagId") Long tagId, Pageable pageable);
+    // 태그 및 토픽으로 게시글 필터링
+    @Query("SELECT p FROM Post p JOIN p.tags t WHERE p.topic.id = :topicId AND t.id IN :tagIds AND p.published = true")
+    Page<Post> findByTopicIdAndTagIdsAndPublished(@Param("topicId") Long topicId, @Param("tagIds") Set<Long> tagIds, Pageable pageable);
+
+    // 특정 사용자 게시글 전체 조회
+    List<Post> findAllByUser(User user);
 }

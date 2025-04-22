@@ -1,90 +1,65 @@
 package com.bulgogi.blog.mapper;
 
-import com.bulgogi.blog.dto.PostRequestDTO;
-import com.bulgogi.blog.dto.PostResponseDTO;
-import com.bulgogi.blog.model.Category;
-import com.bulgogi.blog.model.Post;
-import com.bulgogi.blog.model.Tag;
+import com.bulgogi.blog.dto.*;
+import com.bulgogi.blog.model.*;
 import com.bulgogi.user.model.User;
-import org.hibernate.Hibernate;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import javax.annotation.PostConstruct;
+
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 public class PostMapper {
 
-    private final ModelMapper modelMapper;
-    private static final Logger logger = LoggerFactory.getLogger(PostMapper.class);
-
-    @Autowired
-    public PostMapper(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
+    public PostResponseDTO toDTO(Post post) {
+        return new PostResponseDTO(
+                post.getId(),
+                post.getCreatedAt(),
+                post.getUpdatedAt(),
+                post.getTitle(),
+                Optional.ofNullable(post.getPostContent()).map(PostContent::getContent).orElse(""),
+                post.getUser().getId(),
+                post.getUser().getUsername(),
+                Optional.ofNullable(post.getTopic()).map(Topic::getId).orElse(null),
+                Optional.ofNullable(post.getTopic()).map(Topic::getName).orElse(null),
+                Optional.ofNullable(post.getFolderCategory()).map(FolderCategory::getId).orElse(null),
+                Optional.ofNullable(post.getFolderCategory()).map(FolderCategory::getName).orElse(null),
+                post.getTags().stream().map(tag -> new TagDTO(tag.getId(), tag.getName())).collect(Collectors.toList()),
+                post.getImages().stream().map(image -> new PostImageDTO(image.getId(), image.getImageUrl())).collect(Collectors.toList()),
+                post.getViews(),
+                post.getCommentCount(),
+                post.isPublished()
+        );
     }
 
-    @PostConstruct
-    public void configureMappings() {
-        logger.info("Configuring ModelMapper mappings...");
+    public Post toEntity(PostCreateRequestDTO dto, User user, Topic topic, FolderCategory folderCategory, Set<Tag> tags) {
+        Post post = new Post();
+        post.setTitle(dto.getTitle());
 
-        modelMapper.getConfiguration()
-                .setAmbiguityIgnored(true)
-                .setMatchingStrategy(MatchingStrategies.STRICT);
+        // postContent 설정
+        PostContent postContent = new PostContent();
+        postContent.setContent(dto.getContent());
+        post.setPostContent(postContent);
 
-        modelMapper.typeMap(Post.class, PostResponseDTO.class).setPostConverter(context -> {
-            Post source = context.getSource();
-            PostResponseDTO destination = context.getDestination();
-
-            if (source.getCategory() != null) {
-                destination.setCategory(source.getCategory().getName());
-            }
-
-            if (source.getTags() != null) {
-                destination.setTags(source.getTags().stream()
-                        .map(Tag::getName)
-                        .collect(Collectors.toList()));
-            }
-
-            return destination;
-        });
-
-        logger.info("ModelMapper mappings configured successfully.");
-    }
-
-    public PostResponseDTO toPostResponseDTO(Post post) {
-        PostResponseDTO dto = new PostResponseDTO();
-        dto.setId(post.getId());
-        dto.setTitle(post.getTitle());
-        dto.setContent(post.getContent());
-
-        // Hibernate.isInitialized() 사용하여 프록시인지 확인 후 접근
-        if (post.getCategory() != null && Hibernate.isInitialized(post.getCategory())) {
-            dto.setCategory(post.getCategory().getName());
-        }
-
-        if (post.getTags() != null && Hibernate.isInitialized(post.getTags())) {
-            dto.setTags(post.getTags().stream()
-                    .map(Tag::getName)
-                    .collect(Collectors.toList()));
-        }
-
-        return dto;
-    }
-
-    public Post toPost(PostRequestDTO postRequestDTO) {
-        return modelMapper.map(postRequestDTO, Post.class);
-    }
-
-    public Post toCreatePost(PostRequestDTO postRequestDTO, Category category, Set<Tag> tags, User user) {
-        Post post = modelMapper.map(postRequestDTO, Post.class);
-        post.setCategory(category);
-        post.setTags(tags);
+        // 필드 설정
         post.setUser(user);
+        post.setTopic(topic);
+        post.setFolderCategory(folderCategory);
+        post.setTags(tags);
+
         return post;
+    }
+
+    public PostDTO fromEntity(Post post) {
+        return new PostDTO(
+                post.getId(),
+                post.getTitle(),
+                Optional.ofNullable(post.getPostContent()).map(PostContent::getContent).orElse(""),
+                post.getUser().getId(),
+                Optional.ofNullable(post.getTopic()).map(Topic::getId).orElse(null),
+                Optional.ofNullable(post.getFolderCategory()).map(FolderCategory::getId).orElse(null),
+                post.getTags().stream().map(Tag::getId).collect(Collectors.toSet())
+        );
     }
 }

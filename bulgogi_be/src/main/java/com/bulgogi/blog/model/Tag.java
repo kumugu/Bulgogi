@@ -2,25 +2,29 @@ package com.bulgogi.blog.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "tags")
+@Table(
+        name = "tags",
+        indexes = {
+                @Index(name = "idx_tag_name", columnList = "name")
+        }
+)
 public class Tag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, length = 100, unique = true)
     private String name;
 
-    @ManyToMany(mappedBy = "tags")
+    @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
     private Set<Post> posts = new HashSet<>();
 
-
-    // Constructor
     public Tag() {}
 
     public Tag(Long id, String name, Set<Post> posts) {
@@ -29,7 +33,8 @@ public class Tag {
         this.posts = posts;
     }
 
-    // Getter, Setter
+    public Tag(String name) {
+    }
 
     public Long getId() {
         return id;
@@ -54,4 +59,6 @@ public class Tag {
     public void setPosts(Set<Post> posts) {
         this.posts = posts;
     }
+
+
 }

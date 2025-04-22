@@ -4,31 +4,25 @@ import com.bulgogi.user.model.User;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "comments")
-@EntityListeners(AuditingEntityListener.class)
+@Table(
+        name = "comments",
+        indexes = {
+                @Index(name = "idx_comment_created_at", columnList = "createdAt"),
+                @Index(name = "idx_comment_post_id", columnList = "post_id"),
+                @Index(name = "idx_commnet_user_id", columnList = "user_id")
+        }
+)
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
@@ -36,19 +30,25 @@ public class Comment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // Constructor
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String content;
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
     public Comment() {}
 
-    public Comment(Long id, String content, LocalDateTime createdAt, LocalDateTime updatedAt, Post post, User user) {
-        this.id = id;
-        this.content = content;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+    public Comment(Post post, User user, String content) {
         this.post = post;
         this.user = user;
+        this.content = content;
+        this.createdAt = LocalDateTime.now();
     }
-
-    // Getter, Setter
 
     public Long getId() {
         return id;
@@ -56,6 +56,22 @@ public class Comment {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getContent() {
@@ -78,23 +94,7 @@ public class Comment {
         return updatedAt;
     }
 
-    public void setUpdateAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public Post getPost() {
-        return post;
-    }
-
-    public void setPost(Post post) {
-        this.post = post;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }
