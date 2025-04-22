@@ -1,5 +1,7 @@
 # Bulgogi API Documentation
 
+**Postman API 문서**: https://documenter.getpostman.com/view/40317640/2sAYdmn8WY
+
 ## Table of Contents
 - [인증 (Authentication)](#인증-authentication)
 - [사용자 관리 (User Management)](#사용자-관리-user-management)
