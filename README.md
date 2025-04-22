@@ -1,109 +1,205 @@
-# Bulgogi
+# Bulgogi Blog Platform
+
+Bulgogi는 사용자가 자신의 블로그를 생성하고, 글을 작성하고, 주제와 태그를 중심으로 콘텐츠를 관리할 수 있도록 하는 확장 가능한 블로그 플랫폼입니다. 이 프로젝트는 콘텐츠 기반 서비스를 위한 백엔드 API 서버로, Spring Boot 기반으로 구축되었습니다.
+
+## Overview
+
+- 사용자 인증 및 권한 관리 (JWT)
+- 사용자별 블로그 생성 및 관리
+- 폴더 기반 카테고리 분류 (개인용 분류)
+- 주제(Topic) 및 태그(Tag) 기반 콘텐츠 분류 (글로벌 분류)
+- 게시글 작성/수정/삭제 및 이미지 첨부 기능
+- 댓글, 좋아요, 팔로우, 알림 시스템
+
+---
+
+## API 문서
+
+- Postman API 문서: [https://documenter.getpostman.com/view/40317640/2sAYdmn8WY](https://documenter.getpostman.com/view/40317640/2sAYdmn8WY)
+
+---
+
+## 기술 스택
+
+### Backend
+
+| 분류 | 기술 |
+|------|------|
+| Language | Java 17 |
+| Framework | Spring Boot |
+| ORM | Spring Data JPA (Hibernate) |
+| Database | MySQL, Redis |
+| 인증 | JWT, Spring Security |
+| Build Tool | Gradle |
+| 문서화 | Postman, Mermaid (ERD) |
+| 배포 대상 | AWS EC2, RDS, S3 (예정) |
+
+### Frontend
+
+| 분류 | 기술 |
+|------|------|
+| Language | TypeScript |
+| Framework | React 19 (React DOM) |
+| Router | React Router v7 |
+| 상태 관리 | Zustand |
+| API 통신 | Axios, React Query (@tanstack/react-query) |
+| 마크다운 | @uiw/react-md-editor |
+| 아이콘 | lucide-react, react-icons, react-feather |
+| 알림 | react-toastify |
+| 스타일링 | Tailwind CSS, tailwindcss-animate |
+| 번들러 | Vite |
+| 정적 검사 | ESLint, TypeScript ESLint |
 
 
-### **프로젝트 시스템 구조: "불고기"**
+---
 
-#### 1. **User Entity**
+## ERD 요약
 
-- 기능
+- 사용자(`users`)는 블로그 홈(`blog_homes`)을 소유
+- 게시글(`posts`)은 특정 블로그와 사용자에 종속
+- 게시글은 폴더형 카테고리(`folder_categories`) 및 주제(`topics`)에 연결 가능
+- 태그(`tags`)는 다대다 관계로 연결(`post_tags`)
+- 댓글(`comments`)은 계층 구조로 구성
+- 게시글별 이미지(`post_images`) 및 콘텐츠(`post_contents`)는 별도 테이블에서 관리
 
-  :
+```mermaid
+erDiagram
+    users {
+        BIGINT id
+        VARCHAR email
+        VARCHAR password_hash
+        VARCHAR username
+        TEXT profile_image
+        TEXT bio
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
 
-  - **이메일, 비밀번호**로 로그인 (JWT 인증 방식 사용)
-  - 사용자 정보 (이메일, 비밀번호, 이름, 프로필 이미지 등)
-  - 유저의 **고유한 블로그 홈 URL** (예: `@kumugu` → `http://bulgogi.com/blogHome/@kumugu`)
-  - **팔로우/팔로잉 관계** (자기 참조 다대다 관계)
-  - **DM**을 통한 개인 메시지 전송 (친구 시스템은 추후 메신저 기능 추가 시 고려)
-  - **구독 결제 시스템**: 무료/유료 모델을 통해 게시글 작성 제한 등의 차별화
+    blog_homes {
+        BIGINT id
+        BIGINT user_id
+        VARCHAR url_slug
+        VARCHAR title
+        TEXT description
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
 
-#### 2. **User Settings Entity**
+    posts {
+        BIGINT id
+        BIGINT user_id
+        BIGINT blog_home_id
+        BIGINT category_id
+        VARCHAR title
+        VARCHAR slug
+        TEXT content
+        TEXT excerpt
+        TEXT featured_image
+        INT reading_time
+        INT view_count
+        BOOLEAN is_premium
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
 
-- 기능
+    tags {
+        BIGINT id
+        VARCHAR name
+    }
 
-  :
+    post_tags {
+        BIGINT post_id
+        BIGINT tag_id
+    }
 
-  - **자기소개** 텍스트 저장
-  - **프로필 이미지** URL 저장
-  - **언어 설정** (예: `en`, `ko`)
-  - **테마 설정** (예: `light`, `dark`)
-  - **이메일 알림 설정** 여부
-  - **비밀번호 변경** 및 **이메일 변경** 기능
+    comments {
+        BIGINT id
+        BIGINT post_id
+        BIGINT user_id
+        BIGINT parent_id
+        TEXT content
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
 
-#### 3. **Markdown Editor Settings Entity**
+    follows {
+        BIGINT follower_id
+        BIGINT following_id
+        TIMESTAMP created_at
+    }
 
-- 기능
+    likes {
+        BIGINT user_id
+        BIGINT post_id
+        TIMESTAMP created_at
+    }
 
-  :
+    categories {
+        BIGINT id
+        BIGINT user_id
+        VARCHAR name
+        TEXT description
+    }
 
-  - **단축키 설정**: 사용자가 설정한 단축키 저장
-  - **편집기 테마 설정** (예: `light`, `dark`)
-  - **자동 저장** 여부
+    notifications {
+        BIGINT id
+        BIGINT user_id
+        BIGINT sender_id
+        ENUM type
+        TEXT content
+        BIGINT reference_id
+        BOOLEAN is_read
+        TIMESTAMP created_at
+    }
 
-#### 4. **BlogHome Entity**
+    subscriptions {
+        BIGINT id
+        BIGINT user_id
+        ENUM plan
+        TIMESTAMP expires_at
+        TIMESTAMP created_at
+    }
 
-- 기능
+    dms {
+        BIGINT id
+        BIGINT sender_id
+        BIGINT receiver_id
+        TEXT message
+        TIMESTAMP created_at
+    }
 
-  :
+    user_activity_logs {
+        BIGINT id
+        BIGINT user_id
+        ENUM activity_type
+        TIMESTAMP created_at
+    }
 
-  - 유저의 고유 블로그 홈 URL 할당 (예: `@username`)
-  - **카테고리**별 게시글 작성 기능
-  - 게시글에 **태그** 추가 (#태그 기능)
-  - 게시글에 대한 **댓글**, **좋아요**, **공유** 기능
-  - **구독 기능**: 다른 유저의 블로그를 구독
+    %% 관계 설정
+    users ||--o| blog_homes : "owns"
+    users ||--o{ posts : "writes"
+    users ||--o{ comments : "writes"
+    users ||--o{ follows : "follows"
+    users ||--o{ likes : "likes"
+    users ||--o{ subscriptions : "subscribes"
+    users ||--o{ dms : "sends"
+    users ||--o{ user_activity_logs : "logs"
 
-#### 5. **Post Entity (게시글)**
+    blog_homes ||--o{ posts : "contains"
 
-- 기능
+    posts ||--o{ comments : "has"
+    posts ||--o{ likes : "receives"
+    posts ||--o{ post_tags : "tagged"
 
-  :
+    tags ||--o{ post_tags : "used in"
 
-  - **게시글 작성 및 편집** (마크다운 편집기 사용)
-  - 각 게시글의 **카테고리**, **태그**, **댓글**, **좋아요**, **공유** 기능 관리
+    comments ||--o{ comments : "replies to"
 
-#### 6. **Follow/Following System (팔로우 시스템)**
+    categories ||--o{ posts : "categorizes"
 
-- 기능
+    notifications ||--o{ users : "notifies"
+```
 
-  :
+---
 
-  - 유저가 **다른 유저를 팔로우**하거나 **팔로우 당하는** 관계 설정
-  - 팔로우/팔로잉 관계를 위한 `Follow` 테이블 (follower_id, following_id)
 
-#### 7. **구독 결제 시스템**
-
-- 기능
-
-  :
-
-  - **무료 모델**: 하루에 작성 가능한 게시글 수 5개 제한
-  - **유료 모델**: 하루에 작성 가능한 게시글 수 50개 제한
-  - 구체적인 결제 상품은 기능 추가 시 구상 예정
-
-#### 8. **DM (Direct Message) System**
-
-- 기능
-
-  :
-
-  - 유저 간 **개인 메시지 전송** 기능
-
-------
-
-### **데이터베이스 설계 예시**
-
-1. **User** 테이블:
-   - `id`, `email`, `password`, `name`, `profile_image_url`, `created_at` 등
-2. **UserSettings** 테이블:
-   - `user_id`, `bio`, `profile_image_url`, `language`, `theme`, `email_notifications`
-3. **MarkdownSettings** 테이블:
-   - `user_id`, `shortcuts` (JSON 형태로 저장), `auto_save`, `editor_theme`
-4. **BlogHome** 테이블:
-   - `user_id`, `home_url`, `created_at`
-5. **Post** 테이블:
-   - `id`, `user_id`, `content`, `category`, `tags`, `created_at`, `updated_at`
-6. **Follow** 테이블:
-   - `follower_id`, `following_id`
-7. **Subscription** 테이블:
-   - `user_id`, `subscription_type`, `created_at`, `expires_at`
-8. **DM** 테이블:
-   - `sender_id`, `receiver_id`, `message`, `created_at`
