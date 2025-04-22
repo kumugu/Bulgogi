@@ -1,121 +1,137 @@
-# Bulgogi API 문서
+# Bulgogi API Documentation
 
-## 목차
+## Table of Contents
 - [인증 (Authentication)](#인증-authentication)
 - [사용자 관리 (User Management)](#사용자-관리-user-management)
 - [공개 사용자 정보 (Public User Information)](#공개-사용자-정보-public-user-information)
-- [블로그 (Blog)](#블로그-blog)
-- [소셜 기능 (Social)](#소셜-기능-social)
-- [결제 (Payment)](#결제-payment)
+- [관리자 권한 (Admin Controls)](#관리자-권한-admin-controls)
+- [블로그 게시글 (Blog Posts)](#블로그-게시글-blog-posts)
+- [게시글 콘텐츠 (Post Content)](#게시글-콘텐츠-post-content)
+- [게시글 이미지 (Post Images)](#게시글-이미지-post-images)
+- [주제 (Topics)](#주제-topics)
+- [태그 (Tags)](#태그-tags)
+- [댓글 (Comments)](#댓글-comments)
+- [폴더/카테고리 (Folders/Categories)](#폴더카테고리-folderscategories)
 
 ## 인증 (Authentication)
 
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
+| 메서드 | 엔드포인트 | 설명 | 요청 본문 |
 |--------|------------|------|-----------|
-| POST | `/api/auth/register` | 회원가입 | - |
-| POST | `/api/auth/login` | 로그인 | - |
-| POST | `/api/auth/refresh` | 토큰 갱신 | - |
-| POST | `/api/auth/logout` | 로그아웃 | - |
+| POST | `/api/users/register` | 사용자 등록 | 이메일, 비밀번호, 사용자명, 프로필 이미지, 소개 글 포함 |
+| POST | `/api/users/login` | 사용자 로그인 | 이메일, 비밀번호 |
+| POST | `/api/users/refresh-token` | 토큰 갱신 | 없음 (Authorization 헤더에 Bearer 토큰 포함) |
+| POST | `/api/users/logout` | 로그아웃 | 없음 (Authorization 헤더에 Bearer 토큰 포함) |
 
 ## 사용자 관리 (User Management)
 
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
+| 메서드 | 엔드포인트 | 설명 | 요청 본문 |
 |--------|------------|------|-----------|
-| GET | `/api/users/me` | 내 정보 조회 | - | 
-| PATCH | `/api/users/me` | 내 정보 수정 | - |
-| PATCH | `/api/users/me/password` | 비밀번호 변경 | - |
-| DELETE | `/api/users/me` | 회원 탈퇴 | - |
+| GET | `/api/users/my-info` | 내 프로필 조회 | 없음 | 
+| GET | `/api/users/my-info/bio` | 내 소개 글 조회 | 없음 |
+| PUT | `/api/users/my-info/bio` | 내 소개 글 수정 | 소개 글 내용 |
+| GET | `/api/users/profile-image` | 프로필 이미지 조회 | 없음 |
+| PUT | `/api/users/profile-image` | 프로필 이미지 수정 | 파일 첨부 |
+| DELETE | `/api/users/profile-image` | 프로필 이미지 삭제 | 없음 |
+| PUT | `/api/users/change-password` | 비밀번호 변경 | 기존 비밀번호, 새 비밀번호 |
+| DELETE | `/api/users/delete-my-account` | 내 계정 삭제 | 없음 |
 
 ## 공개 사용자 정보 (Public User Information)
 
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
+| 메서드 | 엔드포인트 | 설명 | 요청 본문 |
 |--------|------------|------|-----------|
-| GET | `/api/users/{username}` | 특정 유저 정보 조회 | - |
+| GET | `/api/users/email/{email}` | 이메일로 사용자 조회 | 없음 |
+| GET | `/api/users/username/{username}` | 사용자명으로 사용자 조회 | 없음 |
+| GET | `/api/users/info/id/{id}` | ID로 사용자 조회 | 없음 |
 
-## 블로그 (Blog)
+## 관리자 권한 (Admin Controls)
 
-### 블로그 홈
-
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
+| 메서드 | 엔드포인트 | 설명 | 요청 본문 |
 |--------|------------|------|-----------|
-| POST | `/api/blogs` | 블로그 홈 생성 | - |
-| GET | `/api/blogs/me` | 내 블로그 홈 조회 | - |
-| GET | `/api/blogs/{blog_slug}` | 특정 블로그 홈 조회 | - |
-| PATCH | `/api/blogs/{blog_slug}` | 블로그 홈 수정 | - |
-| DELETE | `/api/blogs/{blog_slug}` | 블로그 홈 삭제 | - |
+| PUT | `/api/admin/users/{userId}/update` | 사용자 정보 수정 | 사용자명, 소개 글, 프로필 이미지, 삭제 여부 포함 |
 
-### 게시글 관리 (Post Management)
+## 블로그 게시글 (Blog Posts)
 
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
+| 메서드 | 엔드포인트 | 설명 | 요청 본문 |
 |--------|------------|------|-----------|
-| POST | `/api/posts` | 게시글 작성 | - |
-| GET | `/api/posts` | 게시글 목록 조회 | - |
-| GET | `/api/posts/{post_slug}` | 특정 게시글 조회 | - |
-| PATCH | `/api/posts/{post_slug}` | 게시글 수정 | - |
-| DELETE | `/api/posts/{post_slug}` | 게시글 삭제 | - |
+| POST | `/api/blog/posts` | 게시글 작성 | 게시글 데이터 |
+| PUT | `/api/blog/posts/{postId}` | 게시글 수정 | 게시글 데이터 |
+| DELETE | `/api/blog/posts/{postId}` | 게시글 삭제 | 없음 |
+| GET | `/api/blog/posts/{postId}` | 게시글 조회 | 없음 |
+| GET | `/api/blog/posts/{postId}/content` | 게시글 콘텐츠 조회 | 없음 |
+| GET | `/api/blog/posts` | 게시글 목록 조회 | 필터 및 페이지네이션 쿼리 |
+| PUT | `/api/blog/posts/{postId}/publish` | 게시글 발행 상태 수정 | 발행 여부 |
+| GET | `/api/blog/posts/{postId}/views` | 게시글 조회수 조회 | 없음 |
+| GET | `/api/blog/posts/user/{userId}` | 사용자별 게시글 조회 | 없음 |
+| POST | `/api/blog/posts/{postId}/images` | 게시글 이미지 추가 | 이미지 파일 첨부 |
 
-## 소셜 기능 (Social)
+## 게시글 콘텐츠 (Post Content)
 
-### 댓글 (Comment)
-
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
+| 메서드 | 엔드포인트 | 설명 | 요청 본문 |
 |--------|------------|------|-----------|
-| POST | `/api/posts/{post_slug}/comments` | 댓글 작성 | - |
-| GET | `/api/posts/{post_slug}/comments` | 게시글의 댓글 조회 | - |
-| PATCH | `/api/comments/{comment_id}` | 댓글 수정 | - |
-| DELETE | `/api/comments/{comment_id}` | 댓글 삭제 | - |
+| GET | `/api/blog/posts/{postId}/post-content` | 게시글 콘텐츠 조회 | 없음 |
+| PUT | `/api/blog/posts/{postId}/post-content` | 게시글 콘텐츠 수정 | 콘텐츠 데이터 |
+| POST | `/api/blog/posts/{postId}/post-content` | 게시글 콘텐츠 저장 | 콘텐츠 데이터 |
+| DELETE | `/api/blog/posts/{postId}/post-content` | 게시글 콘텐츠 삭제 | 없음 |
 
-### 좋아요 (Like)
+## 게시글 이미지 (Post Images)
 
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
+| 메서드 | 엔드포인트 | 설명 | 요청 본문 |
 |--------|------------|------|-----------|
-| POST | `/api/posts/{post_slug}/like` | 게시글 좋아요 | - |
-| DELETE | `/api/posts/{post_slug}/like` | 게시글 좋아요 취소 | - |
-| POST | `/api/comments/{comment_id}/like` | 댓글 좋아요 | - |
-| DELETE | `/api/comments/{comment_id}/like` | 댓글 좋아요 취소 | - |
+| POST | `/api/posts/{postId}/images-upload` | 게시글 이미지 업로드 | 이미지 파일 첨부 |
+| GET | `/api/posts/{postId}/images-upload` | 게시글 이미지 조회 | 없음 |
+| GET | `/api/posts/{postId}/images-upload/check` | 이미지 URL 존재 여부 확인 | 쿼리 파라미터 |
+| GET | `/api/posts/{postId}/images-upload/url` | URL로 이미지 조회 | 쿼리 파라미터 |
+| DELETE | `/api/posts/{postId}/images-upload/{imageId}` | 특정 이미지 삭제 | 없음 |
+| DELETE | `/api/posts/{postId}/images-upload` | 모든 이미지 삭제 | 없음 |
 
-### 팔로우 (Follow)
+## 주제 (Topics)
 
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
+| 메서드 | 엔드포인트 | 설명 | 요청 본문 |
 |--------|------------|------|-----------|
-| POST | `/api/users/{user_id}/follow` | 사용자 팔로우 | - |
-| DELETE | `/api/users/{user_id}/follow` | 사용자 언팔로우 | - |
-| GET | `/api/users/me/following` | 팔로잉 목록 조회 | - |
-| GET | `/api/users/me/followers` | 팔로워 목록 조회 | - |
+| POST | `/api/blog/topics` | 주제 생성 | 주제 데이터 |
+| PUT | `/api/blog/topics/{topicId}` | 주제 수정 | 주제 데이터 |
+| DELETE | `/api/blog/topics/{topicId}` | 주제 삭제 | 없음 |
+| GET | `/api/blog/topics` | 모든 주제 조회 | 없음 |
+| GET | `/api/blog/topics/active` | 활성화된 주제 조회 | 없음 |
+| GET | `/api/blog/topics/{topicId}/posts` | 주제별 게시글 조회 | 없음 |
+| GET | `/api/blog/topics/popular` | 인기 주제 조회 | 없음 |
+| GET | `/api/blog/topics/{topicId}` | 주제 상세 조회 | 없음 |
 
-### 다이렉트 메시지 (Direct Message)
+## 태그 (Tags)
 
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
+| 메서드 | 엔드포인트 | 설명 | 요청 본문 |
 |--------|------------|------|-----------|
-| POST | `/api/dms` | DM 전송 | - |
-| GET | `/api/dms` | DM 목록 조회 | - |
-| GET | `/api/dms/{user_id}` | 특정 유저와의 DM 조회 | - |
-| DELETE | `/api/dms/{message_id}` | DM 삭제 | - |
+| POST | `/api/blog/tags/tags` | 태그 생성 | 태그 데이터 |
+| POST | `/api/blog/tags/batch` | 배치 태그 생성/조회 | 태그 이름 배열 |
+| GET | `/api/blog/tags/suggestions` | 태그 추천 | 부분 이름 쿼리 |
+| GET | `/api/blog/tags` | 모든 태그 조회 | 페이지네이션 쿼리 |
+| GET | `/api/blog/tags/popular` | 인기 태그 조회 | 없음 |
+| GET | `/api/blog/tags/name/{name}` | 이름으로 태그 조회 | 없음 |
+| GET | `/api/blog/tags/{id}` | ID로 태그 조회 | 없음 |
 
-### 알림 (Notification)
+## 댓글 (Comments)
 
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
+| 메서드 | 엔드포인트 | 설명 | 요청 본문 |
 |--------|------------|------|-----------|
-| GET | `/api/notifications` | 내 알림 목록 조회 | - |
-| PATCH | `/api/notifications/{notification_id}` | 특정 알림 읽음 처리 | - |
-| DELETE | `/api/notifications/{notification_id}` | 특정 알림 삭제 | - |
+| POST | `/api/blog/comments/posts/{postId}` | 게시글에 댓글 추가 | 댓글 데이터 |
+| PUT | `/api/blog/comments/{commentId}` | 댓글 수정 | 댓글 데이터 |
+| DELETE | `/api/blog/comments/{commentId}` | 댓글 삭제 | 없음 |
+| GET | `/api/blog/comments/posts/{postId}` | 게시글 댓글 조회 | 없음 |
+| GET | `/api/blog/comments/users/{userId}` | 사용자 댓글 조회 | 없음 |
+| GET | `/api/blog/comments/{commentId}` | 특정 댓글 조회 | 없음 |
 
-## 결제 (Payment)
+## 폴더/카테고리 (Folders/Categories)
 
-### 구독 (Subscription)
-
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
+| 메서드 | 엔드포인트 | 설명 | 요청 본문 |
 |--------|------------|------|-----------|
-| POST | `/api/subscriptions` | 구독 신청 | - |
-| GET | (엔드포인트 없음) | 내 구독 | - |
-| PATCH | `/api/subscriptions` | 구독 플랜 변경 | - |
-| DELETE | `/api/subscriptions` | 구독 취소 | - |
-
-### 결제 관리 (Payments)
-
-| 메소드 | 엔드포인트 | 설명 | 요청 본문 |
-|--------|------------|------|-----------|
-| POST | `/api/payments` | 결제 요청 | - |
-| GET | `/api/payments/history` | 결제 내역 조회 | - |
-| GET | `/api/payments/{payment_id}` | 결제 상세 조회 | - |
-| POST | `/api/payments/{payment_id}/cancel` | 결제 취소 | - |
+| POST | `/api/blog/folders` | 루트 폴더 생성 | 폴더 데이터 |
+| POST | `/api/blog/folders/{parentId}/subfolders` | 하위 폴더 생성 | 폴더 데이터 |
+| PUT | `/api/blog/folders/{folderId}` | 폴더 이름 수정 | 이름 데이터 |
+| DELETE | `/api/blog/folders/{folderId}` | 폴더 삭제 | 없음 |
+| GET | `/api/blog/folders/{folderId}` | 단일 폴더 조회 | 없음 |
+| GET | `/api/blog/folders/all` | 모든 사용자 폴더 조회 | 없음 |
+| GET | `/api/blog/folders/root` | 루트 폴더 조회 | 없음 |
+| GET | `/api/blog/folders/{parentId}/subfolders` | 하위 폴더 조회 | 없음 |
+| PUT | `/api/blog/folders/order` | 폴더 순서 변경 | 폴더 ID 및 위치 |
+| GET | `/api/blog/folders/hierarchy` | 폴더 계층 조회 | 없음 |
+| PUT | `/api/blog/folders/{folderId}/move/{newParentId}` | 폴더 이동 | 없음 |
